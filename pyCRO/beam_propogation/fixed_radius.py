@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:47:37
 @LastEditors: Hejun Xie
-@LastEditTime: 2020-07-16 10:58:00
+@LastEditTime: 2020-07-16 11:00:34
 '''
 
 # unit test import
@@ -17,7 +17,7 @@ import numpy as np
 from pyCRO.constants import global_constants as constants
 from pyCRO.utilities import get_earth_radius
 
-def _ref_4_3(range_vec, elevation_angle, coords_radar):
+def fixed_radius_(range_vec, elevation_angle, coords_radar):
     '''
     Computes the trajectory of a radar beam along a specified radial wwith
     the simple 4/3 earth radius model (see Doviak and Zrnic, p.21)
@@ -60,10 +60,10 @@ def _ref_4_3(range_vec, elevation_angle, coords_radar):
 
 # unit tests
 if __name__ == "__main__":
-    range_vec=np.array([0, 500, 1000, 1500, 2000])
-    elevation_angle=[1.0]
-    coords_radar=[120, 30, 100]
-    s, h, e =  _ref_4_3(range_vec, elevation_angle, coords_radar)
+    range_vec = np.array([0, 500, 1000, 1500, 2000])
+    elevation_angle = [1.0]
+    coords_radar = [120, 30, 100]
+    s, h, e =  fixed_radius_(range_vec, elevation_angle, coords_radar)
     print(s)
     print(h)
     print(e)

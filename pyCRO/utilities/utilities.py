@@ -4,7 +4,7 @@ throughout the radar operator
 @Author: Hejun Xie
 @Date: 2020-07-16 10:06:10
 @LastEditors: Hejun Xie
-@LastEditTime: 2020-07-16 10:17:20
+@LastEditTime: 2020-07-16 12:27:00
 '''
 
 
@@ -13,6 +13,7 @@ import numpy as np
 np.seterr(divide='ignore') # Disable divide by zero error
 from textwrap import dedent
 
+BASIC_TYPES = [float, int, str]
 
 class Range(object):
     def __init__(self,x0,x1):
