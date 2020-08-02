@@ -4,7 +4,7 @@ throughout the radar operator
 @Author: Hejun Xie
 @Date: 2020-07-16 10:06:10
 @LastEditors: Hejun Xie
-@LastEditTime: 2020-07-16 12:27:00
+@LastEditTime: 2020-08-02 15:27:08
 '''
 
 
@@ -12,6 +12,10 @@ throughout the radar operator
 import numpy as np
 np.seterr(divide='ignore') # Disable divide by zero error
 from textwrap import dedent
+
+import os
+import pickle
+from functools import wraps 
 
 BASIC_TYPES = [float, int, str]
 
@@ -133,3 +137,40 @@ def get_earth_radius(latitude):
     num = ((a** 2 * np.cos(latitude)) ** 2 + (b ** 2 * np.sin(latitude)) ** 2)
     den = ((a * np.cos(latitude)) ** 2+(b * np.sin(latitude)) ** 2)
     return np.sqrt(num / den)
+
+class DATAdecorator(object):
+    def __init__(self, workdir, pickle_speedup, pickle_filename):
+        self.workdir = workdir
+        self.pickle_speedup = pickle_speedup
+        self.pickle_filename = pickle_filename
+    
+    def __call__(self, worker):
+        @wraps(worker)
+        def wrapped_worker(*args, **kwargs):
+            if not self.pickle_speedup \
+                or not os.path.exists(self.pickle_filename):
+                cdir = os.getcwd()
+                os.chdir(self.workdir)
+                DATA = worker(*args, **kwargs)
+                os.chdir(cdir)
+                self.pickle_dump(DATA)
+            else:
+                DATA = self.pickle_load()           
+            return DATA
+        return wrapped_worker
+            
+    def pickle_dump(self, DATA):
+        print('Dump data at {}'.format(self.pickle_filename))
+        makenewdir(os.path.dirname(self.pickle_filename))
+        with open(self.pickle_filename, "wb") as f:
+            pickle.dump(DATA, f)
+
+    def pickle_load(self):
+        print('Load data at {}'.format(self.pickle_filename))
+        with open(self.pickle_filename, "rb") as f:
+            DATA = pickle.load(f)
+        return DATA
+
+def makenewdir(mydir):
+    if not os.path.exists(mydir):
+        os.system("mkdir {}".format(mydir))
