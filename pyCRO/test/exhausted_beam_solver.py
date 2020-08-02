@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-08-02 12:46:24
 @LastEditors: Hejun Xie
-@LastEditTime: 2020-08-02 16:05:31
+@LastEditTime: 2020-08-02 17:01:13
 '''
 
 # unit test import
@@ -37,8 +37,8 @@ def get_she():
 
 if __name__ == "__main__":
     
-    range_vec = np.arange(0, 50*1000, 500)
-    elevation_angles = [1.0]
+    range_vec = np.arange(0, 100*1000, 500)
+    elevation_angles = [0.2]
     azimuth_angle = 120
     coords_radar = [27.9, 120.8, 200]
     
@@ -47,3 +47,21 @@ if __name__ == "__main__":
     print(h1)
     print(h2)
     print(h3)
+
+    plt.rcParams['font.family'] = 'serif'
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    ax.set_title('Beam Track e={:4.1f}'.format(elevation_angles[0])+r'$^\circ$')
+
+    ax.plot(s1, h1, color='k', label='43ERM')
+    ax.plot(s2, h2, color='r', label='(Zeng, 2014) Simplified solver')
+    ax.plot(s3, h3, color='b', label='(Zeng, 2014) Exhausted solver')
+    
+    ax.set_xlabel('Distance [m]', fontsize=12)
+    ax.set_ylabel('Height [m]', fontsize=12)
+
+    ax.legend(frameon=False)
+    
+    plt.savefig('./beam_track.png', dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    
