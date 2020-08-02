@@ -4,7 +4,7 @@ for the trajectory of the radar beam
 @Author: Hejun Xie
 @Date: 2020-07-16 11:48:54
 @LastEditors: Hejun Xie
-@LastEditTime: 2020-07-16 16:54:04
+@LastEditTime: 2020-08-02 11:17:59
 '''
 
 # unit test import
@@ -109,11 +109,11 @@ def ODEZeng2014(range_vec, elevation_angle, coords_radar, N):
     
     # Get refractive index profile from refractivity estimated from NWP variables
     # data (Time, south_north, west_east)
-    n_vert_profile = 1 + (N.data[:,int(np.round(pos_radar_bin[0])),
-                             int(np.round(pos_radar_bin[1]))]) * 1E-6
+    n_vert_profile = 1 + (N.data[:,int(np.round(pos_radar_bin[1])),
+                             int(np.round(pos_radar_bin[0]))]) * 1E-6
     # Get corresponding altitudes
-    h = N.attributes['z-levels'][:,int(np.round(pos_radar_bin[0])),
-                                int(np.round(pos_radar_bin[1]))]
+    h = N.attributes['z-levels'][:,int(np.round(pos_radar_bin[1])),
+                                int(np.round(pos_radar_bin[0]))]
 
     # Get earth radius at radar latitude
     RE = get_earth_radius(coords_radar[0])
