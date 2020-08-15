@@ -3,8 +3,8 @@
 in the method of Zeng and Blahak (2014)
 @Author: Hejun Xie
 @Date: 2020-08-02 08:31:04
-@LastEditors: Hejun Xie
-@LastEditTime: 2020-08-02 12:44:12
+LastEditors: Hejun Xie
+LastEditTime: 2020-08-09 16:28:20
 '''
 
 # unit test import
@@ -158,7 +158,7 @@ def ODEZeng2014_exhausted(range_vec, elevation_angles, azimuth_angle, coords_rad
     s, h, e = [], [], []
     for elevation_angle in elevation_angles:
         ks, kh, ke = _beam_solver(range_vec, coords_radar, n, b, topo, elevation_angle, RE)
-        s.append(ks); h.append(kh), e.append(ke)
+        s.append(ks); h.append(kh); e.append(ke)
     
     return s, h, e
 
