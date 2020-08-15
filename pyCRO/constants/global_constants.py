@@ -2,12 +2,16 @@
 @Description: global constants for pyCRO
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
-@LastEditors: Hejun Xie
-@LastEditTime: 2020-07-16 10:03:21
+LastEditors: Hejun Xie
+LastEditTime: 2020-08-15 15:58:54
 '''
 
+# Global import
 import numpy as np
 np.seterr(divide='ignore') # Disable divide by zero error
+
+# Local import
+from pyCRO.config.cfg import CONFIG
 
 
 '''
@@ -50,6 +54,12 @@ class Constant_class(object):
         self.KE = 4./3.
         self.MAX_MODEL_HEIGHT = 35000
         self.T0 = 273.15
+
+        # secondary parameters
+        self.RANGE_RADAR=np.arange(
+            CONFIG['radar']['radial_resolution']/2.,
+            CONFIG['radar']['range'],
+            CONFIG['radar']['radial_resolution'])
 
 
 global_constants = Constant_class()

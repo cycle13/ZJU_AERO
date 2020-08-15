@@ -3,8 +3,8 @@
 throughout the radar operator
 @Author: Hejun Xie
 @Date: 2020-07-16 10:06:10
-@LastEditors: Hejun Xie
-@LastEditTime: 2020-08-02 15:27:08
+LastEditors: Hejun Xie
+LastEditTime: 2020-08-15 11:43:27
 '''
 
 
@@ -137,6 +137,70 @@ def get_earth_radius(latitude):
     num = ((a** 2 * np.cos(latitude)) ** 2 + (b ** 2 * np.sin(latitude)) ** 2)
     den = ((a * np.cos(latitude)) ** 2+(b * np.sin(latitude)) ** 2)
     return np.sqrt(num / den)
+
+
+def nansum_arr(x,y, cst = 0):
+    """
+    Sums up two arrays with possibly different shapes, by padding them before
+    with zeros so they have the same dimensions. Ignores NaN values (they
+    are treated as zeros)
+
+    Args:
+        x: first array
+        y: second array
+    Returns:
+        The summed up array
+    """
+    x = np.array(x)
+    y = np.array(y)
+
+    diff = np.array(x.shape) - np.array(y.shape)
+    pad_1 = []
+    pad_2 = []
+    for d in diff:
+        if d < 0:
+            pad_1.append((0,-d))
+            pad_2.append((0,0))
+        else:
+            pad_2.append((0,d))
+            pad_1.append((0,0))
+
+    x = np.pad(x, pad_1, 'constant', constant_values = cst)
+    y = np.pad(y, pad_2, 'constant', constant_values = cst)
+
+    z = np.nansum([x,y],axis=0)
+    return z
+
+def sum_arr(x,y, cst = 0):
+    """
+    Sums up two arrays with possibly different shapes, by padding them before
+    with zeros so they have the same dimensions
+
+    Args:
+        x: first array
+        y: second array
+    Returns:
+        The summed up array
+    """
+    diff = np.array(x.shape) - np.array(y.shape)
+    pad_1 = []
+    pad_2 = []
+    for d in diff:
+        if d < 0:
+            pad_1.append((0,-d))
+            pad_2.append((0,0))
+        else:
+            pad_2.append((0,d))
+            pad_1.append((0,0))
+
+
+    x = np.pad(x,pad_1,'constant',constant_values=cst)
+    y = np.pad(y,pad_2,'constant',constant_values=cst)
+
+    z = np.sum([x,y],axis=0)
+
+    return z
+
 
 class DATAdecorator(object):
     def __init__(self, workdir, pickle_speedup, pickle_filename):
