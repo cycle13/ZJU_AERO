@@ -3,8 +3,8 @@
 and checks if entered values are valid
 @Author: Hejun Xie
 @Date: 2020-07-16 10:10:37
-@LastEditors: Hejun Xie
-@LastEditTime: 2020-07-16 12:26:18
+LastEditors: Hejun Xie
+LastEditTime: 2020-08-15 21:34:24
 '''
 
 
@@ -168,7 +168,7 @@ def init(options_file):
     CONFIG = None
     try:
         with open(options_file, 'r') as ymlfile:
-            CONFIG = yaml.load(ymlfile)
+            CONFIG = yaml.load(ymlfile, Loader=yaml.SafeLoader)
     except Exception as e:
         CONFIG = copy.deepcopy(DEFAULTS)
         msg = '''

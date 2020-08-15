@@ -1,10 +1,10 @@
 '''
 Description: interpolatiom.py: Provides routines for the trilinear interpolation of
-COSMO variables to the radar gates
+model variables to the radar gates
 Author: Hejun Xie
 Date: 2020-08-15 11:07:01
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-15 16:56:31
+LastEditTime: 2020-08-15 22:00:55
 '''
 
 # unit test import
@@ -63,9 +63,9 @@ def integrate_radials(list_subradials):
     '''
     Once averaged , the meaning of the mask is the following
     mask == -1 : all subradials are below topography
-    mask == 1 : all subradials are above COSMO top
-    mask > 0 : at least one subradials is above COSMO top
-    We will keep only gates where no subradials is above COSMO top and at least
+    mask == 1 : all subradials are above model top
+    mask > 0 : at least one subradials is above model top
+    We will keep only gates where no subradials is above model top and at least
     one subradials is above topography
     '''
     mask /= float(num_subradials)
@@ -89,13 +89,13 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
     Interpolates a radar radial using a specified quadrature and outputs
     a list of subradials
     Args:
-        dic_variables: dictionary containing the COSMO variables to be
+        dic_variables: dictionary containing the model variables to be
             interpolated
         azimuth: the azimuth angle in degrees (phi) of the radial
         elevation: the elevation angle in degrees (theta) of the radial
         N : if the differential refraction scheme by Zeng and Blahak (2014) is
             used, the refractivity of the atmosphere must be provided as an
-            additional COSMO variable
+            additional model variable
         list_refraction : To save time, a list of (s,h,e) tuples corresponding
             to the dist at ground, height above ground and incident elev. ang.
             for all quadrature points (output of atmospheric refraction)
@@ -111,13 +111,16 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
     '''
 
     list_variables = dic_variables.values()
-    keys = dic_variables.keys()
+    keys = list(dic_variables.keys())
 
     # Get options
-    from cosmo_pol.config.cfg import CONFIG
+    from pyCRO.config.cfg import CONFIG
     bandwidth_3dB = CONFIG['radar']['3dB_beamwidth']
     integration_scheme = CONFIG['integration']['scheme']
     refraction_method = CONFIG['refraction']['scheme']
+
+    print('refraction: {}'.format(refraction_method))
+    print('integration: {}'.format(integration_scheme))
     
     # Calculate quadrature weights
     if integration_scheme == 1: # Classical single gaussian scheme
@@ -185,7 +188,7 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
                 # (same mask for all variables)
                 if k == 0:
                     '''
-                    mask = 1 : interpolated pt is above COSMO top
+                    mask = 1 : interpolated pt is above model top
                     mask = -1 : intepolated pt is below topography
                     mask = 0 : interpolated pt is ok
                     '''
@@ -227,7 +230,7 @@ def trilin_interp_radial_WRF(list_vars, azimuth, distances_profile, heights_prof
     """
 
     # Get position of virtual radar from user configuration
-    from cosmo_pol.config.cfg import CONFIG
+    from pyCRO.config.cfg import CONFIG
     radar_pos = CONFIG['radar']['coords']
 
 
@@ -292,7 +295,7 @@ def trilin_interp_radial_WRF(list_vars, azimuth, distances_profile, heights_prof
         rad_interp_values = np.zeros(len(distances_profile),)*float('nan')
         model_data = var.data
 
-        # do some transpose and reverse to fit the cosmo data format
+        # do some transpose and reverse to fit the model data format
         model_heights = np.transpose(model_heights[::-1,...], axes=(0, 2, 1))
         model_data = np.transpose(model_data[::-1,...], axes=(0, 2, 1))
         model_topo = np.transpose(model_topo, axes=(1, 0))
@@ -327,6 +330,3 @@ def trilin_interp_radial_WRF(list_vars, azimuth, distances_profile, heights_prof
 
     return lats_rad, lons_rad, interp_data
 
-# some unit tests
-if __name__ == "__main__":
-    pass

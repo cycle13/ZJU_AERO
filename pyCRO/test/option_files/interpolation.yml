@@ -1,0 +1,15 @@
+radar:
+    coords: [27.9, 120.8, 200]
+    range: 150000
+    radial_resolution: 150
+    PRI: 700
+    FFT_length: 128
+    sensitivity: [-15,10000]
+    3dB_beamwidth: 1.
+    K_squared: 0.93
+refraction:
+    scheme: 2
+integration:
+    scheme: 1
+    nh_GH: 3
+    nv_GH: 3
