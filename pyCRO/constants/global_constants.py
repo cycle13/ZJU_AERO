@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-15 21:53:29
+LastEditTime: 2020-08-19 11:52:01
 '''
 
 # Global import
@@ -34,6 +34,54 @@ MAX_MODEL_HEIGHT: The maximum height above which simulated radar gates are
     need at all to simulate all radar gates (this would make more than
     3000 gates at Ka band...)
 T0: freezing temperature of water in K
+A_AR_LAMBDA_AGG: intercept parameter a in the power-law relation defining the
+    value of the Lambda in the gamma distribution for aggregate aspect-ratios
+    as a function of diameter
+    Lambda(D) = a * D^b
+B_AR_LAMBDA_AGG: exponent parameter b in the power-law relation defining the
+    value of the Lambda in the gamma distribution for aggregate aspect-ratios
+    as a function of diameter
+    Lambda(D) = a * D^b
+A_AR_LAMBDA_GRAU: intercept parameter a in the power-law relation defining the
+    value of the Lambda in the gamma distribution for graupel aspect-ratios
+    as a function of diameter
+    Lambda(D) = a * D^b
+B_AR_LAMBDA_GRAU: exponent parameter b in the power-law relation defining the
+    value of the Lambda in the gamma distribution for graupel aspect-ratios
+    as a function of diameter
+    Lambda(D) = a * D^b
+A_AR_M_AGG: intercept parameter a in the power-law relation defining the
+    value of the M in the gamma distribution for aggregate aspect-ratios
+    as a function of diameter
+    M(D) = a * D^b
+B_AR_M_AGG: exponent parameter b in the power-law relation defining the
+    value of the M in the gamma distribution for aggregate aspect-ratios
+    as a function of diameter
+    M(D) = a * D^b
+A_AR_M_GRAU: intercept parameter a in the power-law relation defining the
+    value of the M in the gamma distribution for graupel aspect-ratios
+    as a function of diameter
+    M(D) = a * D^b
+B_AR_M_GRAU: exponent parameter b in the power-law relation defining the
+    value of the M in the gamma distribution for graupel aspect-ratios
+    as a function of diameter
+    M(D) = a * D^b
+A_CANT_STD_AGG: intercept parameter a in the power-law relation defining the
+    value of the standard deviation of aggregates orientations as a function
+    of the diameter
+    sigma_o(D) = a * D^b
+B_CANT_STD_AGG: exponent parameter b in the power-law relation defining the
+    value of the standard deviation of aggregates orientations as a function
+    of the diameter
+    sigma_o(D) = a * D^b
+A_CANT_STD_GRAU: intercept parameter a in the power-law relation defining the
+    value of the standard deviation of graupels orientations as a function
+    of the diameter
+    sigma_o(D) = a * D^b
+B_CANT_STD_GRAU: exponent parameter b in the power-law relation defining the
+    value of the standard deviation of graupels orientations as a function
+    of the diameter
+    sigma_o(D) = a * D^b
 '''
 
 class Constant_class(object):
@@ -54,6 +102,32 @@ class Constant_class(object):
         self.KE = 4./3.
         self.MAX_MODEL_HEIGHT = 35000
         self.T0 = 273.15
+
+        #,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+        # Power laws based on MASC observations
+        # Axis-ratios:
+        # Aggregates
+        self.A_AR_LAMBDA_AGG =  8.42003348664
+        self.B_AR_LAMBDA_AGG =  -0.568465084269
+        self.A_AR_M_AGG =  0.0527252217284
+        self.B_AR_M_AGG = 0.792594862923
+
+        # Graupel
+        self.A_AR_LAMBDA_GRAU =  1.97869286543
+        self.B_AR_LAMBDA_GRAU =  -0.426770312328
+        self.A_AR_M_GRAU =  0.0743715480794
+        self.B_AR_M_GRAU =  0.672627814141
+
+        # Canting angles std:
+        self.A_CANT_STD_AGG = 30.2393875
+        self.B_CANT_STD_AGG = -0.077397563
+        self.A_CANT_STD_GRAU = 26.65795932
+        self.B_CANT_STD_GRAU = -0.10082787
+
+        #,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+        # some missing global constant
+        self.T_K_SQUARED = 283.15       # 10 Celsius degree
+        self.M_AIR = complex(1, 0)      # Mair ~ 1
 
         # secondary parameters
         self.RANGE_RADAR=np.arange(

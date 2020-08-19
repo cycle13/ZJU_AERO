@@ -4,7 +4,7 @@ throughout the radar operator
 @Author: Hejun Xie
 @Date: 2020-07-16 10:06:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-15 11:43:27
+LastEditTime: 2020-08-19 09:07:19
 '''
 
 
@@ -200,6 +200,23 @@ def sum_arr(x,y, cst = 0):
     z = np.sum([x,y],axis=0)
 
     return z
+
+def vlinspace(a, b, N, endpoint=True):
+    """
+        Vectorized equivalent of numpy's linspace
+
+        Args:
+            a: list of starting points
+            b: list of ending points
+            N: number of linearly spaced values to compute between a and b
+            endpoint: boolean (optional), if True, the endpoint will be included
+                in the resulting series
+        Returns:
+            A matrix, where every column i is a linearly spaced vector between
+                a[i] and b[i]
+    """
+    a, b = np.asanyarray(a), np.asanyarray(b)
+    return a[..., None] + (b-a)[..., None]/(N-endpoint) * np.arange(N)
 
 
 class DATAdecorator(object):
