@@ -8,7 +8,7 @@ dielectric constants, velocity, mass...
 Author: Hejun Xie
 Date: 2020-08-18 09:37:31
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-19 12:59:00
+LastEditTime: 2020-08-22 22:18:19
 '''
 
 # unit test import
@@ -105,17 +105,23 @@ class _Hydrometeor(object):
         Returns the PSD in mm-1 m-3
         Args:
             D: vector or matrix (melting particle , not implemented yet) of diameters in mm
-                for 1mom solid / liquid hydrometeors, D has dimension as (nQM, nbins_D)
-                lambda_ has dimension as (nQM)
+                for 1mom solid / liquid hydrometeors, D has dimension as (nbins_D)
+                lambda_ has dimension as (n_valid_gates)
                 N0 is scalar since it is 1mom scheme and it is fixed 
 
         Returns:
-            N: the number of particles for every diameter, same dimensions as D
+            N: the number of particles for every diameter, has dimension of (ngates, nbins_D)
         """
         
-        operator = lambda x,y: np.multiply(x[:,None],y)
-        return self.N0*D**self.mu * np.exp(- operator(self.lambda_,D**self.nu))
-        
+        operator = lambda x,y: np.outer(x,y)
+        # print('lambda {}'.format(self.lambda_.shape))
+        # print('D {}'.format(D.shape))
+        # print('N0 {}'.format(self.N0.shape))
+        if np.isscalar(self.N0):
+            return self.N0*D**self.mu * np.exp(- operator(self.lambda_,D**self.nu))
+        else:
+            return operator(self.N0,D**self.mu) * \
+                            np.exp(- operator(self.lambda_,D**self.nu))
         
     def get_V(self,D):
         """
@@ -149,7 +155,7 @@ class _Hydrometeor(object):
 
         Returns:
             v: the integral of V(D) * (D)
-            n: the integratal of the PSD: N(D)
+            n: the integratal of the PSD: N(D) with the same dimension as self.lambda_
         """
 
         v = (self.vel_factor * self.N0 * self.alpha / self.nu *
@@ -642,15 +648,15 @@ class IceParticle(_Solid):
         Field et al. (2005)
         Args:
             D: vector or matrix of diameters in mm
-            self.lambda_ in dimension of (nQM)
-            D in dimension of (nQM, nbins_D)
+            self.lambda_ in dimension of (n_valid_gates)
+            D in dimension of (nbins_D)
 
         Returns:
-            N: the number of particles for every diameter, same dimensions as D
+            N: the number of particles for every diameter, with dimension (n_valid_gates, nbins_D)
         """
         
         # Taken from Field et al (2005)
-        x = self.lambda_[:,None] * D / 1000.
+        x = np.outer(self.lambda_, D) / 1000.
         return self.N0[:,None] * constants_1mom.PHI_23_I(x)
         
     def integrate_V(self):

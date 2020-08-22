@@ -4,7 +4,7 @@ model variables to the radar gates
 Author: Hejun Xie
 Date: 2020-08-15 11:07:01
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-15 22:00:55
+LastEditTime: 2020-08-22 21:58:21
 '''
 
 # unit test import
@@ -119,8 +119,8 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
     integration_scheme = CONFIG['integration']['scheme']
     refraction_method = CONFIG['refraction']['scheme']
 
-    print('refraction: {}'.format(refraction_method))
-    print('integration: {}'.format(integration_scheme))
+    # print('refraction: {}'.format(refraction_method))
+    # print('integration: {}'.format(integration_scheme))
     
     # Calculate quadrature weights
     if integration_scheme == 1: # Classical single gaussian scheme

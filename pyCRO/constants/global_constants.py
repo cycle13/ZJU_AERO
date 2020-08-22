@@ -3,8 +3,12 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-19 11:52:01
+LastEditTime: 2020-08-22 22:19:38
 '''
+
+# unit test import
+import sys
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
 
 # Global import
 import numpy as np
@@ -130,10 +134,17 @@ class Constant_class(object):
         self.M_AIR = complex(1, 0)      # Mair ~ 1
 
         # secondary parameters
-        self.RANGE_RADAR=np.arange(
-            CONFIG['radar']['radial_resolution']/2.,
-            CONFIG['radar']['range'],
-            CONFIG['radar']['radial_resolution'])
+        if CONFIG != None:
+            self.WAVELENGTH = self.C/(CONFIG['radar']['frequency']*1E09)*1000
+            self.RANGE_RADAR=np.arange(
+                CONFIG['radar']['radial_resolution']/2.,
+                CONFIG['radar']['range'],
+                CONFIG['radar']['radial_resolution'])
 
-
+    def update(self):
+        global CONFIG
+        from pyCRO.config import cfg # Update config to current one
+        CONFIG = cfg.CONFIG
+        self.__init__()
+    
 global_constants = Constant_class()

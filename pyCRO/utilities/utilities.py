@@ -4,7 +4,7 @@ throughout the radar operator
 @Author: Hejun Xie
 @Date: 2020-07-16 10:06:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-19 09:07:19
+LastEditTime: 2020-08-22 21:30:41
 '''
 
 
@@ -217,6 +217,69 @@ def vlinspace(a, b, N, endpoint=True):
     """
     a, b = np.asanyarray(a), np.asanyarray(b)
     return a[..., None] + (b-a)[..., None]/(N-endpoint) * np.arange(N)
+
+def nan_cumprod(x):
+    """
+    An equivalent of np.cumprod, where NaN are ignored
+
+    Args:
+        x: a 1D array
+    Returns:
+        The 1D array of cumulated products,
+            ex: [1,2,NaN,5] will return [1,2,2,10]
+    """
+    x[np.isnan(x)]=1
+    return np.cumprod(x)
+
+def nan_cumsum(x):
+    """
+    An equivalent of np.cumsum, where NaN are ignored
+
+    Args:
+        x: a 1D array
+    Returns:
+        The 1D array of cumulated sums,
+            ex: [1,2,NaN,5] will return [1,3,3,8]
+    """
+    x[np.isnan(x)]=0
+    return np.cumsum(x)
+
+def aliasing(v, nyquist):
+    """
+        Performs aliasing of a radial velocity
+
+        Args:
+            v: the velocity to fold
+            nyquist: the nyquist velocity
+        Returns:
+            The folded radial velocity
+    """
+    theta = (v + nyquist)/(2*nyquist) * np.pi - np.pi/2.
+    theta_fold = np.arctan(np.tan(theta))
+    v_fold = (theta_fold + np.pi/2)*(2*nyquist)/np.pi - nyquist
+    return v_fold
+
+def combine_subradials(list_of_subradials):
+    """
+    Combines two subradials by combining their variables. The subradials
+    should correspond to the same radar profile (theta and phi angles)
+
+    Args:
+        list_of_subradials: the list of subradials
+    Returns:
+        The combined subradial
+    """
+    x = list_of_subradials[0]
+    for l in list_of_subradials:
+        if (l.dist_profile == x.dist_profile).all():
+            x.values.update(l.values)
+        else:
+            msg = '''
+            Beams are not defined on the same set of coordinates, aborting
+            '''
+            print(dedent(msg))
+            return
+    return x
 
 
 class DATAdecorator(object):
