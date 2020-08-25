@@ -4,7 +4,7 @@ throughout the radar operator
 @Author: Hejun Xie
 @Date: 2020-07-16 10:06:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-22 21:30:41
+LastEditTime: 2020-08-24 22:09:16
 '''
 
 
@@ -280,6 +280,28 @@ def combine_subradials(list_of_subradials):
             print(dedent(msg))
             return
     return x
+
+def row_stack(a1, a2):
+    """
+    Vertically stacks two rows with possibly different shapes,
+    padding them with nan before, so they have the same shape
+
+    Args:
+        a1: the first row
+        a2: the second row
+    Returns:
+        The array corresponding to the stacked rows
+    """
+    [N1, M1] = a1.shape
+    [N2, M2] = a2.shape
+
+    if N1 > N2:
+        a2 = np.pad(a2,((0,0),(0,M1-M2)), mode='constant',
+                    constant_values = np.nan)
+    elif N2 < N1:
+        a1=np.pad(a2,((0,0),(0,M2-M1)), mode='constant',
+                  constant_values = np.nan)
+    return np.vstack((a1, a2))
 
 
 class DATAdecorator(object):

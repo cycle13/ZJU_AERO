@@ -3,7 +3,7 @@ Description: test for scatter
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-22 22:01:42
+LastEditTime: 2020-08-25 12:06:32
 '''
 
 # unit test import
@@ -17,9 +17,10 @@ import pickle
 
 # Local imports
 import pyCRO
+import pyart
 
 LOAD_MODEL = True
-LOAD_RADAR = False
+LOAD_RADAR = True
 DEG = r'$^\circ$'
 
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',
@@ -31,7 +32,7 @@ if __name__ == "__main__":
     a.load_model_file(FILENAME, itime=10, load_pickle=LOAD_MODEL, pickle_file='tempa.pkl')
 
     if not LOAD_RADAR:
-        r = a.get_PPI_test(elevations = 1)
+        r = a.get_PPI(elevations = 1)
         with open("./tempr2.pkl", "wb") as f:
             pickle.dump(r, f)
     else:
@@ -39,7 +40,7 @@ if __name__ == "__main__":
             r = pickle.load(f)
     
 
-    exit()
+    # exit()
     
     from pyart.graph import RadarMapDisplayBasemap
     display = pyart.graph.RadarMapDisplayBasemap(r)

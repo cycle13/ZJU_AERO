@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-22 22:30:09
+LastEditTime: 2020-08-24 22:10:55
 '''
 
 # unit test import
@@ -24,7 +24,7 @@ import pickle
 from textwrap import dedent
 
 # Local imports
-# from pyCRO.radar import PyartRadop
+from pyCRO.radar import PyartRadop
 from pyCRO.config import cfg
 from pyCRO.interpolation import get_interpolated_radial, integrate_radials
 
@@ -428,7 +428,7 @@ class RadarOperator(object):
         del lut_sz
         gc.collect()
 
-        exit()
+        # exit()
         if not event.is_set():
             # Threshold at given sensitivity
             if output_variables in ['all','only_radar']:
