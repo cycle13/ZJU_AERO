@@ -3,7 +3,7 @@ Description: test for scatter
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-25 12:06:32
+LastEditTime: 2020-08-29 22:27:35
 '''
 
 # unit test import
@@ -19,8 +19,8 @@ import pickle
 import pyCRO
 import pyart
 
-LOAD_MODEL = True
-LOAD_RADAR = True
+LOAD_MODEL = False
+LOAD_RADAR = False
 DEG = r'$^\circ$'
 
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',
@@ -29,14 +29,14 @@ cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',
 if __name__ == "__main__":
     FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'
     a = pyCRO.RadarOperator(options_file='./option_files/simulate.yml')
-    a.load_model_file(FILENAME, itime=10, load_pickle=LOAD_MODEL, pickle_file='tempa.pkl')
+    a.load_model_file(FILENAME, itime=10, load_pickle=LOAD_MODEL, pickle_file='mdl.pkl')
 
     if not LOAD_RADAR:
         r = a.get_PPI(elevations = 1)
-        with open("./tempr2.pkl", "wb") as f:
+        with open("./ppi.pkl", "wb") as f:
             pickle.dump(r, f)
     else:
-        with open("./tempr2.pkl", "rb") as f:
+        with open("./ppi.pkl", "rb") as f:
             r = pickle.load(f)
     
 
@@ -72,5 +72,5 @@ if __name__ == "__main__":
 
     # display.plot_point(r.longitude['data'], r.latitude['data'])
     
-    plt.savefig('ZH.png',dpi=300, bbox_inches='tight')
+    plt.savefig('ZH_ppi.png',dpi=300, bbox_inches='tight')
     

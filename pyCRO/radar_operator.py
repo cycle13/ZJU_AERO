@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-24 22:10:55
+LastEditTime: 2020-08-29 21:40:26
 '''
 
 # unit test import
@@ -441,3 +441,100 @@ class RadarOperator(object):
             pyrad_instance = PyartRadop('ppi',simulated_sweep)
 
             return pyrad_instance
+
+    def get_RHI(self, azimuths, elevations = None, elev_step = None,
+                                            elev_start = 0, elev_stop = 90):
+        '''
+        Simulates a RHI scan based on the user configuration
+        Args:
+            azimuths: a single scalar or a list of azimuth angles in
+                degrees. If a list is provided, the output will consist
+                of several RHI scans (sweeps in the PyART class)
+            elevations: (Optional) a list of elevation angles in degrees
+            elev_start elev_step, elev_stop: (Optional) If 'elevations' is
+                undefinedthese three arguments will be used to create a list
+                of elevations angles. Defaults are (0, 3dB_beamwidth, 359)
+        Returns:
+            A RHI profile at the specified elevation(s), in the form of a PyART
+            class. To every azimuth angle corresponds at sweep
+        '''
+        # Check if model file has been loaded
+        if self.dic_vars=={}:
+            print('No model file has been loaded! Aborting...')
+            return
+
+        # Check if list of azimuths is scalar
+        if np.isscalar(azimuths):
+            azimuths=[azimuths]
+
+
+        # Needs to be done in order to deal with Multiprocessing's annoying limitations
+        global dic_vars, N, lut_sz, output_variables
+        dic_vars, N, lut_sz, output_variables=self.define_globals()
+
+        # Define list of angles that need to be resolved
+        if np.any(elevations == None):
+            if elev_step == None:
+                elev_step = self.config['radar']['3dB_beamwidth']
+            # Define elevation and ranges
+            elevations = np.arange(elev_start, elev_stop + elev_step,
+                                   elev_step)
+
+
+        # Define  ranges
+        rranges = constants.RANGE_RADAR
+
+        # Initialize computing pool
+        pool = mp.Pool(processes = mp.cpu_count(),maxtasksperchild=1)
+        m = mp.Manager()
+        event = m.Event()
+
+        list_sweeps=[]
+
+        def worker(event, azimuth, elev):
+            print(elev)
+            try:
+                if not event.is_set():
+                    list_subradials = get_interpolated_radial(dic_vars,
+                                                          azimuth,
+                                                          elev,
+                                                          N)
+
+                    if output_variables in ['all','only_radar']:
+                        output = get_radar_observables(list_subradials, lut_sz)
+                    if output_variables == 'only_model':
+                        output =  integrate_radials(list_subradials)
+                    elif output_variables == 'all':
+                        output = combine_subradials((output,
+                                 integrate_radials(list_subradials)))
+
+                    return output
+            except:
+                # Throw signal back
+                raise
+                event.set()
+
+        for a in azimuths: # Loop on the o
+            func = partial(worker, event, a) # Partial function
+            list_beams = pool.map(func,elevations)
+            list_sweeps.append(list(list_beams))
+
+        pool.close()
+        pool.join()
+
+        del dic_vars
+        del N
+        del lut_sz
+
+        if not event.is_set():
+            # Threshold at given sensitivity
+            if output_variables in ['all','only_radar']:
+                list_sweeps = cut_at_sensitivity(list_sweeps)
+
+            simulated_sweep={'elevations':elevations,'azimuths':azimuths,
+            'ranges':rranges,'pos_time':self.get_pos_and_time(),
+            'data':list_sweeps}
+
+            pyrad_instance = PyartRadop('rhi',simulated_sweep)
+            return  pyrad_instance
+    
