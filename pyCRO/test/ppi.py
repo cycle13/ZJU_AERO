@@ -3,7 +3,7 @@ Description: test for scatter
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-29 22:27:35
+LastEditTime: 2020-09-19 15:55:31
 '''
 
 # unit test import
@@ -19,8 +19,8 @@ import pickle
 import pyCRO
 import pyart
 
-LOAD_MODEL = False
-LOAD_RADAR = False
+LOAD_MODEL = True
+LOAD_RADAR = True
 DEG = r'$^\circ$'
 
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',
@@ -41,7 +41,8 @@ if __name__ == "__main__":
     
 
     # exit()
-    
+    import matplotlib as mpl
+    mpl.use('Agg')
     from pyart.graph import RadarMapDisplayBasemap
     display = pyart.graph.RadarMapDisplayBasemap(r)
     import matplotlib.pyplot as plt

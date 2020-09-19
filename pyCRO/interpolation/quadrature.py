@@ -3,7 +3,7 @@ Description: quadrature library
 Author: Hejun Xie
 Date: 2020-08-15 11:46:45
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-15 11:48:56
+LastEditTime: 2020-09-19 15:54:31
 '''
 # -*- coding: utf-8 -*-
 
