@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-29 21:40:26
+LastEditTime: 2020-09-25 16:09:17
 '''
 
 # unit test import
@@ -155,7 +155,7 @@ class RadarOperator(object):
         '''
         micro_scheme = self.current_microphys_scheme
         has_ice = self.config['microphysics']['with_ice_crystals']
-        scattering_method = self.config['microphysics']['scattering']
+        scattering_method_all = self.config['microphysics']['scattering']
         freq = self.config['radar']['frequency']
         # freq = 5.6
         folder_lut = self.config['microphysics']['folder_lut']
@@ -164,9 +164,18 @@ class RadarOperator(object):
         if has_ice:
             list_hydrom.extend(['I'])
 
+        def get_method(hydrom_method):
+            method = scattering_method_all if hydrom_method == 'default' else hydrom_method 
+            return method
+        scattering_method = {}
+        for hydrom in list_hydrom:
+            scattering_method[hydrom] = get_method(self.config['microphysics']['scattering_{}'.format(hydrom)])
+            
         lut = load_all_lut(micro_scheme, list_hydrom, freq, scattering_method, folder_lut=folder_lut)
 
         self.lut_sz = lut
+
+        exit()
     
     def get_pos_and_time(self):
         '''

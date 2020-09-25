@@ -4,7 +4,7 @@ and checks if entered values are valid
 @Author: Hejun Xie
 @Date: 2020-07-16 10:10:37
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-22 12:31:33
+LastEditTime: 2020-09-25 15:36:32
 '''
 
 
@@ -66,7 +66,11 @@ DEFAULTS={
          'with_melting': 0,\
          'with_ice_crystals':1,\
          'with_attenuation': 1,\
-         'scattering':'tmatrix_masc',\
+         'scattering': 'tmatrix_masc',\
+         'scattering_S':'default',\
+         'scattering_R':'default',\
+         'scattering_I':'default',\
+         'scattering_G':'default',\
          'folder_lut':None}\
     }
 
@@ -110,7 +114,11 @@ VALID_VALUES={
         'with_ice_crystals':[0,1],\
         'with_melting':[0,1],\
         'with_attenuation':[0,1],\
-        'scattering':['tmatrix_masc','tmatrix','dda'],\
+        'scattering':    ['tmatrix_masc', 'iitm_masc', 'default'],\
+        'scattering_S':  ['tmatrix_masc', 'iitm_masc', 'default'],\
+        'scattering_R':  ['tmatrix_masc', 'iitm_masc', 'default'],\
+        'scattering_I':  ['tmatrix_masc', 'iitm_masc', 'default'],\
+        'scattering_G':  ['tmatrix_masc', 'iitm_masc', 'default'],\
         'folder_lut': [None, str]}\
     }
 

@@ -4,7 +4,7 @@ used to load and save scattering lookup tables
 Author: Hejun Xie
 Date: 2020-08-19 22:09:15
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-19 22:19:26
+LastEditTime: 2020-09-25 16:10:44
 '''
 
 
@@ -19,6 +19,7 @@ import tarfile
 import glob
 import shutil
 import pickle
+import xarray as xr
 from io import BytesIO
 from textwrap import dedent
 
@@ -32,9 +33,10 @@ def load_all_lut(scheme, list_hydrom, frequency, scattering_method, folder_lut=N
             should be obtained: 'R': rain, 'S': snow, 'G': graupel. Ex: ['R','S','G']
         frequency: the frequency in GHz, make sure the lookup tables have
             been previously computed for the corresponding frequency!
-        scattering_method: the scattering method that is used, can be either
-            'tmatrix_masc' or 'tmatrix'(not implemented yet), which correspond to subfolders
-            in the lookup folder. You could add more...
+        scattering_method: A dictionary describing the scattering method that is used by every
+            hydrometeors in list_hydrom, can be either 'tmatrix_masc' or 'iitm_masc',
+            which correspond to subfolders in the lookup folder. You could add more...
+            Ex: {'S':'iitm_masc', 'R':'tmatrix_masc', ...}
         folder_lut: The folder that contains lookup table
 
     Returns:
@@ -48,15 +50,21 @@ def load_all_lut(scheme, list_hydrom, frequency, scattering_method, folder_lut=N
         folder_lut = os.path.dirname(os.path.realpath(__file__))+'/'
     lut_sz = {}
 
-    if scattering_method == 'tmatrix_masc':
-        folder_lut = folder_lut + 'tmatrix_masc/'
-
     for h in list_hydrom:
+        if scattering_method[h] == 'tmatrix_masc':
+            folder_lut_method = folder_lut + 'tmatrix_masc/'
+        elif scattering_method[h] == 'iitm_masc':
+            folder_lut_method = folder_lut + 'iitm_masc/'
+
         freq_str = str(frequency).replace('.','_')
-        name = 'lut_SZ_' + h + '_' + freq_str + '_' + scheme + '.lut'
-        print(folder_lut + name)
+        if scattering_method[h] == 'iitm_masc':
+            name = 'lut_SZ_' + h + '_' + freq_str + '_' + scheme + '_' + 'LevelB' + '.lut'
+        else:
+            name = 'lut_SZ_' + h + '_' + freq_str + '_' + scheme + '.lut'
+        print(folder_lut_method + name)
         try:
-            lut_sz[h] = load_lut(folder_lut + name)
+            engine = 'xarray' if scattering_method[h]=='iitm_masc' else 'numpy'
+            lut_sz[h] = load_lut(folder_lut_method + name, engine=engine)
         except:
             raise
             msg = """
@@ -67,10 +75,16 @@ def load_all_lut(scheme, list_hydrom, frequency, scattering_method, folder_lut=N
 
     return lut_sz
 
-def load_lut(filename):
+def load_lut(filename, engine):
+    if engine == 'numpy':
+        return load_lut_numpy(filename)
+    elif engine == 'xarray':
+        return load_lut_xarray(filename)
+
+def load_lut_numpy(filename):
     '''
     Loads an instance of the Loookup_table class, previously saved to the
-    drive with the save_lut function, to memory
+    drive with the save_lut function in cosmo_pol, (copy from cosmo_pol...) 
     Args:
         filename: the complete filename (with path), indicating where the
             lookup table is stored
@@ -94,6 +108,21 @@ def load_lut(filename):
         setattr(lut, name, data)
 
     tar.close()
+    return lut
+
+def load_lut_xarray(filename):
+    '''
+    Loads an instance of the Loookup_table class by loading the LevelB xarray database,
+    previously saved to the drive with the sz_lut function in compute_lut_sz.py
+    Args:
+        filename: the complete filename (with path), indicating where the
+            lookup table is stored
+
+    Returns:
+        lut: the lookup table as an instance of the class Lookup_table Class
+        (see below)
+    '''
+    pass
     return lut
 
 

@@ -3,7 +3,7 @@ Description: test for scatter
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-19 15:55:31
+LastEditTime: 2020-09-25 16:07:35
 '''
 
 # unit test import
@@ -19,7 +19,7 @@ import pickle
 import pyCRO
 import pyart
 
-LOAD_MODEL = True
+LOAD_MODEL = False
 LOAD_RADAR = True
 DEG = r'$^\circ$'
 
