@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-25 16:09:17
+LastEditTime: 2020-09-25 23:59:21
 '''
 
 # unit test import
@@ -175,7 +175,7 @@ class RadarOperator(object):
 
         self.lut_sz = lut
 
-        exit()
+        # exit() # test database
     
     def get_pos_and_time(self):
         '''

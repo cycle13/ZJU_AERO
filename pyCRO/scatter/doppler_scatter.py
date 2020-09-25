@@ -3,7 +3,7 @@ Description:  computes all radar observables for a given radial
 Author: Hejun Xie
 Date: 2020-08-20 22:01:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-22 22:24:44
+LastEditTime: 2020-09-25 23:17:53
 '''
 
 # unit test import
@@ -96,9 +96,14 @@ def get_radar_observables(list_subradials, lut_sz):
         dic_hydro[h] = create_hydrometeor(h, microphysics_scheme)
         # Add info on number of bins to use for numerical integrations
         # Needs to be the same as in the lookup tables
-        _nbins_D = lut_sz[h].value_table.shape[-2]
-        _dmin = lut_sz[h].axes[2][0]
-        _dmax = lut_sz[h].axes[2][-1]
+        if lut_sz[h].type == 'numpy':
+            _nbins_D = lut_sz[h].value_table.shape[-2]
+            _dmin = lut_sz[h].axes[2][0]
+            _dmax = lut_sz[h].axes[2][-1]
+        elif lut_sz[h].type == 'xarray':
+            _nbins_D = lut_sz[h].get_axis_value('Dmax')
+            _dmin = lut_sz[h].get_axis_value('Dmax')[0]
+            _dmax = lut_sz[h].get_axis_value('Dmin')[-1]
 
         dic_hydro[h].nbins_D = _nbins_D
         dic_hydro[h].d_max = _dmax
@@ -152,7 +157,11 @@ def get_radar_observables(list_subradials, lut_sz):
                 else: # Rain and graupel
                     dic_hydro[h].set_psd(QM[valid_data])
             
-            list_D = lut_sz[h].axes[lut_sz[h].axes_names['d']]
+            if lut_sz[h].type == 'numpy':
+                list_D = lut_sz[h].axes[lut_sz[h].axes_names['d']]
+            elif lut_sz[h].type == 'xarray':
+                list_D = lut_sz[h].get_axis_value('Dmax')
+                
             dD = list_D[1] - list_D[0]
             
             # Compute particle numbers N(D) for all diameters
