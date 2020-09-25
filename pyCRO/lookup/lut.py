@@ -4,7 +4,7 @@ used to load and save scattering lookup tables
 Author: Hejun Xie
 Date: 2020-08-19 22:09:15
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-25 23:58:09
+LastEditTime: 2020-09-26 00:03:04
 '''
 
 
@@ -140,7 +140,7 @@ class Lookup_table_xarray:
     def close(self):
         self._ds.close()
     
-    def get_axis_values(self, axis_name):
+    def get_axis_value(self, axis_name):
         return self._ds.coords[axis_name].values
     
     def lookup_line(self, **kwargs):

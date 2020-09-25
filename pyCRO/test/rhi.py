@@ -3,7 +3,7 @@ Description: test for scatter
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-19 15:57:18
+LastEditTime: 2020-09-26 00:17:38
 '''
 
 # unit test import
@@ -39,6 +39,7 @@ if __name__ == "__main__":
         with open("./rhi.pkl", "rb") as f:
             r = pickle.load(f)
     
+    a.close()
     # exit()
     
     from pyart.graph import RadarDisplay

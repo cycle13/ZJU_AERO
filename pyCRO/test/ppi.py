@@ -3,7 +3,7 @@ Description: test for scatter
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-25 23:20:14
+LastEditTime: 2020-09-26 00:13:22
 '''
 
 # unit test import
@@ -19,8 +19,8 @@ import pickle
 import pyCRO
 import pyart
 
-LOAD_MODEL = False
-LOAD_RADAR = False
+LOAD_MODEL = True
+LOAD_RADAR = True
 DEG = r'$^\circ$'
 
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',
@@ -39,6 +39,7 @@ if __name__ == "__main__":
         with open("./ppi.pkl", "rb") as f:
             r = pickle.load(f)
     
+    a.close()
 
     # exit()
     import matplotlib as mpl

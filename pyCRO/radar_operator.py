@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-25 23:59:21
+LastEditTime: 2020-09-26 00:16:55
 '''
 
 # unit test import
@@ -83,12 +83,16 @@ class RadarOperator(object):
         '''
         Closes the RadarOperator class instance and deletes its content
         '''
+        for hydrom, lut in self.lut_sz.items():
+            if lut.type == 'xarray':
+                lut.close()
+        pass
         try:
             del dic_vars, N, lut_sz, output_variables
         except:
             pass
-        self.config = None
-        cfg.CONFIG = None
+        # self.config = None
+        # cfg.CONFIG = None
     
     @property
     def config(self):

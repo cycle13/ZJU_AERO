@@ -3,7 +3,7 @@ Description:  computes all radar observables for a given radial
 Author: Hejun Xie
 Date: 2020-08-20 22:01:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-25 23:17:53
+LastEditTime: 2020-09-26 00:05:44
 '''
 
 # unit test import
@@ -103,7 +103,7 @@ def get_radar_observables(list_subradials, lut_sz):
         elif lut_sz[h].type == 'xarray':
             _nbins_D = lut_sz[h].get_axis_value('Dmax')
             _dmin = lut_sz[h].get_axis_value('Dmax')[0]
-            _dmax = lut_sz[h].get_axis_value('Dmin')[-1]
+            _dmax = lut_sz[h].get_axis_value('Dmax')[-1]
 
         dic_hydro[h].nbins_D = _nbins_D
         dic_hydro[h].d_max = _dmax
