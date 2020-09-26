@@ -4,7 +4,7 @@ and checks if entered values are valid
 @Author: Hejun Xie
 @Date: 2020-07-16 10:10:37
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-25 15:36:32
+LastEditTime: 2020-09-26 10:04:24
 '''
 
 
@@ -53,10 +53,7 @@ DEFAULTS={
         {'scheme':1,\
         'nv_GH':9,\
         'nh_GH':3,\
-        'n_gaussians':7,\
-        'weight_threshold':1.,\
-        'nr_GH':7,\
-        'na_GL':7},\
+        'weight_threshold':1.},\
     'doppler':
         {'scheme':1,\
         'turbulence_correction':0,\
@@ -81,7 +78,7 @@ error will be returned if no valid value is provided, ex. frequency
 '''
 
 VALID_VALUES={
-    'radar':
+    'radar': # TODO: GPM
         {'type': ['ground', 'GPM'],\
         'coords': TypeList([float, int],[3]),\
         'frequency':[2.7,5.6,9.41,9.8,13.6,35.6],\
@@ -97,15 +94,12 @@ VALID_VALUES={
         'antenna_speed': Range(1E-6,10.)},\
     'refraction':
         {'scheme':[1,2]},\
-    'integration':
+    'integration': # TODO: weight_threshold; shcme 2,3,4 and 'ml'
         {'scheme':[1,2,3,4,'ml'],\
         'nv_GH': range(1,31,2),\
         'nh_GH': range(1,31,2),\
-        'n_gaussians': range(1,13,2),\
-        'weight_threshold':  Range(0.0001,1.),\
-        'nr_GH': range(1,31,2),\
-        'na_GL': range(1,31,2)},\
-    'doppler':
+        'weight_threshold':  Range(0.0001,1.)},\
+    'doppler': # TODO: turbulance and motion correction
         {'scheme':[1,2,3],\
         'turbulence_correction':[0,1],
         'motion_correction':[0,1]},\
@@ -151,8 +145,8 @@ def _check_validity(input_value, valid_value):
             flag_valid = input_value in valid_value
         # Check if valid value is a string with a regex
         elif type(valid_value) == str and valid_value[0:5] == '-reg-':
-            # See if input matches regex (the \Z is used to match end of string)
-            if re.match(valid_value[5:]+'\Z',input_value):
+            # See if input matches regex (the $ is used to match end of string)
+            if re.match(valid_value[5:],input_value):
                 flag_valid = True
         # Last possibility is TypeList
         elif type(valid_value) == TypeList:

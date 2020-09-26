@@ -1,10 +1,10 @@
 '''
-@Description: solving the ODE in an exhausted way, 
+@Description: solving the ODE in an exhaustive way, 
 in the method of Zeng and Blahak (2014)
 @Author: Hejun Xie
 @Date: 2020-08-02 08:31:04
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-09 16:28:20
+LastEditTime: 2020-09-26 10:10:44
 '''
 
 # unit test import
@@ -85,10 +85,10 @@ def _beam_solver(range_vec, coords_radar, n, b, topo, elevation_angle, RE):
     return s, h, e
 
 
-def ODEZeng2014_exhausted(range_vec, elevation_angles, azimuth_angle, coords_radar, N):
+def ODEZeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_radar, N):
     '''
     Computes the trajectory of a radar beam along a specified radial with the
-    ODE method of Zeng and Blahak (2014) in an exhausted way
+    ODE method of Zeng and Blahak (2014) in an exhaustive way
     TODO: adapt for other NWP models
     Args:
         range_vec: vector of all ranges along the radial [m]
@@ -174,7 +174,7 @@ if __name__ == "__main__":
     azimuth_angle = 120
     coords_radar = [27.9, 120.8, 200]
     
-    s, h, e =  ODEZeng2014_exhausted(range_vec, elevation_angles, azimuth_angle, coords_radar, d['N'])
+    s, h, e =  ODEZeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_radar, d['N'])
     print(s[0])
     print(h[0])
     print(e[0])

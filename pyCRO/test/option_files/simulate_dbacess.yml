@@ -13,8 +13,8 @@ refraction:
     scheme: 2
 integration:
     scheme: 1
-    nh_GH: 3
-    nv_GH: 3
+    nh_GH: 1
+    nv_GH: 1
 doppler:
     scheme: 1
 microphysics:

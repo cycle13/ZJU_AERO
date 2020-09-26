@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-26 00:16:55
+LastEditTime: 2020-09-26 10:07:39
 '''
 
 # unit test import
@@ -407,7 +407,7 @@ class RadarOperator(object):
 
         list_sweeps=[]
         def worker(event,elev, azimuth):#
-            print(azimuth)
+            print('Azimuth: {:7.2f}'.format(azimuth))
             try:
                 if not event.is_set():
                     list_subradials = get_interpolated_radial(dic_vars,
@@ -505,7 +505,7 @@ class RadarOperator(object):
         list_sweeps=[]
 
         def worker(event, azimuth, elev):
-            print(elev)
+            print('Elevation: {:7.2f}'.format(elev))
             try:
                 if not event.is_set():
                     list_subradials = get_interpolated_radial(dic_vars,
