@@ -3,7 +3,7 @@ Description: wrapper for pyart class
 Author: Hejun Xie
 Date: 2020-08-24 21:59:44
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-25 11:45:18
+LastEditTime: 2020-09-27 20:04:14
 '''
 
 # unit test import
@@ -171,6 +171,7 @@ class PyartRadop(core.Radar):
             # Convert list of beams to array of data in polar coordinates
             polar_data_sweep={}
             for k in varnames:
+                # print(np.array([len(it.values[k]) for it in scan['data'][i]]))
                 polar_data_sweep[k] = np.array([it.values[k] for
                                                it in scan['data'][i]])
                 if k in ['ZDR','ZV','ZH','DSpectrum']: # Convert to dB

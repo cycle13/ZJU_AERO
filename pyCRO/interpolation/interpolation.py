@@ -4,7 +4,7 @@ model variables to the radar gates
 Author: Hejun Xie
 Date: 2020-08-15 11:07:01
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-22 21:58:21
+LastEditTime: 2020-09-27 18:05:09
 '''
 
 # unit test import
@@ -156,27 +156,46 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
     # Get coordinates of virtual radar
     radar_pos = CONFIG['radar']['coords']
 
-    for pt in pts_ver:
-        s, h, e = compute_trajectory_radial(
-                                        rranges,
-                                        pt+elevation,
-                                        radar_pos,
-                                        refraction_method,
-                                        N
-                                        )
-                                        
-        list_refraction.append((s, h, e))
-    
+    if refraction_method in [1,2]:
+        for pt in pts_ver:
+            s, h, e = compute_trajectory_radial(
+                                            rranges,
+                                            pt+elevation,
+                                            radar_pos,
+                                            refraction_method,
+                                            N
+                                            )
+                                            
+            list_refraction.append((s, h, e))
+    elif refraction_method in [3]:
+        for pt_hor in pts_hor:
+            s, h, e = compute_trajectory_radial(
+                                                rranges,
+                                                pts_ver + elevation,
+                                                radar_pos,
+                                                refraction_method,
+                                                N,
+                                                pt_hor + azimuth
+                                                )
+            list_refraction.append((s, h, e))
+            # exit()
+
     for i in range(len(pts_hor)):
         for j in range(len(pts_ver)):
 
             # GH coordinates
             pt = [pts_hor[i]+azimuth, pts_ver[j]+elevation]
             # Interpolate beam
-            lats,lons,list_vars = trilin_interp_radial_WRF(list_variables,
-                                                pts_hor[i]+azimuth,
-                                                list_refraction[j][0],
-                                                list_refraction[j][1])
+            if refraction_method in [1,2]:
+                lats,lons,list_vars = trilin_interp_radial_WRF(list_variables,
+                                                    pts_hor[i]+azimuth,
+                                                    list_refraction[j][0],
+                                                    list_refraction[j][1])
+            elif refraction_method in [3]:
+                lats,lons,list_vars = trilin_interp_radial_WRF(list_variables,
+                                                    pts_hor[i]+azimuth,
+                                                    list_refraction[i][0][j],
+                                                    list_refraction[i][1][j])
 
             weight = weights[i,j]
 
@@ -198,13 +217,21 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
                 bi[mask_beam!=0] = np.nan # Assign NaN to all missing data
                 dic_beams[keys[k]] = bi # Create dictionary
 
-            subradial = Radial(dic_beams, mask_beam, lats, lons,
-                                    list_refraction[j][0],
-                                    list_refraction[j][1],
-                                    list_refraction[j][2],
-                                    pt, weight)
-
-            list_subradials.append(subradial)
+            if refraction_method in [1,2]:
+                subradial = Radial(dic_beams, mask_beam, lats, lons,
+                                        list_refraction[j][0],
+                                        list_refraction[j][1],
+                                        list_refraction[j][2],
+                                        pt, weight)
+                list_subradials.append(subradial)
+                
+            elif refraction_method in [3]:
+                subradial = Radial(dic_beams, mask_beam, lats, lons,
+                                        list_refraction[i][0][j],
+                                        list_refraction[i][1][j],
+                                        list_refraction[i][2][j],
+                                        pt, weight)
+                list_subradials.append(subradial)
     
     return list_subradials
 

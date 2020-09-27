@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-26 10:07:39
+LastEditTime: 2020-09-27 19:54:00
 '''
 
 # unit test import
@@ -227,7 +227,7 @@ class RadarOperator(object):
 
         vars_ok = file_h.check_if_variables_in_file(['P','T','QV','QR','QC','QI','QS','QG','U','V','W'])
 
-        if self.config['refraction']['scheme'] == 2:
+        if self.config['refraction']['scheme'] in [2,3]:
             if file_h.check_if_variables_in_file(['T','P','QV']):
                 vars_to_load.extend('N')
             else:

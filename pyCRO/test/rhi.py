@@ -3,7 +3,7 @@ Description: test for scatter
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-26 10:07:06
+LastEditTime: 2020-09-27 21:05:53
 '''
 
 # unit test import
@@ -28,7 +28,7 @@ cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',
 
 if __name__ == "__main__":
     FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'
-    a = pyCRO.RadarOperator(options_file='./option_files/simulate_dbacess.yml')
+    a = pyCRO.RadarOperator(options_file='./option_files/simulate_db_acess.yml')
     a.load_model_file(FILENAME, itime=10, load_pickle=LOAD_MODEL, pickle_file='mdl.pkl')
 
     if not LOAD_RADAR:

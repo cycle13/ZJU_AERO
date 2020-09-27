@@ -4,7 +4,7 @@ in the method of Zeng and Blahak (2014)
 @Author: Hejun Xie
 @Date: 2020-08-02 08:31:04
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-26 10:10:44
+LastEditTime: 2020-09-27 21:03:09
 '''
 
 # unit test import
@@ -75,14 +75,27 @@ def _beam_solver(range_vec, coords_radar, n, b, topo, elevation_angle, RE):
 
     # solve the ODE
     y0 = [0., np.sin(np.deg2rad(elevation_angle)), coords_radar[2]] # s, a, h 
-    sol = solve_ivp(beam_ODE, [range_vec[0], range_vec[-1]], y0,
+    sol = solve_ivp(beam_ODE, [0, range_vec[-1]], y0,
                 t_eval=range_vec, events=(hit_topo, hit_model_top))
 
     s = sol.y[0]
     h = sol.y[2]
     e = np.rad2deg(np.arcsin(sol.y[1]))
 
-    return s, h, e
+    # deal with terminated radials
+    pad_num = len(range_vec) - len(h)
+    
+    if pad_num != 0:
+        s = np.pad(s, (0,pad_num), mode='constant', constant_values=0.)
+        e = np.pad(e, (0,pad_num), mode='constant', constant_values=1.)
+
+    if len(sol.t_events[0]) != 0: # hit the topo
+        h = np.pad(h, (0,pad_num), mode='constant', constant_values=-9999.)
+    elif len(sol.t_events[1]) != 0: # hit the model top
+        h = np.pad(h, (0,pad_num), mode='constant', constant_values=constants.MAX_MODEL_HEIGHT+9999.)
+
+    # convert from float64 to float32 for the sake of efficiency
+    return np.array(s, dtype='float32'), np.array(h, dtype='float32'), np.array(e, dtype='float32')
 
 
 def ODEZeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_radar, N):
@@ -153,7 +166,7 @@ def ODEZeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_ra
     height_mesh_b = (height_mesh[:-1] + height_mesh[1:]) / 2.
     b = xr.DataArray(b_data, coords=[distance_mesh, height_mesh_b], dims=['distance', 'height'])
     # get event function: topo [m]
-    topo = interp1d(distance_mesh, t_data)
+    topo = interp1d(distance_mesh, t_data, fill_value='extrapolate')
     
     s, h, e = [], [], []
     for elevation_angle in elevation_angles:

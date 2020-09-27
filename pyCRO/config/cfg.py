@@ -4,7 +4,7 @@ and checks if entered values are valid
 @Author: Hejun Xie
 @Date: 2020-07-16 10:10:37
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-26 10:04:24
+LastEditTime: 2020-09-26 11:24:46
 '''
 
 
@@ -93,7 +93,7 @@ VALID_VALUES={
         'K_squared': [float, None],\
         'antenna_speed': Range(1E-6,10.)},\
     'refraction':
-        {'scheme':[1,2]},\
+        {'scheme':[1,2,3]},\
     'integration': # TODO: weight_threshold; shcme 2,3,4 and 'ml'
         {'scheme':[1,2,3,4,'ml'],\
         'nv_GH': range(1,31,2),\

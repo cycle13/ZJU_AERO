@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-08-02 12:46:24
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-26 10:13:15
+LastEditTime: 2020-09-26 23:24:10
 '''
 
 # unit test import
@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 from pyCRO.beam_propogation import fixed_radius_KE, ODEZeng2014, ODEZeng2014_exhaustive
 from pyCRO.utilities import DATAdecorator
 
-@DATAdecorator('./', True, './she.pkl')
+@DATAdecorator('./', False, './she.pkl')
 def get_she():
     FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'
     file_h = pw.open_file(FILENAME)
@@ -37,9 +37,15 @@ def get_she():
 
 if __name__ == "__main__":
     
-    range_vec = np.arange(0, 100*1000, 500)
-    elevation_angles = [0.2]
-    azimuth_angle = 120
+    # range_vec = np.arange(0, 100*1000, 500)
+    # elevation_angles = [0.2]
+    # azimuth_angle = 120
+    # coords_radar = [27.9, 120.8, 200]
+
+    # range_vec = np.arange(75, 150*1000, 150)
+    range_vec = np.arange(1, 150*1000, 150)
+    elevation_angles = [1.0]
+    azimuth_angle = 0
     coords_radar = [27.9, 120.8, 200]
     
     s1,s2,s3, h1,h2,h3, e1,e2,e3 = get_she()
