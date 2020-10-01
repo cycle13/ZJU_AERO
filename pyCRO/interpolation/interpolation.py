@@ -4,7 +4,7 @@ model variables to the radar gates
 Author: Hejun Xie
 Date: 2020-08-15 11:07:01
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-27 18:05:09
+LastEditTime: 2020-10-01 16:48:58
 '''
 
 # unit test import
@@ -164,9 +164,9 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
                                             radar_pos,
                                             refraction_method,
                                             N
-                                            )
-                                            
+                                            )                                    
             list_refraction.append((s, h, e))
+            
     elif refraction_method in [3]:
         for pt_hor in pts_hor:
             s, h, e = compute_trajectory_radial(
