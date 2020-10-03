@@ -3,7 +3,7 @@ Description: test for scatter
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-01 17:05:14
+LastEditTime: 2020-10-03 19:37:04
 '''
 
 # unit test import
@@ -29,12 +29,12 @@ cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',
 if __name__ == "__main__":
     FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6_test/wrfout_d01_2019-05-17_00_00_00'
     a = pyCRO.RadarOperator(options_file='./option_files/wsm6_test.yml')
-    a.load_model_file(FILENAME, itime=44, load_pickle=LOAD_MODEL, pickle_file='mdl.pkl')
+    a.load_model_file(FILENAME, itime=40, load_pickle=LOAD_MODEL, pickle_file='mdl.pkl')
 
     # print(a.dic_vars['T'])
 
     if not LOAD_RADAR:
-        r = a.get_PPI(elevations = 1.494)
+        r = a.get_PPI(elevations = 1.494, plot_engine='pycwr')
         with open("./ppi.pkl", "wb") as f:
             pickle.dump(r, f)
     else:
@@ -43,8 +43,34 @@ if __name__ == "__main__":
     
     a.close()
 
-    # exit()
+    # test PycwrRadop
+    # PRD = PycwrRadop('ppi',r)
+    PRD = r
+
+    print(PRD.scan_info)
+
+    import matplotlib.pyplot as plt
+    import cartopy.crs as ccrs
+    from pycwr.draw.RadarPlot import Graph, GraphMap
+
+    import matplotlib as mpl
+    mpl.use('Agg')
+
+    isweep = 0
+
+    elevation = PRD.scan_info['fixed_angle'][isweep]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
+
+    graph = GraphMap(PRD, ccrs.PlateCarree())
+    graph.plot_ppi_map(ax, isweep, "dBZ", cmap="pyart_NWSRef")
+    ax.set_title("PPI with map e={}".format(float(elevation)), fontsize=16)
+    plt.savefig('pycwr_{}.png'.format(isweep), dpi=300)
+
+    exit()
     
+    # test PyartRadop
     import matplotlib as mpl
     mpl.use('Agg')
     from pyart.graph import RadarMapDisplayBasemap

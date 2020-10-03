@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-01 16:55:06
+LastEditTime: 2020-10-03 19:29:18
 '''
 
 # unit test import
@@ -24,7 +24,7 @@ import pickle
 from textwrap import dedent
 
 # Local imports
-from pyCRO.radar import PyartRadop
+from pyCRO.radar import PyartRadop, PycwrRadop
 from pyCRO.config import cfg
 from pyCRO.interpolation import get_interpolated_radial, integrate_radials
 
@@ -357,7 +357,7 @@ class RadarOperator(object):
         gc.collect()
 
     def get_PPI(self, elevations, azimuths = None, az_step = None, az_start = 0,
-                az_stop = 359):
+                az_stop = 359, plot_engine='pyart'):
         '''
         Simulates a PPI scan based on the user configuration
         Args:
@@ -451,12 +451,18 @@ class RadarOperator(object):
             'ranges':rranges,'pos_time':self.get_pos_and_time(),
             'data':list_sweeps}
 
-            pyrad_instance = PyartRadop('ppi',simulated_sweep)
+            if plot_engine == 'pyart':
+                plot_instance = PyartRadop('ppi',simulated_sweep)
+            elif plot_engine == 'pycwr':
+                plot_instance = PycwrRadop('ppi',simulated_sweep)
 
-            return pyrad_instance
+            return plot_instance
+
+            # return simulated_sweep
 
     def get_RHI(self, azimuths, elevations = None, elev_step = None,
-                                            elev_start = 0, elev_stop = 90):
+                                            elev_start = 0, elev_stop = 90,
+                                            plot_engine='pyart'):
         '''
         Simulates a RHI scan based on the user configuration
         Args:
@@ -548,6 +554,10 @@ class RadarOperator(object):
             'ranges':rranges,'pos_time':self.get_pos_and_time(),
             'data':list_sweeps}
 
-            pyrad_instance = PyartRadop('rhi',simulated_sweep)
-            return  pyrad_instance
+            if plot_engine == 'pyart':
+                plot_instance = PyartRadop('rhi',simulated_sweep)
+            elif plot_engine == 'pycwr':
+                plot_instance = PycwrRadop('rhi',simulated_sweep)
+
+            return plot_instance
     
