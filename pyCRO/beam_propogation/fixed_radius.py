@@ -6,16 +6,12 @@
 @LastEditTime: 2020-07-16 17:47:33
 '''
 
-# unit test import
-import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
-
 # global import
 import numpy as np
 
 # local import
-from pyCRO.constants import global_constants as constants
-from pyCRO.utilities import get_earth_radius
+from ..constants import global_constants as constants
+from ..utilities import get_earth_radius
 
 def fixed_radius_KE(range_vec, elevation_angle, coords_radar):
     '''

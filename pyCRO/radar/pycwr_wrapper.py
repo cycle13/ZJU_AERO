@@ -3,13 +3,13 @@ Description: wrapper for pycwr class
 Author: Hejun Xie
 Date: 2020-10-02 16:32:15
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-03 19:26:09
+LastEditTime: 2020-10-03 19:53:24
 '''
 
 # Global import
 from pycwr import core
 import numpy as np
-np.set_printoptions(threshold=np.inf)
+# np.set_printoptions(threshold=np.inf)
 
 # Local import
 from ..config import cfg

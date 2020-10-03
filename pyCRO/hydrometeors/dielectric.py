@@ -4,7 +4,7 @@ provided real antenna diagram
 Author: Hejun Xie
 Date: 2020-08-19 08:49:39
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-19 09:10:16
+LastEditTime: 2020-10-03 19:50:12
 '''
 
 # Global imports
@@ -12,7 +12,7 @@ import numpy as np
 np.seterr(divide='ignore') # Disable divide by zero error
 
 # Local imports
-from pyCRO.constants import global_constants as constants
+from ..constants import global_constants as constants
 
 
 def dielectric_ice(t,f):

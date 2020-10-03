@@ -3,12 +3,8 @@ Description:  computes all radar observables for a given radial
 Author: Hejun Xie
 Date: 2020-08-20 22:01:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-26 00:05:44
+LastEditTime: 2020-10-03 19:54:10
 '''
-
-# unit test import
-import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
 
 # Global imports
 import numpy as np
@@ -18,11 +14,11 @@ import copy
 from scipy.optimize import fsolve
 
 # Local imports
-from pyCRO.config.cfg import CONFIG
-from pyCRO.interpolation import Radial
-from pyCRO.hydrometeors import create_hydrometeor
-from pyCRO.constants import global_constants as constants
-from pyCRO.utilities import nansum_arr, sum_arr, vlinspace, nan_cumprod, nan_cumsum, aliasing
+from ..config.cfg import CONFIG
+from ..interpolation import Radial
+from ..hydrometeors import create_hydrometeor
+from ..constants import global_constants as constants
+from ..utilities import nansum_arr, sum_arr, vlinspace, nan_cumprod, nan_cumsum, aliasing
 
 def proj_vel(U, V, W, vf, theta,phi):
     """

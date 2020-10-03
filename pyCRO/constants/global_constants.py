@@ -3,19 +3,15 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-22 22:19:38
+LastEditTime: 2020-10-03 19:49:47
 '''
-
-# unit test import
-import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
 
 # Global import
 import numpy as np
 np.seterr(divide='ignore') # Disable divide by zero error
 
 # Local import
-from pyCRO.config.cfg import CONFIG
+from ..config.cfg import CONFIG
 
 
 '''

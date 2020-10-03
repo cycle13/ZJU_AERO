@@ -4,7 +4,7 @@ and checks if entered values are valid
 @Author: Hejun Xie
 @Date: 2020-07-16 10:10:37
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-26 11:24:46
+LastEditTime: 2020-10-03 19:48:59
 '''
 
 
@@ -17,7 +17,7 @@ import re
 from textwrap import dedent
 
 # Local imports, see utilities.py for the definition of Range and TypeList
-from pyCRO.utilities import (Range, TypeList)
+from ..utilities import (Range, TypeList)
 
 '''
 Initialize CONFIG, which is a global variable, because it needs to be

@@ -8,12 +8,8 @@ dielectric constants, velocity, mass...
 Author: Hejun Xie
 Date: 2020-08-18 09:37:31
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-22 22:18:19
+LastEditTime: 2020-10-03 19:50:40
 '''
-
-# unit test import
-import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
 
 # Global import 
 import numpy as np
@@ -27,10 +23,10 @@ from scipy.interpolate import interp1d
 from textwrap import dedent
 
 # Local import
-from pyCRO.constants import global_constants as constants
-from pyCRO.constants import constants_1mom
-from pyCRO.hydrometeors.dielectric import dielectric_ice, dielectric_water, dielectric_mixture
-from pyCRO.utilities import vlinspace
+from ..constants import global_constants as constants
+from ..constants import constants_1mom
+from ..hydrometeors.dielectric import dielectric_ice, dielectric_water, dielectric_mixture
+from ..utilities import vlinspace
 
 def create_hydrometeor(hydrom_type, scheme = '1mom'):
     """

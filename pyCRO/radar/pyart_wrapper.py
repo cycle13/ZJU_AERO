@@ -3,12 +3,8 @@ Description: wrapper for pyart class
 Author: Hejun Xie
 Date: 2020-08-24 21:59:44
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-27 20:04:14
+LastEditTime: 2020-10-03 19:53:04
 '''
-
-# unit test import
-import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
 
 # Global imports
 from pyart import graph, filters, config, core, correct
@@ -17,8 +13,8 @@ import numpy as np
 import numpy.ma as ma
 
 # Local imports
-from pyCRO.constants import global_constants as constants
-from pyCRO.utilities import row_stack
+from ..constants import global_constants as constants
+from ..utilities import row_stack
 
 # MODEL
 

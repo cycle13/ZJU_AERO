@@ -4,12 +4,8 @@ model variables to the radar gates
 Author: Hejun Xie
 Date: 2020-08-15 11:07:01
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-01 16:48:58
+LastEditTime: 2020-10-03 19:51:18
 '''
-
-# unit test import
-import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
 
 # Global imports
 import numpy as np
@@ -22,10 +18,10 @@ from scipy.ndimage import gaussian_filter
 from textwrap import dedent
 
 # Local imports
-from pyCRO.interpolation import Radial, get_all_radar_pts
-from pyCRO.constants import global_constants as constants
-from pyCRO.utilities import nansum_arr, sum_arr
-from pyCRO.beam_propogation import compute_trajectory_radial
+from ..interpolation import Radial, get_all_radar_pts
+from ..constants import global_constants as constants
+from ..utilities import nansum_arr, sum_arr
+from ..beam_propogation import compute_trajectory_radial
 
 def integrate_radials(list_subradials):
     '''

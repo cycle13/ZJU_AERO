@@ -3,13 +3,9 @@
 for the trajectory of the radar beam
 @Author: Hejun Xie
 @Date: 2020-07-16 11:48:54
-@LastEditors: Hejun Xie
-@LastEditTime: 2020-08-02 11:17:59
+LastEditors: Hejun Xie
+LastEditTime: 2020-10-03 19:48:45
 '''
-
-# unit test import
-import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
 
 # Global imports
 import numpy as np
@@ -19,9 +15,9 @@ from scipy.interpolate import interp1d
 from scipy.integrate import odeint
 
 # Local imports
-from pyCRO.config.cfg import CONFIG
-from pyCRO.utilities import get_earth_radius
-from pyCRO.constants import global_constants as constants
+from ..config.cfg import CONFIG
+from ..utilities import get_earth_radius
+from ..constants import global_constants as constants
 
 def _deriv_z(z, r, n_h_int, dn_dh_int, RE):
     '''

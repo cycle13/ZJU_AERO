@@ -5,12 +5,8 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-03 19:29:18
+LastEditTime: 2020-10-03 19:47:00
 '''
-
-# unit test import
-import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
 
 
 # Global imports
@@ -24,14 +20,14 @@ import pickle
 from textwrap import dedent
 
 # Local imports
-from pyCRO.radar import PyartRadop, PycwrRadop
-from pyCRO.config import cfg
-from pyCRO.interpolation import get_interpolated_radial, integrate_radials
+from .radar import PyartRadop, PycwrRadop
+from .config import cfg
+from .interpolation import get_interpolated_radial, integrate_radials
 
-from pyCRO.constants import global_constants as constants
-from pyCRO.lookup import load_all_lut
-from pyCRO.utilities import combine_subradials
-from pyCRO.scatter import get_radar_observables, cut_at_sensitivity
+from .constants import global_constants as constants
+from .lookup import load_all_lut
+from .utilities import combine_subradials
+from .scatter import get_radar_observables, cut_at_sensitivity
 
 BASE_VARIABLES=['U','V','W','QR_v','QS_v','QG_v','QI_v','RHO','T']
 

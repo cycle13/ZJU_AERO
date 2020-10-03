@@ -4,12 +4,8 @@ in the method of Zeng and Blahak (2014)
 @Author: Hejun Xie
 @Date: 2020-08-02 08:31:04
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-27 21:03:09
+LastEditTime: 2020-10-03 19:48:14
 '''
-
-# unit test import
-import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
 
 # global import
 import xarray as xr
@@ -21,9 +17,9 @@ from scipy.integrate import solve_ivp
 
 
 # Local imports
-from pyCRO.config.cfg import CONFIG
-from pyCRO.utilities import get_earth_radius
-from pyCRO.constants import global_constants as constants
+from ..config.cfg import CONFIG
+from ..utilities import get_earth_radius
+from ..constants import global_constants as constants
 
 
 def _beam_solver(range_vec, coords_radar, n, b, topo, elevation_angle, RE):
