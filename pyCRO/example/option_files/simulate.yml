@@ -1,0 +1,25 @@
+radar:
+    coords: [27.9, 120.8, 200]
+    range: 150000
+    frequency: 5.6
+    radial_resolution: 150
+    PRI: 700
+    FFT_length: 128
+    sensitivity: [-15,10000]
+    3dB_beamwidth: 1.
+    K_squared: 0.93
+    nyquist_velocity: 30.
+refraction:
+    scheme: 2
+integration:
+    scheme: 1
+    nh_GH: 3
+    nv_GH: 3
+doppler:
+    scheme: 1
+microphysics:
+    scheme: '1mom'
+    folder_lut: '../../../cosmo_pol/pathos/lut/'
+    scattering: 'tmatrix_masc'
+    with_attenuation: 0
+    with_ice_crystals: 1
