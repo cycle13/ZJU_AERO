@@ -3,7 +3,7 @@ Description: test for scatter
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-03 19:37:04
+LastEditTime: 2020-10-08 11:21:56
 '''
 
 # unit test import
@@ -19,8 +19,8 @@ import pickle
 import pyCRO
 import pyart
 
-LOAD_MODEL = False
-LOAD_RADAR = False
+LOAD_MODEL = True
+LOAD_RADAR = True
 DEG = r'$^\circ$'
 
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',
@@ -56,17 +56,36 @@ if __name__ == "__main__":
     import matplotlib as mpl
     mpl.use('Agg')
 
-    isweep = 0
+    fields = ['dBZ', 'ZDR', 'KDP', 'PhiDP', 'V', 'CC']
+    PYCRO_name = {'dBZ': 'ZH',
+            'ZDR':'ZDR',
+            'KDP':'KDP',
+            'PhiDP':'PHIDP',
+            'CC': 'RHOHV',
+            'V': 'RVEL'
+            }
 
+    units = {'dBZ': 'dBZ',
+            'ZDR': 'dBZ',
+            'KDP': 'degrees/km',
+            'PhiDP': 'degrees',
+            'V': 'm/s',
+            'CC': '-'
+    }
+
+    isweep = 0
     elevation = PRD.scan_info['fixed_angle'][isweep]
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
+    for field in fields:
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
+        graph = GraphMap(PRD, ccrs.PlateCarree())
+        graph.plot_ppi_map(ax, isweep, field)
+        ax.set_title("Simulation {} [{}] \n e={:.3f} UTC: 2019-05-17 10:00".format(PYCRO_name[field],
+        units[field], float(elevation)), fontsize=15)
+        plt.savefig('simulation_{}.png'.format(PYCRO_name[field]), dpi=300)
 
-    graph = GraphMap(PRD, ccrs.PlateCarree())
-    graph.plot_ppi_map(ax, isweep, "dBZ", cmap="pyart_NWSRef")
-    ax.set_title("PPI with map e={}".format(float(elevation)), fontsize=16)
-    plt.savefig('pycwr_{}.png'.format(isweep), dpi=300)
+        del fig, ax, graph
 
     exit()
     
