@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-03 19:49:47
+LastEditTime: 2020-10-10 19:23:03
 '''
 
 # Global import
@@ -29,10 +29,10 @@ RHO_0: Density of air at the sea level [kg/m3]
 KE: 4/3 parameter in the 4/3 refraction model
 MAX_MODEL_HEIGHT: The maximum height above which simulated radar gates are
     immediately discarded, i.e. there is not chance the model simulates
-    anything so high. This is used when interpolation COSMO variables to the
-    GPM beam, because GPM is at 407 km from the Earth, so there is no
-    need at all to simulate all radar gates (this would make more than
-    3000 gates at Ka band...)
+    anything so high. This is used when interpolation MODEL variables to the
+    spaceborne radar beam, because spaceborne is at 407 km from the Earth, 
+    so there is no need at all to simulate all radar gates (this would make 
+    more than 3000 gates at Ka band...)
 T0: freezing temperature of water in K
 A_AR_LAMBDA_AGG: intercept parameter a in the power-law relation defining the
     value of the Lambda in the gamma distribution for aggregate aspect-ratios
@@ -100,7 +100,7 @@ class Constant_class(object):
         self.A = 1.6
         self.RHO_0 = 1.225
         self.KE = 4./3.
-        self.MAX_MODEL_HEIGHT = 35000
+        self.MAX_MODEL_HEIGHT = 20000
         self.T0 = 273.15
 
         #,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -132,14 +132,16 @@ class Constant_class(object):
         # secondary parameters
         if CONFIG != None:
             self.WAVELENGTH = self.C/(CONFIG['radar']['frequency']*1E09)*1000
-            self.RANGE_RADAR=np.arange(
-                CONFIG['radar']['radial_resolution']/2.,
-                CONFIG['radar']['range'],
-                CONFIG['radar']['radial_resolution'])
+
+            if CONFIG['radar']['type'] in ['ground']:
+                self.RANGE_RADAR=np.arange(
+                    CONFIG['radar']['radial_resolution']/2.,
+                    CONFIG['radar']['range'],
+                    CONFIG['radar']['radial_resolution'])
 
     def update(self):
         global CONFIG
-        from pyCRO.config import cfg # Update config to current one
+        from ..config import cfg # Update config to current one
         CONFIG = cfg.CONFIG
         self.__init__()
     

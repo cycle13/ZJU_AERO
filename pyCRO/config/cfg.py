@@ -4,7 +4,7 @@ and checks if entered values are valid
 @Author: Hejun Xie
 @Date: 2020-07-16 10:10:37
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-03 19:48:59
+LastEditTime: 2020-10-10 18:29:29
 '''
 
 
@@ -78,14 +78,14 @@ error will be returned if no valid value is provided, ex. frequency
 '''
 
 VALID_VALUES={
-    'radar': # TODO: GPM
-        {'type': ['ground', 'GPM'],\
-        'coords': TypeList([float, int],[3]),\
+    'radar': # TODO: spaceborn
+        {'type': ['ground', 'spaceborne'],\
+        'coords': [TypeList([float, int],[3]), None],\
         'frequency':[2.7,5.6,9.41,9.8,13.6,35.6],\
-        'range': Range(5000,500000),\
+        'range': [Range(5000,500000), None],\
         'radial_resolution': Range(25,5000),\
         'PRI': Range(10,3000),\
-        'FFT_length':Range(16,2048),\
+        'FFT_length':[Range(16,2048), None],\
         'sensitivity': [TypeList([float,int],[3]),TypeList([float,int],[2]),
                         float],\
         '3dB_beamwidth': Range(0.1,10.),\

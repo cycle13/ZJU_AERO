@@ -4,7 +4,7 @@ model variables to the radar gates
 Author: Hejun Xie
 Date: 2020-08-15 11:07:01
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-03 19:51:18
+LastEditTime: 2020-10-10 19:55:30
 '''
 
 # Global imports
@@ -21,7 +21,7 @@ from textwrap import dedent
 from ..interpolation import Radial, get_all_radar_pts
 from ..constants import global_constants as constants
 from ..utilities import nansum_arr, sum_arr
-from ..beam_propogation import compute_trajectory_radial
+from ..beam_propogation import compute_trajectory_radial, compute_trajectory_spaceborne
 
 def integrate_radials(list_subradials):
     '''
@@ -110,7 +110,7 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
     keys = list(dic_variables.keys())
 
     # Get options
-    from pyCRO.config.cfg import CONFIG
+    from ..config.cfg import CONFIG
     bandwidth_3dB = CONFIG['radar']['3dB_beamwidth']
     integration_scheme = CONFIG['integration']['scheme']
     refraction_method = CONFIG['refraction']['scheme']
@@ -143,38 +143,47 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
     # Initialize list of subradials
     list_subradials = []
 
-    # Get rrange of the radar
-    rranges = constants.RANGE_RADAR
+    # Get rrange and coordinates of the radar 
+    if CONFIG['radar']['type'] in ['ground']:
+        rranges = constants.RANGE_RADAR
+        radar_pos = CONFIG['radar']['coords']
 
     # Get the subradial trajaxtory of the radar
     list_refraction = []
 
-    # Get coordinates of virtual radar
-    radar_pos = CONFIG['radar']['coords']
-
-    if refraction_method in [1,2]:
+    if CONFIG['radar']['type'] in ['spaceborne']:
+        trajectoryListType = 'zen'
         for pt in pts_ver:
-            s, h, e = compute_trajectory_radial(
-                                            rranges,
-                                            pt+elevation,
-                                            radar_pos,
-                                            refraction_method,
-                                            N
-                                            )                                    
+            s, h, e = compute_trajectory_spaceborne(pt+elevation)
             list_refraction.append((s, h, e))
-            
-    elif refraction_method in [3]:
-        for pt_hor in pts_hor:
-            s, h, e = compute_trajectory_radial(
+
+    elif CONFIG['radar']['type'] in ['ground']:
+        if refraction_method in [1,2]:
+            trajectoryListType = 'zen'
+            for pt in pts_ver:
+                s, h, e = compute_trajectory_radial(
                                                 rranges,
-                                                pts_ver + elevation,
+                                                pt+elevation,
                                                 radar_pos,
                                                 refraction_method,
-                                                N,
-                                                pt_hor + azimuth
-                                                )
-            list_refraction.append((s, h, e))
-            # exit()
+                                                N
+                                                )                                    
+                list_refraction.append((s, h, e))     
+        elif refraction_method in [3]:
+            trajectoryListType = 'az,zen'
+            for pt_hor in pts_hor:
+                s, h, e = compute_trajectory_radial(
+                                                    rranges,
+                                                    pts_ver + elevation,
+                                                    radar_pos,
+                                                    refraction_method,
+                                                    N,
+                                                    pt_hor + azimuth
+                                                    )
+                list_refraction.append((s, h, e))
+                # exit()
+    else:
+        raise KeyError('No such radar type:{}'.format(CONFIG['radar']['type']))
 
     for i in range(len(pts_hor)):
         for j in range(len(pts_ver)):
@@ -182,12 +191,12 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
             # GH coordinates
             pt = [pts_hor[i]+azimuth, pts_ver[j]+elevation]
             # Interpolate beam
-            if refraction_method in [1,2]:
+            if trajectoryListType == 'zen':
                 lats,lons,list_vars = trilin_interp_radial_WRF(list_variables,
                                                     pts_hor[i]+azimuth,
                                                     list_refraction[j][0],
                                                     list_refraction[j][1])
-            elif refraction_method in [3]:
+            elif trajectoryListType == 'az,zen':
                 lats,lons,list_vars = trilin_interp_radial_WRF(list_variables,
                                                     pts_hor[i]+azimuth,
                                                     list_refraction[i][0][j],
@@ -213,7 +222,7 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
                 bi[mask_beam!=0] = np.nan # Assign NaN to all missing data
                 dic_beams[keys[k]] = bi # Create dictionary
 
-            if refraction_method in [1,2]:
+            if trajectoryListType == 'zen':
                 subradial = Radial(dic_beams, mask_beam, lats, lons,
                                         list_refraction[j][0],
                                         list_refraction[j][1],
@@ -221,7 +230,7 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
                                         pt, weight)
                 list_subradials.append(subradial)
                 
-            elif refraction_method in [3]:
+            elif trajectoryListType == 'az,zen':
                 subradial = Radial(dic_beams, mask_beam, lats, lons,
                                         list_refraction[i][0][j],
                                         list_refraction[i][1][j],

@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-03 19:47:00
+LastEditTime: 2020-10-11 15:12:59
 '''
 
 
@@ -20,7 +20,7 @@ import pickle
 from textwrap import dedent
 
 # Local imports
-from .radar import PyartRadop, PycwrRadop
+from .radar import PyartRadop, PycwrRadop, get_spaceborne_angles, SimulatedSpaceborne
 from .config import cfg
 from .interpolation import get_interpolated_radial, integrate_radials
 
@@ -35,7 +35,7 @@ class RadarOperator(object):
     def __init__(self, options_file = None, output_variables = 'all'):
         '''
         Creates a RadarOperator class instance that can be used to compute
-        radar profiles (PPI, RHI, GPM)
+        radar profiles (PPI, RHI, spaceborne_swath)
         Args:
             options_file: a .yml file containing the user configuration
                 (see examples in the options_files folder)
@@ -351,6 +351,72 @@ class RadarOperator(object):
         del N
         del lut_sz
         gc.collect()
+    
+    def get_spaceborne_swath_test(self, swath_file, slice=None):
+        '''
+        Simulates a spaceborne radar swath, for single thread test
+        Args:
+            swath_file: a spaceborne file, not implemented yet, only for test.
+            slice: slice of the spacebrone radar pixels in model domain. If slice is None,
+            then the total swath is simulated.
+
+        Returns:
+            An instance of the SimulatedSpaceborne class (see spaceborne_wrapper.py) which
+            contains the simulated radar observables.
+        '''
+
+        # Check if model file has been loaded
+        if self.dic_vars=={}:
+            print('No model file has been loaded! Aborting...')
+            return
+
+        # Needs to be done in order to deal with Multiprocessing's annoying limitations
+        global dic_vars, N, lut_sz, output_variables
+        dic_vars, N, lut_sz, output_variables = self.define_globals()
+
+        print(cfg.CONFIG)
+
+        # get spaceborne radar observation angles
+        az,elev,rang,coords_spaceborne = get_spaceborne_angles(swath_file, slice)
+
+        def worker(params):
+            # print(params)
+            azimuth=params[0]
+            elev=params[1]
+
+            # Update spaceborne position and range vector for each beam
+            cfg.CONFIG['radar']['range'] = params[2]
+            cfg.CONFIG['radar']['coords'] = [params[3],
+                                            params[4],
+                                            params[5]]
+
+            list_subradials = get_interpolated_radial(dic_vars,
+                                                        azimuth,
+                                                        elev,N = N)
+
+            # print(integrate_radials(list_subradials).values['T'])
+
+            if output_variables in ['all','only_radar']:
+                output = get_radar_observables(list_subradials,lut_sz)
+            if output_variables == 'only_model':
+                output =  integrate_radials(list_subradials)
+            elif output_variables == 'all':
+                output = combine_subradials((output,
+                        integrate_radials(list_subradials)))
+
+            return output
+        
+        output = worker((az[0,0], elev[0,0], rang[0,0], 
+        coords_spaceborne[0,0], coords_spaceborne[0,1], coords_spaceborne[0,2]))
+
+        (nscan, npixel) = az.shape
+        
+        del dic_vars
+        del N
+        del lut_sz
+        gc.collect()
+        
+        return output    
 
     def get_PPI(self, elevations, azimuths = None, az_step = None, az_start = 0,
                 az_stop = 359, plot_engine='pyart'):
@@ -556,4 +622,100 @@ class RadarOperator(object):
                 plot_instance = PycwrRadop('rhi',simulated_sweep)
 
             return plot_instance
+    
+    def get_spaceborne_swath(self, swath_file, slice=None):
+        '''
+        Simulates a spaceborne radar swath
+        Args:
+            swath_file: a spaceborne file, not implemented yet, only for test.
+            slice: slice of the spacebrone radar pixels in model domain. If slice is None,
+            then the total swath is simulated.
+
+        Returns:
+            An instance of the SimulatedSpaceborne class (see spaceborne_wrapper.py) which
+            contains the simulated radar observables.
+        '''
+
+        # Check if model file has been loaded
+        if self.dic_vars=={}:
+            print('No model file has been loaded! Aborting...')
+            return
+
+        # Needs to be done in order to deal with Multiprocessing's annoying limitations
+        global dic_vars, N, lut_sz, output_variables
+        dic_vars, N, lut_sz, output_variables = self.define_globals()
+
+        # get spaceborne radar observation angles
+        az,elev,rang,coords_spaceborne = get_spaceborne_angles(swath_file, slice)
+
+        # Initialize computing pool
+        pool = mp.Pool(processes = mp.cpu_count())
+        m = mp.Manager()
+        event = m.Event()
+
+        def worker(event,params):
+            try:
+                if not event.is_set():
+                    # print(params)
+                    azimuth=params[0]
+                    elev=params[1]
+
+                    # Update spaceborne position and range vector for each beam
+                    cfg.CONFIG['radar']['range'] = params[2]
+                    cfg.CONFIG['radar']['coords'] = [params[3],
+                                                    params[4],
+                                                    params[5]]
+
+                    list_subradials = get_interpolated_radial(dic_vars,
+                                                                azimuth,
+                                                                elev,N = N)
+
+                    if output_variables in ['all','only_radar']:
+                        output = get_radar_observables(list_subradials,lut_sz)
+                    if output_variables == 'only_model':
+                        output =  integrate_radials(list_subradials)
+                    elif output_variables == 'all':
+                        output = combine_subradials((output,
+                                integrate_radials(list_subradials)))
+
+                    return output
+            except:
+                # Throw signal back
+                raise
+                event.set()
+
+        (nscan, npixel) = az.shape
+        
+        list_beams=[]
+        for iscan in range(nscan):
+            print('running scan '+str(iscan))
+            # Update radar position
+            c0 = np.repeat(coords_spaceborne[iscan,0],len(az[iscan]))
+            c1 = np.repeat(coords_spaceborne[iscan,1],len(az[iscan]))
+            c2 = np.repeat(coords_spaceborne[iscan,2],len(az[iscan]))
+            worker_partial = partial(worker,event)
+            list_beams.extend(pool.map(worker_partial,zip(az[iscan],
+                                                     elev[iscan],
+                                                     rang[iscan],
+                                                     c0,
+                                                     c1,
+                                                     c2)))
+
+        pool.close()
+        pool.join()
+
+        del dic_vars
+        del N
+        del lut_sz
+        gc.collect()
+
+        if not event.is_set():
+            # Threshold at given sensitivity
+            if output_variables in ['all','only_radar']:
+                list_beams = cut_at_sensitivity(list_beams)
+
+            list_beams_formatted = SimulatedSpaceborne(list_beams,
+                                                    (nscan,npixel))
+
+            return list_beams_formatted
     

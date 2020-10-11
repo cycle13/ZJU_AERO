@@ -3,7 +3,7 @@ Description:  computes all radar observables for a given radial
 Author: Hejun Xie
 Date: 2020-08-20 22:01:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-03 19:54:10
+LastEditTime: 2020-10-10 20:58:27
 '''
 
 # Global imports
@@ -59,8 +59,8 @@ def get_radar_observables(list_subradials, lut_sz):
     global microphysics_scheme
 
     # Get info from user config
-    # some schme are displayed here but not implemented yet...
-    from pyCRO.config.cfg import CONFIG
+    # Some schme are displayed here but not implemented yet...
+    from ..config.cfg import CONFIG
     doppler_scheme = CONFIG['doppler']['scheme'] # TODO
     microphysics_scheme = CONFIG['microphysics']['scheme'] # TODO only '1mom'
     with_ice_crystals = CONFIG['microphysics']['with_ice_crystals']
@@ -70,6 +70,12 @@ def get_radar_observables(list_subradials, lut_sz):
     integration_scheme = CONFIG['integration']['scheme'] 
     KW = CONFIG['radar']['K_squared']
     nyquist_velocity = CONFIG['radar']['nyquist_velocity']
+
+    # No doppler for spaceborne radar
+    if CONFIG['radar']['type'] == 'spaceborne':
+        simulate_doppler = False
+    else:
+        simulate_doppler = True
 
     # Get dimensions of subradials
     num_beams = len(list_subradials) # Number of subradials (quad. pts)
@@ -112,13 +118,16 @@ def get_radar_observables(list_subradials, lut_sz):
     
     # Intialize Doppler variables
     # average terminal velocity
-    rvel_avg = np.zeros(n_gates,) + np.nan
-    total_weight_rvel = np.zeros(n_gates,)
+    if simulate_doppler:
+        rvel_avg = np.zeros(n_gates,) + np.nan
+        total_weight_rvel = np.zeros(n_gates,)
 
     ###########################################################################
     for i, subrad in enumerate(list_subradials): # Loop on subradials (quad pts)
-        v_integ = np.zeros(n_gates,) # Integrated fall velocity
-        n_integ = np.zeros(n_gates,) # Integrated number of particles
+
+        if simulate_doppler:
+            v_integ = np.zeros(n_gates,) # Integrated fall velocity
+            n_integ = np.zeros(n_gates,) # Integrated number of particles
 
         for j, h in enumerate(hydrom_types): # Loop on hydrometeors
             
@@ -190,33 +199,35 @@ def get_radar_observables(list_subradials, lut_sz):
             Part 4 : Doppler
             '''
             # Get terminal velocity integrated over PSD
-            vh,n = dic_hydro[h].integrate_V()
+            if simulate_doppler:
+                vh,n = dic_hydro[h].integrate_V()
 
-            v_integ[valid_data] = nansum_arr(v_integ[valid_data],vh)
-            n_integ[valid_data] = nansum_arr(n_integ[valid_data],n)
-            
+                v_integ[valid_data] = nansum_arr(v_integ[valid_data],vh)
+                n_integ[valid_data] = nansum_arr(n_integ[valid_data],n)
+    
         ########################################################################### (inner loop hydrometeor finished)
         
         """ For every beam, we get the average fall velocity for
         all hydrometeors and the resulting radial velocity """
         
-        # Obtain hydrometeor average fall velocity
-        v_hydro = v_integ/n_integ
-        # Add density weighting
-        v_hydro*(subrad.values['RHO']/subrad.values['RHO'][0])**(0.5)
+        if simulate_doppler:
+            # Obtain hydrometeor average fall velocity
+            v_hydro = v_integ/n_integ
+            # Add density weighting
+            v_hydro*(subrad.values['RHO']/subrad.values['RHO'][0])**(0.5)
 
-        # Get radial velocity knowing hydrometeor fall speed and U,V,W from model
-        theta_deg = subrad.elev_profile
-        phi_deg = subrad.quad_pt[0]
-        theta = np.deg2rad(theta_deg) # elevation
-        phi = np.deg2rad(phi_deg)       # azimuth
-        proj_wind = proj_vel(subrad.values['U'],subrad.values['V'],
-                            subrad.values['W'], v_hydro, theta, phi)
+            # Get radial velocity knowing hydrometeor fall speed and U,V,W from model
+            theta_deg = subrad.elev_profile
+            phi_deg = subrad.quad_pt[0]
+            theta = np.deg2rad(theta_deg) # elevation
+            phi = np.deg2rad(phi_deg)       # azimuth
+            proj_wind = proj_vel(subrad.values['U'],subrad.values['V'],
+                                subrad.values['W'], v_hydro, theta, phi)
 
-        # Get mask of valid values
-        total_weight_rvel = sum_arr(total_weight_rvel, ~np.isnan(proj_wind)*subrad.quad_weight)
-        # Average radial velocity for all sub-beams
-        rvel_avg = nansum_arr(rvel_avg, (proj_wind) * subrad.quad_weight)
+            # Get mask of valid values
+            total_weight_rvel = sum_arr(total_weight_rvel, ~np.isnan(proj_wind)*subrad.quad_weight)
+            # Average radial velocity for all sub-beams
+            rvel_avg = nansum_arr(rvel_avg, (proj_wind) * subrad.quad_weight)
     
     ########################################################################### (outer loop subbeam finished)
     
@@ -241,15 +252,16 @@ def get_radar_observables(list_subradials, lut_sz):
         ZH *= nan_cumprod(10**(-0.1*AH*(radial_res/1000.)))
         ZDR = ZH / ZV
     
-    rvel_avg /= total_weight_rvel
+    if simulate_doppler:
+        rvel_avg /= total_weight_rvel
 
-    # Apply aliasing if wanted
-    if nyquist_velocity != None:
-        # Note that the real elevation angle might vary for a given
-        # ray due to refraction, but the nyquist velocity is computed based on the first
-        # elevation angle
-        nyq = nyquist_velocity
-        rvel_avg = aliasing(rvel_avg, nyq)
+        # Apply aliasing if wanted
+        if nyquist_velocity != None:
+            # Note that the real elevation angle might vary for a given
+            # ray due to refraction, but the nyquist velocity is computed based on the first
+            # elevation angle
+            nyq = nyquist_velocity
+            rvel_avg = aliasing(rvel_avg, nyq)
 
     ###########################################################################
 
@@ -270,7 +282,8 @@ def get_radar_observables(list_subradials, lut_sz):
     rad_obs['ATT_H'] = AH
     rad_obs['ATT_V'] = AV
     # doppler
-    rad_obs['RVEL'] = rvel_avg
+    if simulate_doppler:
+        rad_obs['RVEL'] = rvel_avg
     
     '''
     Once averaged , the meaning of the mask is the following

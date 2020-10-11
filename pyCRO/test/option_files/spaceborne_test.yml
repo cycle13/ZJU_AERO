@@ -1,0 +1,28 @@
+# Spaceborne Radar with no fixed coords, no need to apply it 
+radar:
+    type: 'spaceborne'
+    coords:
+    range:
+    frequency: 35.6
+    radial_resolution: 250
+    PRI: 700
+    FFT_length:
+    sensitivity: 12
+    3dB_beamwidth: 0.5
+    K_squared: 0.93
+    nyquist_velocity:
+refraction:
+    scheme: 2
+# TODO: Now spaceborne radar do not support beam broadening
+integration:
+    scheme: 1
+    nh_GH: 1
+    nv_GH: 1
+doppler:
+    scheme: 1
+microphysics:
+    scheme: '1mom'
+    folder_lut: '../../../cosmo_pol/pathos/lut/'
+    scattering: 'tmatrix_masc'
+    with_attenuation: 1
+    with_ice_crystals: 1
