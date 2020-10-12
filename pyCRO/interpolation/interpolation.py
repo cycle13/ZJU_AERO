@@ -4,7 +4,7 @@ model variables to the radar gates
 Author: Hejun Xie
 Date: 2020-08-15 11:07:01
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-10 19:55:30
+LastEditTime: 2020-10-12 12:11:07
 '''
 
 # Global imports
@@ -21,7 +21,7 @@ from textwrap import dedent
 from ..interpolation import Radial, get_all_radar_pts
 from ..constants import global_constants as constants
 from ..utilities import nansum_arr, sum_arr
-from ..beam_propogation import compute_trajectory_radial, compute_trajectory_spaceborne
+from ..beam import compute_trajectory_radial, compute_trajectory_spaceborne
 
 def integrate_radials(list_subradials):
     '''
