@@ -18,8 +18,8 @@ integration:
     scheme: 1
     nh_GH: 1
     nv_GH: 1
-doppler:
-    scheme: 1
+core:
+    engine: 'rdop'
 microphysics:
     scheme: '1mom'
     folder_lut: '../../../cosmo_pol/pathos/lut/'

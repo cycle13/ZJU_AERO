@@ -4,7 +4,7 @@ and checks if entered values are valid
 @Author: Hejun Xie
 @Date: 2020-07-16 10:10:37
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-10 18:29:29
+LastEditTime: 2020-10-12 11:01:17
 '''
 
 
@@ -54,8 +54,9 @@ DEFAULTS={
         'nv_GH':9,\
         'nh_GH':3,\
         'weight_threshold':1.},\
-    'doppler':
-        {'scheme':1,\
+    'core':
+        {'scheme': 1,\
+        'engine':'rdop',\
         'turbulence_correction':0,\
         'motion_correction':0},\
     'microphysics':
@@ -99,8 +100,9 @@ VALID_VALUES={
         'nv_GH': range(1,31,2),\
         'nh_GH': range(1,31,2),\
         'weight_threshold':  Range(0.0001,1.)},\
-    'doppler': # TODO: turbulance and motion correction
-        {'scheme':[1,2,3],\
+    'core': # TODO: turbulance and motion correction
+        {'scheme': 1,\
+        'engine':['rdop', 'wrfda'],\
         'turbulence_correction':[0,1],
         'motion_correction':[0,1]},\
     'microphysics':

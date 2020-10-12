@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-11 15:12:59
+LastEditTime: 2020-10-12 10:48:46
 '''
 
 
@@ -27,7 +27,7 @@ from .interpolation import get_interpolated_radial, integrate_radials
 from .constants import global_constants as constants
 from .lookup import load_all_lut
 from .utilities import combine_subradials
-from .scatter import get_radar_observables, cut_at_sensitivity
+from .core import get_radar_observables, cut_at_sensitivity
 
 BASE_VARIABLES=['U','V','W','QR_v','QS_v','QG_v','QI_v','RHO','T']
 

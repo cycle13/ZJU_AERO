@@ -1,17 +1,15 @@
 '''
-Description:  computes all radar observables for a given radial
+Description: The radar operator module for computing radar observables
+from the interpolated radials given by NWP models
 Author: Hejun Xie
-Date: 2020-08-20 22:01:10
+Date: 2020-10-12 10:45:48
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-10 20:58:27
+LastEditTime: 2020-10-12 11:10:53
 '''
 
 # Global imports
 import numpy as np
 np.warnings.filterwarnings('ignore')
-from scipy.ndimage.filters import gaussian_filter
-import copy
-from scipy.optimize import fsolve
 
 # Local imports
 from ..config.cfg import CONFIG
@@ -39,7 +37,8 @@ def proj_vel(U, V, W, vf, theta,phi):
     return ((U*np.sin(phi) + V * np.cos(phi)) * np.cos(theta)
             + (W - vf) * np.sin(theta))
 
-def get_radar_observables(list_subradials, lut_sz):
+
+def get_radar_observables_rdop(list_subradials, lut_sz):
     """
     Computes Doppler and polarimetric radar variables for all subradials
     over ensembles of hydrometeors and integrates them over all subradials at
@@ -55,13 +54,13 @@ def get_radar_observables(list_subradials, lut_sz):
     """
 
     # Get scheme setup
-    global doppler_scheme
+    global core_scheme
     global microphysics_scheme
 
     # Get info from user config
     # Some schme are displayed here but not implemented yet...
     from ..config.cfg import CONFIG
-    doppler_scheme = CONFIG['doppler']['scheme'] # TODO
+    core_scheme = CONFIG['core']['scheme'] # TODO
     microphysics_scheme = CONFIG['microphysics']['scheme'] # TODO only '1mom'
     with_ice_crystals = CONFIG['microphysics']['with_ice_crystals']
     att_corr = CONFIG['microphysics']['with_attenuation']
@@ -369,62 +368,4 @@ def get_pol_from_sz(sz, KW):
 
     return z_h,z_v,zdr,rhohv,kdp,ah,av,delta_hv
 
-def cut_at_sensitivity(list_subradials):
-    '''
-    Censors simulated measurements where the reflectivity falls below the
-    sensitivity specified by the user, see the wiki for how to define
-    the sensitivity in the configuration files
-    Args:
-        list_subradials: a list of subradials containing the computed radar
-            observables
-    Returns:
-         the list_subradials but censored with the radar sensitivity
-    '''
-    from pyCRO.config.cfg import CONFIG
-    sens_config = CONFIG['radar']['sensitivity']
-    if not isinstance(sens_config,list):
-        sens_config = [sens_config]
-
-    if len(sens_config) == 3: # Sensitivity - gain - snr
-        threshold_func = lambda r: (sens_config[0] + constants.RADAR_CONSTANT_DB
-                         + sens_config[2] + 20*np.log10(r/1000.))
-    elif len(sens_config) == 2: # ZH - range
-        threshold_func = lambda r: ((sens_config[0] -
-                                     20 * np.log10(sens_config[1] / 1000.)) +
-                                     20 * np.log10(r / 1000.))
-    elif len(sens_config) == 1: # ZH
-        threshold_func = lambda r: sens_config[0]
-
-    else:
-        print('Sensitivity parameters are invalid, cannot cut at specified sensitivity')
-        print('Enter either a single value of refl (dBZ) or a list of',
-              '[refl (dBZ), distance (m)] or a list of [sensitivity (dBm), gain (dBm) and snr (dB)]')
-
-        return list_subradials
-
-    if isinstance(list_subradials[0],list): # Loop on list of lists
-        for i,sweep in enumerate(list_subradials):
-            for j,b, in enumerate(sweep):
-                rranges = (CONFIG['radar']['radial_resolution'] *
-                           np.arange(len(b.dist_profile)))
-                mask = 10*np.log10(b.values['ZH']) < threshold_func(rranges)
-                for k in b.values.keys():
-                    if k in constants.SIMULATED_VARIABLES:
-                        if k == 'DSPECTRUM':
-                            logspectrum = 10 * np.log10(list_subradials[i][j].values[k])
-                            thresh = threshold_func(rranges)
-                            thresh =  np.tile(thresh,
-                                              (logspectrum.shape[1],1)).T
-                            list_subradials[i][j].values[k][logspectrum < thresh] = np.nan
-                        else:
-                            list_subradials[i][j].values[k][mask] = np.nan
-
-    else:
-        for i, subradial in enumerate(list_subradials): # Loop on simple list
-            rranges = (CONFIG['radar']['radial_resolution'] *
-                       np.arange(len(subradial.dist_profile)))
-            mask = 10 * np.log10(subradial.values['ZH']) < threshold_func(rranges)
-            for k in subradial.values.keys():
-                if k in constants.SIMULATED_VARIABLES:
-                    list_subradials[i].values[k][mask] = np.nan
-    return list_subradials
+    
