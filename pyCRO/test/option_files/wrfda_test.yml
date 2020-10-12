@@ -1,0 +1,26 @@
+# Fangshan Beijing X-band Cloud Radar 
+radar:
+    coords: [39.69, 116.2, 50]
+    range: 200000
+    frequency: 9.41
+    radial_resolution: 75
+    PRI: 700
+    FFT_length: 128
+    sensitivity: [-15,10000]
+    3dB_beamwidth: 0.9972
+    K_squared: 0.93
+    nyquist_velocity: 15.010451
+refraction:
+    scheme: 2
+integration:
+    scheme: 1
+    nh_GH: 3
+    nv_GH: 3
+core:
+    engine: 'wrfda'
+microphysics:
+    scheme: '1mom'
+    folder_lut: '../../../cosmo_pol/pathos/lut/'
+    scattering: 'tmatrix_masc'
+    with_attenuation: 1
+    with_ice_crystals: 1
