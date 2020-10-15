@@ -3,7 +3,7 @@ Description: test for spaceborne radar
 Author: Hejun Xie
 Date: 2020-10-10 10:44:15
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-12 12:00:23
+LastEditTime: 2020-10-15 23:14:47
 '''
 
 # unit test import
@@ -19,19 +19,20 @@ import pickle
 import pyCRO
 import pyart
 
-LOAD_MODEL = False
-LOAD_RADAR = False
+LOAD_MODEL = True
+LOAD_RADAR = True
 DEG = r'$^\circ$'
 
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',
 'KDP': 'pyart_EWilson17', 'PHIDP': 'pyart_Carbone42', 'RHOHV': 'pyart_GrMg16'}
 clevels = {'ZH':np.arange(0,55,5), 'ZDR':np.linspace(0., 0.1, 50)}
 units = {'ZH':'[dBZ]', 'ZDR':'[dBZ]'}
+longname = {'ZH':'Horizontal Refelctivity', 'ZDR':'Differential Reflectivty'}
 
 if __name__ == "__main__":
 
     if not LOAD_RADAR:
-        FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6_test/wrfout_d01_2019-05-17_00_00_00'
+        FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6_ERA_interim/wrfout_d01_2019-05-17_00_00_00'
         a = pyCRO.RadarOperator(options_file='./option_files/spaceborne_test.yml')
         a.load_model_file(FILENAME, itime=40, load_pickle=LOAD_MODEL, pickle_file='mdl.pkl')
 
@@ -52,35 +53,42 @@ if __name__ == "__main__":
     plt.rcParams['font.family'] = 'serif'
     from mpl_toolkits.basemap import Basemap
 
-    var = 'ZH'
+    plotvars = ['ZH', 'ZDR']
 
-    fig, ax = plt.subplots(figsize=(10,8))
+    for var in plotvars:
 
-    slat = 38.0
-    elat = 42.0
-    slon = 115.0
-    elon = 119.0
+        for zlevel in [15, 35]:
+        
+            fig, ax = plt.subplots(figsize=(10,8))
 
-    map = Basemap(projection='cyl', llcrnrlat=slat, urcrnrlat=elat, llcrnrlon=slon, urcrnrlon=elon, resolution='h', ax=ax)
-    map.drawparallels(np.arange(slat, elat+1, 1.0), linewidth=1, dashes=[4, 3], labels=[1, 0, 0, 0])
-    map.drawmeridians(np.arange(slon, elon+1, 1.0), linewidth=1, dashes=[4, 3], labels=[0, 0, 0, 1])
-    map.drawcoastlines()
+            slat = 38.0
+            elat = 42.0
+            slon = 114.0
+            elon = 119.0
 
-    x = r.lons
-    y = r.lats
-    h = r.heights
-    z = 10*np.log10(r.data[var])
+            map = Basemap(projection='cyl', llcrnrlat=slat, urcrnrlat=elat, llcrnrlon=slon, urcrnrlon=elon, resolution='h', ax=ax)
+            map.drawparallels(np.arange(slat, elat+1, 1.0), linewidth=1, dashes=[4, 3], labels=[1, 0, 0, 0])
+            map.drawmeridians(np.arange(slon, elon+1, 1.0), linewidth=1, dashes=[4, 3], labels=[0, 0, 0, 1])
+            map.drawcoastlines()
 
-    zlevel = 35
+            x = r.lons
+            y = r.lats
+            h = r.heights
+            z = 10*np.log10(r.data[var])
+            
+            im = map.pcolormesh(x[...,zlevel], y[...,zlevel], z[...,zlevel], cmap=cmap[var])
+
+            ax.set_title('Spaceborne Radar ' + var, fontsize=16)
+            
+            cb = fig.colorbar(im, ax=ax)
+            cb.ax.set_ylabel('{} {}'.format(longname[var], units[var]), fontsize=14)
+
+            plt.savefig('swath_{}_{}.png'.format(var, zlevel), dpi=300, bbox_inches='tight')
+
+            plt.close()
+            del fig, ax
+
     
-    im = map.pcolormesh(x[...,zlevel], y[...,zlevel], z[...,zlevel], cmap=cmap[var])
-
-    ax.set_title('Spaceborne Radar ' + var, fontsize=16)
-    
-    cb = fig.colorbar(im, ax=ax)
-    cb.ax.set_ylabel('Horizontal Reflectivity [dBZ]', fontsize=14)
-
-    plt.savefig('swath.png',dpi=300, bbox_inches='tight')
     exit()
 
     # start swath 3D plot

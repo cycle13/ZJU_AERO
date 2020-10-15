@@ -7,7 +7,7 @@ simulating the scan.
 Author: Hejun Xie
 Date: 2020-10-09 15:56:38
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-11 14:44:58
+LastEditTime: 2020-10-15 22:49:41
 '''
 
 # Global imports
@@ -60,8 +60,8 @@ def get_spaceborne_angles(swath_file, swath_slice=None):
         
         # now make up the test swath info
         sc_alt_makeup = 407000 # [m] = 407km PolarObiting height
-        lon_frame_makeup = [115.0, 117.5, 115.0, 117.5] # [NW, NE, SW, SE]
-        lat_frame_makeup = [41.0,   41.0,  38.0,  38.0] # [NW, NE, SW, SE]
+        lon_frame_makeup = [114.0, 117.5, 115.0, 118.5] # [NW, NE, SW, SE]
+        lat_frame_makeup = [42.,   42.,  38.0,  38.0] # [NW, NE, SW, SE]
 
         sc_alt = np.empty((nscan), dtype=float)
         sc_alt[:] = sc_alt_makeup #[m]
