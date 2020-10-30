@@ -3,7 +3,7 @@ Description: test for spaceborne radar
 Author: Hejun Xie
 Date: 2020-10-10 10:44:15
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-15 23:14:47
+LastEditTime: 2020-10-30 15:45:11
 '''
 
 # unit test import
@@ -32,7 +32,7 @@ longname = {'ZH':'Horizontal Refelctivity', 'ZDR':'Differential Reflectivty'}
 if __name__ == "__main__":
 
     if not LOAD_RADAR:
-        FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6_ERA_interim/wrfout_d01_2019-05-17_00_00_00'
+        FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6_test/ERA_interim/wrfout_d01_2019-05-17_00_00_00'
         a = pyCRO.RadarOperator(options_file='./option_files/spaceborne_test.yml')
         a.load_model_file(FILENAME, itime=40, load_pickle=LOAD_MODEL, pickle_file='mdl.pkl')
 

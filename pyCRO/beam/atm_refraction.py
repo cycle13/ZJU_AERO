@@ -4,7 +4,7 @@ radar beam while taking into account atmospheric refraction
 @Author: Hejun Xie
 @Date: 2020-07-16 17:44:29
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-10 18:55:12
+LastEditTime: 2020-10-30 15:37:38
 '''
 
 # Global imports

@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-08-02 12:46:24
 LastEditors: Hejun Xie
-LastEditTime: 2020-09-26 23:24:10
+LastEditTime: 2020-10-30 15:40:18
 '''
 
 # unit test import
@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 
 
 # Local imports
-from pyCRO.beam_propogation import fixed_radius_KE, ODEZeng2014, ODEZeng2014_exhaustive
+from pyCRO.beam import fixed_radius_KE, ODEZeng2014, ODEZeng2014_exhaustive
 from pyCRO.utilities import DATAdecorator
 
 @DATAdecorator('./', False, './she.pkl')

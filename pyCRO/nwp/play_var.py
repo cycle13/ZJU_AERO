@@ -3,7 +3,7 @@ Description: test wrfout
 Author: Hejun Xie
 Date: 2020-08-28 17:03:50
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-23 16:03:02
+LastEditTime: 2020-10-26 16:23:54
 '''
 
 
@@ -22,8 +22,8 @@ import os
 
 import pyWRF as pw
 
-FILE_MDL = '../../../cosmo_pol/pathos/WRF/wsm6_ERA_interim/wrfout_d01_2019-05-17_00_00_00'
-model_ini_time = dt.datetime(2019, 5, 17)
+FILE_MDL = '../../../cosmo_pol/pathos/WRF/wsm6_ERA5/wrfout_d01_2019-05-17_03_00_00'
+model_ini_time = dt.datetime(2019, 5, 17, 3)
 model_out_step = dt.timedelta(minutes=15)
 
 def _add_title(ax, title):
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     lat = mdl.variables['XLAT'][0,...]
     lon = mdl.variables['XLONG'][0,...]
 
-    times = np.arange(24, 72, 1)
+    times = np.arange(12, 60, 1)
     play_var    = 'Q_hydro'
     unit        = {'Q_hydro': 'kg*m^-2'}
     longname    = {'Q_hydro': 'Total Hydrometeor'}
@@ -119,7 +119,7 @@ if __name__ == '__main__':
         plt.close(fig)
     
     pic_files = glob.glob("{}_*.png".format(play_var))
-    gif_file = "{}_ERA_interim.gif".format(play_var)
+    gif_file = "{}_ERA5_late.gif".format(play_var)
     imgs = [Image.open(ipic) for ipic in pic_files]
     imgs[0].save(gif_file, save_all=True, append_images=imgs, duration=2)
 
