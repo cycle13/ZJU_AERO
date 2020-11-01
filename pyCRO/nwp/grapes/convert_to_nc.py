@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*- 
 '''
-@Author: wanghao
-@Date: 2019-01-22 15:31:50
+Description: Transfer the binary output of GRAPES modelvar to netCDF4 format
+Author: Hejun Xie
+Date: 2020-11-01 10:41:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-30 20:36:26
-@Description: 转换数据在一个文件中的数据
+LastEditTime: 2020-11-01 18:51:04
 '''
 
 # Global import
@@ -23,7 +23,7 @@ import datetime as dt
 # Local import
 from .CTLReader import CTLReader
 
-def transf2nc_specific_ctl(ctlname, nc_out, var='all', v_grid_type='ml'):
+def convert_to_nc_specific_ctl(ctlname, nc_out, var='all', v_grid_type='ml'):
     '''
     Params:
         ctlname: The ctl filename, should be non-general ctl file.
@@ -44,7 +44,9 @@ def transf2nc_specific_ctl(ctlname, nc_out, var='all', v_grid_type='ml'):
         raise KeyError('Invalid v_grid_type:{}'.format(v_grid_type))
     
     data = CTLReader(ctlname)
-    times_tmp = [itime.strftime("%Y%m%d%H") for itime in data.variables['time']]
+    def deltatime_hours(t1, t2):
+        return int((t1-t2).days*24 + (t1-t2).seconds/3600)
+    hours_since_2000 = np.array([deltatime_hours(itime, dt.datetime(2000,1,1)) for itime in data.variables['time']])
 
     # 提取单位信息
     cur_path = os.path.dirname(os.path.realpath(__file__))
@@ -81,7 +83,7 @@ def transf2nc_specific_ctl(ctlname, nc_out, var='all', v_grid_type='ml'):
         levels_uv   = ncfile.createVariable('levels_uv',np.float32,('nlevel_uv'))
         levels_pi   = ncfile.createVariable('levels_pi',np.float32,('nlevel_pi'))
     
-    times[:]     = [int(itime) for itime in times_tmp] 
+    times[:]     = hours_since_2000[:]
     latitude[:]  = data.variables['latitude'][:]
     longitude[:] = data.variables['longitude'][:]
     
@@ -126,7 +128,7 @@ def transf2nc_specific_ctl(ctlname, nc_out, var='all', v_grid_type='ml'):
         levels.units = 'level_number'
         levels_uv.units = 'level_number'
         levels_pi.units = 'level_number'
-    times.units     = 'days since 2000-01-01 00:00:00'
+    times.units     = 'hours since 2000-01-01 00:00:00'
     times.calendar  = 'gregorian'
     times.incr      = '{}'.format(data.crement['time'].seconds/3600)
 
@@ -137,7 +139,7 @@ def transf2nc_specific_ctl(ctlname, nc_out, var='all', v_grid_type='ml'):
 
     ncfile.close()
 
-def transf2nc_general_ctl(ctlname, var='all', v_grid_type='ml'):
+def convert_to_nc_general_ctl(ctlname, var='all', v_grid_type='ml'):
     '''
     Params:
         ctlname: The general ctl filename
@@ -149,7 +151,7 @@ def transf2nc_general_ctl(ctlname, var='all', v_grid_type='ml'):
     specfic_ctl_filenames, nc_outs = _gen_specific_ctl(ctlname)
     for specfic_ctl_filename, nc_out in zip(specfic_ctl_filenames, nc_outs):
         print('{}-->{}'.format(specfic_ctl_filename, nc_out))
-        transf2nc_specific_ctl(specfic_ctl_filename, nc_out, var, v_grid_type)
+        convert_to_nc_specific_ctl(specfic_ctl_filename, nc_out, var, v_grid_type)
         os.system('rm {}'.format(specfic_ctl_filename))
 
 def _gen_specific_ctl(general_ctl):

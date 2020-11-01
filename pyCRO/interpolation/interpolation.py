@@ -4,7 +4,7 @@ model variables to the radar gates
 Author: Hejun Xie
 Date: 2020-08-15 11:07:01
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-12 12:11:07
+LastEditTime: 2020-11-01 10:57:41
 '''
 
 # Global imports
@@ -262,7 +262,7 @@ def trilin_interp_radial_WRF(list_vars, azimuth, distances_profile, heights_prof
     """
 
     # Get position of virtual radar from user configuration
-    from pyCRO.config.cfg import CONFIG
+    from ..config.cfg import CONFIG
     radar_pos = CONFIG['radar']['coords']
 
 

@@ -3,7 +3,7 @@ Description: test wrfout
 Author: Hejun Xie
 Date: 2020-08-28 17:03:50
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-26 16:23:54
+LastEditTime: 2020-11-01 19:52:16
 '''
 
 
@@ -22,7 +22,7 @@ import os
 
 import pyWRF as pw
 
-FILE_MDL = '../../../cosmo_pol/pathos/WRF/wsm6_ERA5/wrfout_d01_2019-05-17_03_00_00'
+FILE_MDL = '../../../../cosmo_pol/pathos/WRF/wsm6_ERA5/wrfout_d01_2019-05-17_03_00_00'
 model_ini_time = dt.datetime(2019, 5, 17, 3)
 model_out_step = dt.timedelta(minutes=15)
 
