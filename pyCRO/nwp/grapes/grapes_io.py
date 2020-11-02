@@ -4,7 +4,7 @@ This module can read in derived variables xarray dataset, as defined in derived_
 Author: Hejun Xie
 Date: 2020-11-01 10:37:12
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-02 16:46:31
+LastEditTime: 2020-11-02 18:22:49
 '''
 
 # Global import 
@@ -78,19 +78,30 @@ def _get_grapes_variables(data_file, varname_list, time_idx):
             if coord in raw_varnames:
                 raw_varnames.remove(coord)
 
-        # 2.1 get the derived vars
+        # 2.1 Get the derived vars
         dv = GRAPESDerivedVar(ds, regular_coords, raw_varnames, time_idx)
         prepare_ds = dict()
         for varname in varname_list:
             prepare_ds[varname] = dv.get_var(varname)
 
-        # 2.2 get the coords
+        # 2.2 Get the coords
         gh = dv.get_var('zz') 
         dv.close()
 
-        # 3. make the xarray data set
-        output_ds = xr.Dataset(prepare_ds)
-        output_ds.coords['z-levels'] = (("level", "latitude", "longitude"), gh.data)
-        output_ds.coords['topograph'] = (("latitude", "longitude"), gh.isel(level=0).data)
+    # 3. Make the xarray data set
+    output_ds = xr.Dataset(prepare_ds)
+    output_ds.coords['z-levels'] = (("level", "latitude", "longitude"), gh.data)
+    output_ds.coords['topograph'] = (("latitude", "longitude"), gh.isel(level=0).data)
+
+    # 4. Add the projection information (now only lat)
+    proj_info = dict()
+    proj_info['proj'] = 'latlon'
+    proj_info['LLC_LAT'] = float(regular_coords['latitude'][0])
+    proj_info['LLC_LON'] = float(regular_coords['longitude'][0])
+    proj_info['DLAT'] = float(regular_coords['latitude'][1] - regular_coords['latitude'][0])
+    proj_info['DLON'] = float(regular_coords['longitude'][1] - regular_coords['longitude'][0])
+    output_ds.attrs['proj_info'] = proj_info 
+    if 'N' in output_ds.data_vars.keys():
+        output_ds.data_vars['N'].attrs['proj_info'] = proj_info
 
     return output_ds
