@@ -5,7 +5,7 @@ and the regular grid in horizontal C-grid.
 Author: Hejun Xie
 Date: 2020-11-01 18:45:30
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-02 10:29:59
+LastEditTime: 2020-11-02 12:51:47
 '''
 
 import numpy as np
@@ -84,7 +84,7 @@ def _to_reg_grid_hor_interp_v(data, dim_names):
     latitude: west-east
     longitude: south-north
     
-    ARAKAWA-C GRID
+    ARAKAWA-C HORIZONTAL GRID
     v--- ---v--- ---v
     |   |   |   |   |
     p---u---p---u---p---u
@@ -106,6 +106,17 @@ def _to_reg_grid_ver_interp_uv(data, dim_names):
     level: bottom-top
     latitude: west-east
     longitude: south-north
+
+    VERTICAL GRID
+    -----pi-----------(false layer above mpdel top)
+    -----T,q,w,zz-----(full layer n, model top h > 30km)
+    -----pi,u,v-------(half layer n-1)
+    -----T,q,w,zz-----(full layer n-1)
+    ...
+    -----T,q,w,zz-----(full layer 2)
+    -----pi,u,v-------(half layer 1)
+    -----T,q,w,zz-----(full layer 1, topograph)
+    -----pi-----------(false layer below topograph)
     '''
     # may be surface wind should be zero
     tmp_data = 0.5 * (data[1:,:,:] + data[:-1,:,:])
@@ -117,6 +128,17 @@ def _to_reg_grid_ver_interp_pi(data, dim_names):
     level: bottom-top
     latitude: west-east
     longitude: south-north
+
+    VERTICAL GRID
+    -----pi-----------(false layer above mpdel top)
+    -----T,q,w,zz-----(full layer n, model top h > 30km)
+    -----pi,u,v-------(half layer n-1)
+    -----T,q,w,zz-----(full layer n-1)
+    ...
+    -----T,q,w,zz-----(full layer 2)
+    -----pi,u,v-------(half layer 1)
+    -----T,q,w,zz-----(full layer 1, topograph)
+    -----pi-----------(false layer below topograph)
     '''
     # zm = sqrt(z1*z2) 
     # 1. isothermal layer assumption
