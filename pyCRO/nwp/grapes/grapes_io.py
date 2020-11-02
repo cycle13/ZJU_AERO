@@ -4,7 +4,7 @@ This module can read in derived variables xarray dataset, as defined in derived_
 Author: Hejun Xie
 Date: 2020-11-01 10:37:12
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-02 18:22:49
+LastEditTime: 2020-11-02 19:21:13
 '''
 
 # Global import 
@@ -93,7 +93,7 @@ def _get_grapes_variables(data_file, varname_list, time_idx):
     output_ds.coords['z-levels'] = (("level", "latitude", "longitude"), gh.data)
     output_ds.coords['topograph'] = (("latitude", "longitude"), gh.isel(level=0).data)
 
-    # 4. Add the projection information (now only lat)
+    # 4. Add the projection information (now only latlon)
     proj_info = dict()
     proj_info['proj'] = 'latlon'
     proj_info['LLC_LAT'] = float(regular_coords['latitude'][0])
