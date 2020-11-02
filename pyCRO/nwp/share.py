@@ -4,7 +4,7 @@ and WRF radar operator interface.
 Author: Hejun Xie
 Date: 2020-11-01 19:51:00
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-01 23:51:38
+LastEditTime: 2020-11-02 11:15:15
 '''
 
 
@@ -19,6 +19,15 @@ class DerivedVarWorkstation(object):
         # A forced attribute, must be specified in specfic classes 
         self.raw_varnames = list() 
         self.known_vars = dict()
+
+    def __getattribute__(self, attrib):
+        '''
+        Make get_var more brief when writing variable expressions
+        '''
+        try:
+            return object.__getattribute__(self, attrib)
+        except:
+            return self.get_var(attrib)
 
     def get_var(self, varname):
         

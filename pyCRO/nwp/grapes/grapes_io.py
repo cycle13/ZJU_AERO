@@ -4,7 +4,7 @@ This module can read in derived variables xarray dataset, as defined in derived_
 Author: Hejun Xie
 Date: 2020-11-01 10:37:12
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-02 10:40:15
+LastEditTime: 2020-11-02 10:51:08
 '''
 
 # Global import 
@@ -89,8 +89,5 @@ def _get_grapes_variables(data_file, varname_list, time_idx):
         output_ds = xr.Dataset(prepare_ds)
         output_ds.coords['z-levels'] = (("level", "latitude", "longitude"), gh.data)
         output_ds.coords['topograph'] = (("latitude", "longitude"), gh.isel(level=0).data)
-
-        print(output_ds)
-        exit()
 
     return output_ds
