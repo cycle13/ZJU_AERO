@@ -3,7 +3,7 @@ Description: test for spaceborne radar
 Author: Hejun Xie
 Date: 2020-10-10 10:44:15
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-30 15:45:11
+LastEditTime: 2020-11-02 17:20:51
 '''
 
 # unit test import
@@ -19,8 +19,8 @@ import pickle
 import pyCRO
 import pyart
 
-LOAD_MODEL = True
-LOAD_RADAR = True
+LOAD_MODEL = False
+LOAD_RADAR = False
 DEG = r'$^\circ$'
 
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',

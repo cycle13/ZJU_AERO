@@ -4,7 +4,7 @@ and checks if entered values are valid
 @Author: Hejun Xie
 @Date: 2020-07-16 10:10:37
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-12 11:01:17
+LastEditTime: 2020-11-02 17:20:04
 '''
 
 
@@ -47,13 +47,16 @@ DEFAULTS={
         'antenna_speed': 0.2,\
         'nyquist_velocity': None,\
         'frequency': 9.41},\
-     'refraction':
+    'refraction':
         {'scheme':1},\
     'integration':
         {'scheme':1,\
         'nv_GH':9,\
         'nh_GH':3,\
         'weight_threshold':1.},\
+    'nwp': # modeltop: wrf=20km, grapes=30km
+        {'name': 'wrf',\
+         'modeltop': 'default'},\
     'core':
         {'scheme': 1,\
         'engine':'rdop',\
@@ -100,6 +103,9 @@ VALID_VALUES={
         'nv_GH': range(1,31,2),\
         'nh_GH': range(1,31,2),\
         'weight_threshold':  Range(0.0001,1.)},\
+    'nwp':
+        {'name': ['wrf', 'grapes'],\
+         'modeltop': [float, 'default']},\
     'core': # TODO: turbulance and motion correction
         {'scheme': 1,\
         'engine':['rdop', 'wrfda'],\

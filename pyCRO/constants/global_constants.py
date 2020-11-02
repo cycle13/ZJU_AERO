@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-10 19:23:03
+LastEditTime: 2020-11-02 17:07:13
 '''
 
 # Global import
@@ -100,7 +100,6 @@ class Constant_class(object):
         self.A = 1.6
         self.RHO_0 = 1.225
         self.KE = 4./3.
-        self.MAX_MODEL_HEIGHT = 20000
         self.T0 = 273.15
 
         #,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -133,6 +132,16 @@ class Constant_class(object):
         if CONFIG != None:
             self.WAVELENGTH = self.C/(CONFIG['radar']['frequency']*1E09)*1000
 
+            # get model top 
+            if CONFIG['nwp']['modeltop'] == 'default':
+                if CONFIG['nwp']['name'] == 'wrf':
+                    self.MAX_MODEL_HEIGHT = 20000
+                elif CONFIG['nwp']['name'] == 'grapes':
+                    self.MAX_MODEL_HEIGHT = 30000
+            else:
+                self.MAX_MODEL_HEIGHT = CONFIG['nwp']['modeltop']
+
+            # get radar range 
             if CONFIG['radar']['type'] in ['ground']:
                 self.RANGE_RADAR=np.arange(
                     CONFIG['radar']['radial_resolution']/2.,

@@ -15,6 +15,8 @@ integration:
     scheme: 1
     nh_GH: 3
     nv_GH: 3
+nwp:
+    name: 'grapes'
 core:
     engine: 'rdop'
 microphysics:
