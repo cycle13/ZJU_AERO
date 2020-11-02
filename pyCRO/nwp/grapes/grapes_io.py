@@ -4,7 +4,7 @@ This module can read in derived variables xarray dataset, as defined in derived_
 Author: Hejun Xie
 Date: 2020-11-01 10:37:12
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-01 23:54:07
+LastEditTime: 2020-11-02 10:40:15
 '''
 
 # Global import 
@@ -65,11 +65,11 @@ def _get_grapes_variables(data_file, varname_list, time_idx):
 
         # 1. Get regular coords and raw_varnames to generate the DerivedVarWorkStation
         regular_coords = dict()
-        regular_coords['latitude'] = ds.data_vars['latitude']
-        regular_coords['longitude'] = ds.data_vars['longitude']
-        regular_coords['levels'] = ds.data_vars['levels']
+        regular_coords['latitude'] = ds.data_vars['latitudes']
+        regular_coords['longitude'] = ds.data_vars['longitudes']
+        regular_coords['level'] = ds.data_vars['levels']
 
-        coords = ['times', 'levels', 'levels_uv', 'levels_pi', 'latitude', 'longitude']
+        coords = ['times', 'levels', 'levels_uv', 'levels_pi', 'latitudes', 'longitudes']
         raw_varnames = list(ds.data_vars.keys())
         for coord in coords:
             if coord in raw_varnames:
@@ -87,8 +87,8 @@ def _get_grapes_variables(data_file, varname_list, time_idx):
 
         # 3. make the xarray data set
         output_ds = xr.Dataset(prepare_ds)
-        output_ds.coords['z-levels'] = (("levels", "latitude", "longitude"), gh.data)
-        output_ds.coords['topograph'] = (("latitude", "longitude"), gh.isel(levels=0).data)
+        output_ds.coords['z-levels'] = (("level", "latitude", "longitude"), gh.data)
+        output_ds.coords['topograph'] = (("latitude", "longitude"), gh.isel(level=0).data)
 
         print(output_ds)
         exit()

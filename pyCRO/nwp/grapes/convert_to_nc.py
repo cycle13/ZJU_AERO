@@ -4,7 +4,7 @@ Description: Transfer the binary output of GRAPES modelvar to netCDF4 format
 Author: Hejun Xie
 Date: 2020-11-01 10:41:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-01 18:51:04
+LastEditTime: 2020-11-02 10:37:10
 '''
 
 # Global import
@@ -22,6 +22,7 @@ import datetime as dt
 
 # Local import
 from .CTLReader import CTLReader
+from .grapes_constant import raw_var_unit
 
 def convert_to_nc_specific_ctl(ctlname, nc_out, var='all', v_grid_type='ml'):
     '''
@@ -48,15 +49,6 @@ def convert_to_nc_specific_ctl(ctlname, nc_out, var='all', v_grid_type='ml'):
         return int((t1-t2).days*24 + (t1-t2).seconds/3600)
     hours_since_2000 = np.array([deltatime_hours(itime, dt.datetime(2000,1,1)) for itime in data.variables['time']])
 
-    # 提取单位信息
-    cur_path = os.path.dirname(os.path.realpath(__file__))
-    vartable_path = cur_path + os.sep + 'GRAPES_VAR_TABLE.txt'
-    df = pd.read_table(vartable_path, sep=',')
-    var_unit = dict()
-    for index, row in df.iterrows():
-        ivar, unit = row
-        var_unit[ivar] = unit
-
     # 提取维度信息
     nt = data.dimensions['time']
     nz = data.dimensions['levels']
@@ -67,21 +59,21 @@ def convert_to_nc_specific_ctl(ctlname, nc_out, var='all', v_grid_type='ml'):
 
     ncfile = Dataset(nc_out,'w')
 
-    ncfile.createDimension('ntime',nt)
-    ncfile.createDimension('nlevel',nz)
-    ncfile.createDimension('nlat',ny)
-    ncfile.createDimension('nlon',nx)
+    ncfile.createDimension('time',nt)
+    ncfile.createDimension('level',nz)
+    ncfile.createDimension('lat',ny)
+    ncfile.createDimension('lon',nx)
     if v_grid_type == 'ml':
-        ncfile.createDimension('nlevel_uv',nz-1)
-        ncfile.createDimension('nlevel_pi',nz+1)
+        ncfile.createDimension('level_uv',nz-1)
+        ncfile.createDimension('level_pi',nz+1)
 
-    times     = ncfile.createVariable('times',np.int,('ntime'))
-    levels    = ncfile.createVariable('levels',np.float32,('nlevel'))
-    latitude  = ncfile.createVariable('latitude',np.float32,('nlat'))
-    longitude = ncfile.createVariable('longitude',np.float32,('nlon'))
+    times     = ncfile.createVariable('times',np.int,('time'))
+    levels    = ncfile.createVariable('levels',np.float32,('level'))
+    latitude  = ncfile.createVariable('latitudes',np.float32,('lat'))
+    longitude = ncfile.createVariable('longitudes',np.float32,('lon'))
     if v_grid_type == 'ml':
-        levels_uv   = ncfile.createVariable('levels_uv',np.float32,('nlevel_uv'))
-        levels_pi   = ncfile.createVariable('levels_pi',np.float32,('nlevel_pi'))
+        levels_uv   = ncfile.createVariable('levels_uv',np.float32,('level_uv'))
+        levels_pi   = ncfile.createVariable('levels_pi',np.float32,('level_pi'))
     
     times[:]     = hours_since_2000[:]
     latitude[:]  = data.variables['latitude'][:]
@@ -104,19 +96,19 @@ def convert_to_nc_specific_ctl(ctlname, nc_out, var='all', v_grid_type='ml'):
 
     for ivar in var:
         if data.variables[ivar].dimensions['levels'] == 1:
-            locals()[ivar] = ncfile.createVariable(ivar,np.float32,('ntime','nlat','nlon'))
+            locals()[ivar] = ncfile.createVariable(ivar,np.float32,('time','lat','lon'))
             locals()[ivar][:] = data.variables[ivar][:]
-            locals()[ivar].units = var_unit[ivar]
+            locals()[ivar].units = raw_var_unit[ivar]
             locals()[ivar].long_name = data.variables[ivar].attributes['long_name']
         else:
             if ivar in ['u', 'v']:
-                locals()[ivar] = ncfile.createVariable(ivar,np.float32,('ntime','nlevel_uv','nlat','nlon'))
+                locals()[ivar] = ncfile.createVariable(ivar,np.float32,('time','level_uv','lat','lon'))
             elif ivar in ['pi']:
-                locals()[ivar] = ncfile.createVariable(ivar,np.float32,('ntime','nlevel_pi','nlat','nlon'))
+                locals()[ivar] = ncfile.createVariable(ivar,np.float32,('time','level_pi','lat','lon'))
             else:
-                locals()[ivar] = ncfile.createVariable(ivar,np.float32,('ntime','nlevel','nlat','nlon'))
+                locals()[ivar] = ncfile.createVariable(ivar,np.float32,('time','level','lat','lon'))
             locals()[ivar][:] = data.variables[ivar][:]
-            locals()[ivar].units = var_unit[ivar]
+            locals()[ivar].units = raw_var_unit[ivar]
             locals()[ivar].long_name = data.variables[ivar].attributes['long_name']
 
     # Variable Attributes

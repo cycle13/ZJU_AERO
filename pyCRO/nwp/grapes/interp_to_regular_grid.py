@@ -5,7 +5,7 @@ and the regular grid in horizontal C-grid.
 Author: Hejun Xie
 Date: 2020-11-01 18:45:30
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-01 23:43:37
+LastEditTime: 2020-11-02 10:29:59
 '''
 
 import numpy as np
@@ -46,7 +46,7 @@ def to_reg_grid(data, varname, dim_names, regular_coords):
         data = _to_reg_grid_hor_interp_v(data, dim_names)
     # 3. generate the xarray dataArray
     out_xr = xr.DataArray(data, 
-    coords=[("levels", regular_coords['levels']),
+    coords=[("level", regular_coords['level']),
             ("latitude", regular_coords['latitude']),
             ("longitude", regular_coords['longitude'])]
     )
@@ -56,28 +56,54 @@ def to_reg_grid(data, varname, dim_names, regular_coords):
 
 def _to_reg_grid_hor_interp_u(data, dim_names):
     '''
-    Assume the data dimension as (levels, latitude, longitude)
-    levels: bottom-top
+    Assume the data dimension as (level, latitude, longitude)
+    level: bottom-top
     latitude: west-east
     longitude: south-north
+    
+    ARAKAWA-C GRID
+    v--- ---v--- ---v
+    |   |   |   |   |
+    p---u---p---u---p---u
+    |   |   |   |   |   |
+    v--- ---v--- ---v---
+    |   |   |   |   |   |
+    p---u---p---u---p---u
+    |   |   |   |   |   |
+    v--- ---v--- ---v---
+    |   |   |   |   |   |
+    p---u---p---u---p---u
     '''
     tmp_data = 0.5 * (data[:,:,1:] + data[:,:,:-1])
-    return np.pad(tmp_data, ((0, 0), (0, 0), (0, 1)), 'edge')
+    return np.pad(tmp_data, ((0, 0), (0, 0), (1, 0)), 'edge')
 
 def _to_reg_grid_hor_interp_v(data, dim_names):
     '''
-    Assume the data dimension as (levels, latitude, longitude)
-    levels: bottom-top
+    Assume the data dimension as (level, latitude, longitude)
+    level: bottom-top
     latitude: west-east
     longitude: south-north
+    
+    ARAKAWA-C GRID
+    v--- ---v--- ---v
+    |   |   |   |   |
+    p---u---p---u---p---u
+    |   |   |   |   |   |
+    v--- ---v--- ---v---
+    |   |   |   |   |   |
+    p---u---p---u---p---u
+    |   |   |   |   |   |
+    v--- ---v--- ---v---
+    |   |   |   |   |   |
+    p---u---p---u---p---u
     '''
     tmp_data = 0.5 * (data[:,1:,:] + data[:,:-1,:])
-    return np.pad(tmp_data, ((0, 0), (0, 1), (0, 0)), 'edge')
+    return np.pad(tmp_data, ((0, 0), (1, 0), (0, 0)), 'edge')
 
 def _to_reg_grid_ver_interp_uv(data, dim_names):
     '''
-    Assume the data dimension as (levels, latitude, longitude)
-    levels: bottom-top
+    Assume the data dimension as (level, latitude, longitude)
+    level: bottom-top
     latitude: west-east
     longitude: south-north
     '''
@@ -87,8 +113,8 @@ def _to_reg_grid_ver_interp_uv(data, dim_names):
 
 def _to_reg_grid_ver_interp_pi(data, dim_names):
     '''
-    Assume the data dimension as (levels, latitude, longitude)
-    levels: bottom-top
+    Assume the data dimension as (level, latitude, longitude)
+    level: bottom-top
     latitude: west-east
     longitude: south-north
     '''
