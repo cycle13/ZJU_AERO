@@ -3,7 +3,7 @@ Description: test nwp.grapes_io.py
 Author: Hejun Xie
 Date: 2020-11-01 11:12:00
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-02 12:41:53
+LastEditTime: 2020-11-02 16:47:07
 '''
 
 

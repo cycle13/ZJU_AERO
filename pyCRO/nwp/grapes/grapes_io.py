@@ -4,7 +4,7 @@ This module can read in derived variables xarray dataset, as defined in derived_
 Author: Hejun Xie
 Date: 2020-11-01 10:37:12
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-02 10:51:08
+LastEditTime: 2020-11-02 16:46:31
 '''
 
 # Global import 
@@ -48,7 +48,10 @@ def get_grapes_variables(data_file_list, varnames_list, ex_datetime):
     if 'found_file' not in locals().keys():
         raise ValueError("Queried time not available in this set of data files")
 
-    return _get_grapes_variables(found_file, varnames_list, found_time_idx)
+    output_ds = _get_grapes_variables(found_file, varnames_list, found_time_idx)
+    output_ds.attrs['time'] = ex_datetime
+
+    return output_ds
 
 def _get_grapes_variables(data_file, varname_list, time_idx):
     '''
