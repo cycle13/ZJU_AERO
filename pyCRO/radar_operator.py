@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-03 11:46:06
+LastEditTime: 2020-11-03 15:49:57
 '''
 
 
@@ -356,7 +356,7 @@ class RadarOperator(object):
 
         list_beams = worker(elevations[0], azimuths[0])
 
-        # print(list_beams.values)
+        print(list_beams.values)
 
         del dic_vars
         del N
