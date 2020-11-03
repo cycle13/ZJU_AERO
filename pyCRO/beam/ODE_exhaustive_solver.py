@@ -4,7 +4,7 @@ in the method of Zeng and Blahak (2014)
 @Author: Hejun Xie
 @Date: 2020-08-02 08:31:04
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-03 19:48:14
+LastEditTime: 2020-11-03 10:08:52
 '''
 
 # global import
@@ -105,7 +105,7 @@ def ODEZeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_ra
         azimuth_angle: azimuth angle of that bunch of beams [degrees]
         coord_radar: radar coordinates as 3D tuple [lat, lon, alt], ex
             [47.35, 12.3, 682]
-        N: atmospheric refractivity as a COSMO variable
+        N: atmospheric refractivity as a MODEL variable
 
     Returns:
         s: list of vector of distance at the ground along the radial [m]
@@ -113,8 +113,12 @@ def ODEZeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_ra
         e: list of vector of incident elevation angles along the radial [degrees]
     '''
 
+    from ..config.cfg import CONFIG
+    if CONFIG['nwp']['name'] == 'grapes':
+        from ..nwp.grapes import WGS_to_GRAPES as WGS_to_MODEL
+
     # Get info about NWP coordinate system
-    proj_WRF = N.attributes['proj_info']
+    proj_MODEL = N.attrs
     
     RE = get_earth_radius(coords_radar[0])
 
@@ -131,22 +135,23 @@ def ODEZeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_ra
     for idistance, distance in enumerate(distance_mesh):
         lon, lat, ang = g.fwd(coords_radar[1], coords_radar[0], azimuth_angle, distance)
 
-        # Convert WGS84 coordinates to WRF rotated pole coordinates
-        coords_aziplane_in_WRF = pw.WGS_to_WRF([lat, lon], proj_WRF)
+        # Convert WGS84 coordinates to MODEL coordinates model coordinates [x, y]
+        coords_aziplane_in_MODEL = WGS_to_MODEL([lat, lon], proj_MODEL)
 
-        llc_WRF = (0., 0.)
-        res_WRF = [1., 1.]
+        # TODO: For model grid only, model grid (I, J)
+        llc_MODEL = (0., 0.)
+        res_MODEL = [1., 1.]
 
-        # Get index of radar in NWP Lambert Conformal Conic coordinates (x, y)
-        pos_aziplane_bin = [(coords_aziplane_in_WRF[0]-llc_WRF[1]) / res_WRF[1],
-                        (coords_aziplane_in_WRF[1]-llc_WRF[0]) / res_WRF[0]]
+        # Get index of radar in MODEL coordinates model grids [I, J]
+        pos_aziplane_bin = [(coords_aziplane_in_MODEL[0]-llc_MODEL[0]) / res_MODEL[0],
+                        (coords_aziplane_in_MODEL[1]-llc_MODEL[1]) / res_MODEL[1]]
         
         # Get refractive index profile from refractivity estimated from NWP variables
-        # data (Time, south_north, west_east)
+        # data (bottom_top, south_north, west_east)
         n_vert_profile = 1 + (N.data[:,int(np.round(pos_aziplane_bin[1])),
                                 int(np.round(pos_aziplane_bin[0]))]) * 1E-6
         # Get corresponding altitudes
-        h = N.attributes['z-levels'][:,int(np.round(pos_aziplane_bin[1])),
+        h = N.coords['z-levels'][:,int(np.round(pos_aziplane_bin[1])),
                                     int(np.round(pos_aziplane_bin[0]))]
 
         fn = interp1d(h, n_vert_profile, fill_value='extrapolate')

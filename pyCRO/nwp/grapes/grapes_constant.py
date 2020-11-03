@@ -3,7 +3,7 @@ Description: Define some grapes constant
 Author: Hejun Xie
 Date: 2020-11-02 10:02:58
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-02 12:42:51
+LastEditTime: 2020-11-02 21:51:30
 '''
 
 grapes_constant = {
@@ -32,7 +32,13 @@ derived_var_unit = {
     'QG_v':'kg*m-3',
     'QC_v':'kg*m-3',
     'QI_v':'kg*m-3',
-    'N':'-;*1E-6'
+    'QV':'kg*kg-1',
+    'QR':'kg*kg-1',
+    'QS':'kg*kg-1',
+    'QG':'kg*kg-1',
+    'QC':'kg*kg-1',
+    'QI':'kg*kg-1',
+    'N':'-;*1E-6',
 }
 
 derived_var_long_name = {
@@ -50,7 +56,13 @@ derived_var_long_name = {
     'QG_v':'Grauple mass density',
     'QC_v':'Cloud mass density',
     'QI_v':'Ice crystals mass density',
-    'N':'Refraction index'
+    'QV':'Vapour mixing ratio',
+    'QR':'Rain mixing ratio',
+    'QS':'Snow mixing ratio',
+    'QG':'Grauple mixing ratio',
+    'QC':'Cloud mixing ratio',
+    'QI':'Ice crystals mixing ratio',
+    'N':'Refraction index',
 }
 
 raw_var_unit = {

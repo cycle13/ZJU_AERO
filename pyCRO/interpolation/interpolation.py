@@ -4,7 +4,7 @@ model variables to the radar gates
 Author: Hejun Xie
 Date: 2020-08-15 11:07:01
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-01 10:57:41
+LastEditTime: 2020-11-03 11:34:12
 '''
 
 # Global imports
@@ -79,14 +79,13 @@ def integrate_radials(list_subradials):
     return integrated_radial
 
 
-def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
+def get_interpolated_radial(ds_model, azimuth, elevation, N = None,
                             list_refraction = None):
     '''
     Interpolates a radar radial using a specified quadrature and outputs
     a list of subradials
     Args:
-        dic_variables: dictionary containing the model variables to be
-            interpolated
+        ds_model: A NWP xarray Dataset to be interpolated
         azimuth: the azimuth angle in degrees (phi) of the radial
         elevation: the elevation angle in degrees (theta) of the radial
         N : if the differential refraction scheme by Zeng and Blahak (2014) is
@@ -106,8 +105,7 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
                          defined along the specified radial
     '''
 
-    list_variables = dic_variables.values()
-    keys = list(dic_variables.keys())
+    keys = list(ds_model.data_vars.keys())
 
     # Get options
     from ..config.cfg import CONFIG
@@ -184,6 +182,7 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
                 # exit()
     else:
         raise KeyError('No such radar type:{}'.format(CONFIG['radar']['type']))
+    
 
     for i in range(len(pts_hor)):
         for j in range(len(pts_ver)):
@@ -192,12 +191,12 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
             pt = [pts_hor[i]+azimuth, pts_ver[j]+elevation]
             # Interpolate beam
             if trajectoryListType == 'zen':
-                lats,lons,list_vars = trilin_interp_radial_WRF(list_variables,
+                lats,lons,list_vars = trilin_interp_radial(ds_model,
                                                     pts_hor[i]+azimuth,
                                                     list_refraction[j][0],
                                                     list_refraction[j][1])
             elif trajectoryListType == 'az,zen':
-                lats,lons,list_vars = trilin_interp_radial_WRF(list_variables,
+                lats,lons,list_vars = trilin_interp_radial(ds_model,
                                                     pts_hor[i]+azimuth,
                                                     list_refraction[i][0][j],
                                                     list_refraction[i][1][j])
@@ -239,6 +238,123 @@ def get_interpolated_radial(dic_variables, azimuth, elevation, N = None,
                 list_subradials.append(subradial)
     
     return list_subradials
+
+def trilin_interp_radial(ds_model, azimuth, distances_profile, heights_profile):
+    """
+    Interpolates a radar radial using a specified quadrature and outputs
+    a list of subradials (all NWP model interface)
+    Args:
+        ds_model: A NWP xarray Dataset to be interpolated
+        azimuth: the azimuth angle in degrees (phi) of the subradial
+        distances_profile: vector of distances in meters of all gates
+            along the subradial (computed with the atmospheric refraction
+            scheme)
+        heights_profile: vector of heights above ground in meters of all
+            gates along the subradial (computed with the atmospheric refraction
+            scheme)
+    Returns:
+        lats_rad: vector of all latitudes along the subradial
+        lons_rad: vector of all longitudes along the subradial
+        interp_data: dictionary containing all interpolated variables along
+            the subradial
+    """
+
+    # Get position of virtual radar from user configuration
+    from ..config.cfg import CONFIG
+    radar_pos = CONFIG['radar']['coords']
+
+    if CONFIG['nwp']['name'] == 'grapes':
+        from ..nwp.grapes import WGS_to_GRAPES as WGS_to_MODEL
+
+    # Initialize WGS84 geoid
+    g = pyproj.Geod(ellps='WGS84')
+
+    # Get radar bins coordinates
+    lons_rad=[]
+    lats_rad=[]
+    # Using the distance on ground of every radar gate, we get its latlon coordinates
+    for d in distances_profile:
+        # Note that pyproj uses lon/lat whereas I used lat/lon
+        lon,lat,ang=g.fwd(radar_pos[1], radar_pos[0], azimuth,d)
+        lons_rad.append(lon)
+        lats_rad.append(lat)
+
+    # Convert to numpy array
+    lons_rad = np.array(lons_rad)
+    lats_rad = np.array(lats_rad)
+
+    # Get MODEL heights and topograph from the MODEL dataset
+    model_heights = ds_model.coords['z-levels']
+    model_topo = ds_model.coords['topograph']
+
+    # Do some transpose jobs
+    model_heights = np.transpose(model_heights.data[::-1,...], axes=(0, 2, 1))
+    model_topo = np.transpose(model_topo.data, axes=(1, 0))
+
+    # get MODEL projection paramters
+    proj_MODEL = ds_model.attrs
+
+    # Get lower left corner of MODEL domain in local index coordinates
+    llc_MODEL=(float(0), float(0))
+    llc_MODEL=np.asarray(llc_MODEL).astype('float32')
+
+    # Get upper right corner of MODEL domain in local index coordinates
+    urc_MODEL=(float(proj_MODEL['nI'] - 1), float(proj_MODEL['nJ'] - 1))
+    urc_MODEL=np.asarray(urc_MODEL).astype('float32')
+    
+    # Get resolution
+    res_MODEL = [1., 1.]
+
+    # Transform radar gate WGS coordinates into MODEL grid coordinates 
+    coords_rad_loc = WGS_to_MODEL((lats_rad,lons_rad), proj_MODEL)
+
+    # Check if all points are within MODEL domain
+    if np.any(coords_rad_loc[:,1]<llc_MODEL[0]) or\
+        np.any(coords_rad_loc[:,0]<llc_MODEL[1]) or \
+            np.any(coords_rad_loc[:,1]>urc_MODEL[0]) or \
+                np.any(coords_rad_loc[:,0]>urc_MODEL[1]):
+                    msg = """
+                    ERROR: RADAR DOMAIN IS NOT ENTIRELY CONTAINED IN WRF
+                    SIMULATION DOMAIN: ABORTING
+                    """
+                    raise(IndexError(dedent(msg)))
+
+    # Initialize interpolated variables
+    interp_data = []
+
+    for i,var in enumerate(list(ds_model.data_vars.keys())):
+
+        # Now we interpolate all variables along beam using C-code file
+        ###########################################################################
+        rad_interp_values = np.zeros(len(distances_profile),)*float('nan')
+        model_data = ds_model[var]
+
+        # do some transpose and reverse to fit the model data format
+        model_data = np.transpose(model_data.data[::-1,...], axes=(0, 2, 1))
+
+        arguments_c_code = (len(distances_profile),
+                            coords_rad_loc,
+                            heights_profile,
+                            model_data,
+                            model_heights,
+                            model_topo,
+                            llc_MODEL,
+                            res_MODEL)
+        
+        rad_interp_values = get_all_radar_pts(*arguments_c_code)
+
+        # np.set_printoptions(threshold=30)
+        # if var in ['QI_v', 'QR_v', 'QS_v', 'T', 'U']:
+        #     print(var)
+        #     print(rad_interp_values[1][:])
+        #     print(model_data.max())
+        #     print(model_data.min())
+
+        interp_data.append(rad_interp_values[1][:])
+    
+
+    return lats_rad, lons_rad, interp_data
+
 
 
 def trilin_interp_radial_WRF(list_vars, azimuth, distances_profile, heights_profile):

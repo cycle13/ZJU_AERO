@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-12 12:10:36
+LastEditTime: 2020-11-03 11:46:06
 '''
 
 
@@ -13,8 +13,9 @@ LastEditTime: 2020-10-12 12:10:36
 from functools import partial
 import multiprocess as mp
 import numpy as np
+import xarray as xr
 import copy
-import pyWRF as pw
+# import pyWRF as pw
 import gc
 import pickle
 from textwrap import dedent
@@ -184,7 +185,7 @@ class RadarOperator(object):
         latitude = self.config['radar']['coords'][0]
         longitude = self.config['radar']['coords'][1]
         altitude = self.config['radar']['coords'][2]
-        time=self.dic_vars['T'].attributes['time'] # We could read any variable, T or others
+        time=self.dic_vars.attrs['time'] # We could read any variable, T or others
 
         out={'latitude':latitude,'longitude':longitude,'altitude':altitude,\
         'time':time}
@@ -209,22 +210,38 @@ class RadarOperator(object):
 
         return dic_vars, N, lut_sz, output_variables
     
-    def load_model_file(self, filename, itime=0, load_pickle=False, pickle_file=None):
+    def load_model_file(self, filename, load_datetime, load_from_file=False, load_file=None):
         '''
-        Loads data from a MODEL (currently only implemented for WRF model) file, which is a pre-requirement for
-        simulating radar observables
+        Loads data from a MODEL file, which is a pre-requirement for
+        simulating radar observables.
 
         Args:
-            filename: the name of the WRF netCDF file
+            filename: The name of the model file, or a list of model file name in netCDF4 format.
+            load_datetime: The datetime we want to simulate, datetime class.
+            load_from_file: A bool flag indicating whether to load from files dumped previously.
+                Turn it on when execution acceleration is needed, turn it off when model file
+                or model datetime is changed.
+            load_file: The name of the file we want to load from. This parameter is forced if 
+                load_from_file = True.
+        Returns:
+            No returns, but save the loaded_vars and atmosphere refraction index N 
+            in the attributes of this RadarOperator class. 
         '''
 
-        file_h = pw.open_file(filename)
+        # if single model file is entered, make it a filelist
+        if not isinstance(filename, list):
+            filename = [filename]
+
         vars_to_load = copy.deepcopy(BASE_VARIABLES)
 
-        vars_ok = file_h.check_if_variables_in_file(['P','T','QV','QR','QC','QI','QS','QG','U','V','W'])
+        if self.config['nwp']['name'] == 'grapes':
+            from .nwp.grapes import check_if_variables_in_file
+            from .nwp.grapes import get_grapes_variables as get_model_variables
+
+        vars_ok = check_if_variables_in_file(['P','T','QV','QR','QC','QI','QS','QG','U','V','W'])
 
         if self.config['refraction']['scheme'] in [2,3]:
-            if file_h.check_if_variables_in_file(['T','P','QV']):
+            if check_if_variables_in_file(['T','P','QV']):
                 vars_to_load.extend('N')
             else:
                 msg = '''
@@ -248,27 +265,22 @@ class RadarOperator(object):
             print('Using 1-moment scheme')
             self.current_microphys_scheme = '1mom'
         
-        # Read variables from GRIB file
+        # Read variables from netCDF4 file
         print('Reading variables ' + str(vars_to_load) + ' from file')
 
-        if not load_pickle:
-            loaded_vars = file_h.get_variable(vars_to_load, itime=itime, get_proj_info=True,
-                                            shared_heights=False,assign_heights=True)
-            
-            # To deal with annoying issues with pickle
-            for var in loaded_vars.values():
-                var.file = None
-            with open(pickle_file, "wb") as f:
-                pickle.dump(loaded_vars, f)
+        if not load_from_file:
+            loaded_vars = get_model_variables(filename, vars_to_load, load_datetime)
+            loaded_vars.to_netcdf(load_file)
         else:
-            with open(pickle_file, "rb") as f:
-                loaded_vars = pickle.load(f)
+            loaded_vars = xr.open_dataset(load_file)
 
         self.dic_vars = loaded_vars #  Assign to class
-        if 'N' in loaded_vars.keys():
+        
+        if 'N' in list(loaded_vars.data_vars.keys()):
             self.N=loaded_vars['N']
-            self.dic_vars.pop('N',None) # Remove N from the variable dictionnary (we won't need it there)
-        file_h.close()
+            self.dic_vars = self.dic_vars.drop_vars('N') # Remove N from the xarray dataset (we won't need it there)
+    
+        del loaded_vars
         gc.collect()
         print('-------done------')
 
@@ -280,7 +292,6 @@ class RadarOperator(object):
                 print('Loading lookup-tables for current specification')
                 self.set_lut()
                 self.config['microphysics']['scheme'] = self.current_microphys_scheme
-        del loaded_vars
 
     def get_PPI_test(self, elevations, azimuths = None, az_step = None, az_start = 0,
                 az_stop = 359):

@@ -4,7 +4,7 @@ The derived variables are useful for radar operator applications
 Author: Hejun Xie
 Date: 2020-11-01 10:41:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-02 12:43:06
+LastEditTime: 2020-11-02 22:40:54
 '''
 
 # Global imports
@@ -48,7 +48,9 @@ class GRAPESDerivedVar(DerivedVarWorkstation):
 
     def _get_derived_var(self, varname):
         print("Derived var: {}".format(varname))
-        raw_map = {'U':'u', 'V':'v', 'W':'w'}
+        raw_map = { 'U':'u', 'V':'v', 'W':'w', 
+                    'QV':'Qv', 'QR':'Qr', 'QS':'Qs', 
+                    'QG':'Qg', 'QC':'Qc', 'QI':'Qi'}
         mass_density_map = {'QV_v':'Qv', 'QR_v':'Qr', 'QS_v':'Qs', 
                             'QG_v':'Qg', 'QC_v':'Qc', 'QI_v':'Qi'}
         if varname in raw_map.keys():
@@ -84,3 +86,23 @@ class GRAPESDerivedVar(DerivedVarWorkstation):
         tmp_var.attrs['unit'] = unit[varname]
         tmp_var.attrs['long_name'] = long_name[varname]
         return tmp_var
+
+def check_if_variables_in_file(varname_list):
+    '''
+    Description:
+        Check if all the variable in varname_list
+        are avaiable in this model file.
+    Params:
+        varname_list: A list of variable names.
+    Returns:
+        A bool flag indicating if all the variables 
+        are available in the model file.
+    '''
+
+    vars_ok = True
+    for varname in varname_list:
+        if varname not in long_name.keys():
+            vars_ok = False
+            break
+    
+    return vars_ok

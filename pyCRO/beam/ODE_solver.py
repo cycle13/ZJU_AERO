@@ -4,13 +4,13 @@ for the trajectory of the radar beam
 @Author: Hejun Xie
 @Date: 2020-07-16 11:48:54
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-03 19:48:45
+LastEditTime: 2020-11-03 09:59:35
 '''
 
 # Global imports
 import numpy as np
 np.seterr(divide='ignore') # Disable divide by zero error
-import pyWRF as pw
+# import pyWRF as pw
 from scipy.interpolate import interp1d
 from scipy.integrate import odeint
 
@@ -91,24 +91,30 @@ def ODEZeng2014(range_vec, elevation_angle, coords_radar, N):
         e: vector of incident elevation angles along the radial [degrees]
     '''
 
+    from ..config.cfg import CONFIG
+    if CONFIG['nwp']['name'] == 'grapes':
+        from ..nwp.grapes import WGS_to_GRAPES as WGS_to_MODEL
+
     # Get info about NWP coordinate system
-    proj_WRF = N.attributes['proj_info']
-    # Convert WGS84 coordinates to WRF rotated pole coordinates
-    coords_rad_in_WRF = pw.WGS_to_WRF(coords_radar, proj_WRF)
-
-    llc_WRF = (0., 0.)
-    res_WRF = [1., 1.]
-
-    # Get index of radar in NWP rotated pole coordinates (lat, lon)
-    pos_radar_bin = [(coords_rad_in_WRF[0]-llc_WRF[1]) / res_WRF[1],
-                    (coords_rad_in_WRF[1]-llc_WRF[0]) / res_WRF[0]]
+    proj_MODEL = N.attrs
     
+    # Convert WGS84 coordinates to MODEL coordinates --> model grid [I, J]
+    coords_rad_in_MODEL = WGS_to_MODEL(coords_radar, proj_MODEL)
+
+    # TODO: For model grid only, model grid (I, J)
+    llc_MODEL = (0., 0.)
+    res_MODEL = [1., 1.]
+
+    # Get index of radar in NWP coordinates (I, J)
+    pos_radar_bin = [(coords_rad_in_MODEL[0]-llc_MODEL[0]) / res_MODEL[0],
+                    (coords_rad_in_MODEL[1]-llc_MODEL[1]) / res_MODEL[1]]
+
     # Get refractive index profile from refractivity estimated from NWP variables
-    # data (Time, south_north, west_east)
+    # data (bottom_top, south_north, west_east)
     n_vert_profile = 1 + (N.data[:,int(np.round(pos_radar_bin[1])),
                              int(np.round(pos_radar_bin[0]))]) * 1E-6
     # Get corresponding altitudes
-    h = N.attributes['z-levels'][:,int(np.round(pos_radar_bin[1])),
+    h = N.coords['z-levels'][:,int(np.round(pos_radar_bin[1])),
                                 int(np.round(pos_radar_bin[0]))]
 
     # Get earth radius at radar latitude
@@ -116,8 +122,7 @@ def ODEZeng2014(range_vec, elevation_angle, coords_radar, N):
 
     # Create piecewise linear interpolation for n as a function of height
     n_h_int = _piecewise_linear(h, n_vert_profile)
-    dn_dh_int = _piecewise_linear(h[0:-1],
-                                     np.diff(n_vert_profile) / np.diff(h))
+    dn_dh_int = _piecewise_linear(h[0:-1], np.diff(n_vert_profile) / np.diff(h))
 
     z_0 = [coords_radar[2], np.sin(np.deg2rad(elevation_angle))]
     # Solve second-order ODE

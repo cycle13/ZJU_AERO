@@ -1,7 +1,7 @@
 radar:
     coords: [39.69, 116.2, 50]
     range: 200000
-    frequency: 9.41
+    frequency: 2.7
     radial_resolution: 75
     PRI: 700
     FFT_length: 128
@@ -13,8 +13,8 @@ refraction:
     scheme: 2
 integration:
     scheme: 1
-    nh_GH: 3
-    nv_GH: 3
+    nh_GH: 1
+    nv_GH: 1
 nwp:
     name: 'grapes'
 core:

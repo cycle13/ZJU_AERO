@@ -4,7 +4,7 @@ This module can read in derived variables xarray dataset, as defined in derived_
 Author: Hejun Xie
 Date: 2020-11-01 10:37:12
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-02 19:21:13
+LastEditTime: 2020-11-03 11:05:27
 '''
 
 # Global import 
@@ -49,7 +49,7 @@ def get_grapes_variables(data_file_list, varnames_list, ex_datetime):
         raise ValueError("Queried time not available in this set of data files")
 
     output_ds = _get_grapes_variables(found_file, varnames_list, found_time_idx)
-    output_ds.attrs['time'] = ex_datetime
+    output_ds.attrs['time'] = str(ex_datetime)
 
     return output_ds
 
@@ -95,13 +95,15 @@ def _get_grapes_variables(data_file, varname_list, time_idx):
 
     # 4. Add the projection information (now only latlon)
     proj_info = dict()
-    proj_info['proj'] = 'latlon'
+    proj_info['proj'] = 'latlong'
     proj_info['LLC_LAT'] = float(regular_coords['latitude'][0])
     proj_info['LLC_LON'] = float(regular_coords['longitude'][0])
     proj_info['DLAT'] = float(regular_coords['latitude'][1] - regular_coords['latitude'][0])
     proj_info['DLON'] = float(regular_coords['longitude'][1] - regular_coords['longitude'][0])
-    output_ds.attrs['proj_info'] = proj_info 
+    proj_info['nI'] = len(regular_coords['longitude'])
+    proj_info['nJ'] = len(regular_coords['latitude'])
+    output_ds.attrs.update(proj_info)
     if 'N' in output_ds.data_vars.keys():
-        output_ds.data_vars['N'].attrs['proj_info'] = proj_info
+        output_ds.data_vars['N'].attrs.update(proj_info)
 
     return output_ds
