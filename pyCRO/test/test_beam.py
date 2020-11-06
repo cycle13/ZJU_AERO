@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-08-02 12:46:24
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-30 15:40:18
+LastEditTime: 2020-11-06 23:02:52
 '''
 
 # unit test import
@@ -12,7 +12,8 @@ sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
 
 # global import
 import numpy as np
-import pyWRF as pw
+# import pyWRF as pw
+import datetime as dt
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
@@ -21,21 +22,28 @@ import matplotlib.pyplot as plt
 # Local imports
 from pyCRO.beam import fixed_radius_KE, ODEZeng2014, ODEZeng2014_exhaustive
 from pyCRO.utilities import DATAdecorator
+from pyCRO.nwp.wrf import get_wrf_variables
+from pyCRO.config import cfg
+from pyCRO.constants import global_constants as constants
 
 @DATAdecorator('./', False, './she.pkl')
 def get_she():
     FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'
-    file_h = pw.open_file(FILENAME)
-    d = file_h.get_variable(['N'], itime=10, assign_heights=True)
+    ds = get_wrf_variables([FILENAME], ['N'], dt.datetime(2013,10,6,10))
 
     s1, h1, e1 = fixed_radius_KE(range_vec, elevation_angles, coords_radar)
-    s2, h2, e2 = ODEZeng2014(range_vec, elevation_angles, coords_radar, d['N'])
+    s2, h2, e2 = ODEZeng2014(range_vec, elevation_angles, coords_radar, ds.data_vars['N'])
     s3_pre, h3_pre, e3_pre = ODEZeng2014_exhaustive(range_vec, elevation_angles, 
-    azimuth_angle, coords_radar, d['N'])
+    azimuth_angle, coords_radar, ds.data_vars['N'])
     s3, h3, e3 = s3_pre[0], h3_pre[0], e3_pre[0]
     return s1,s2,s3, h1,h2,h3, e1,e2,e3 
 
 if __name__ == "__main__":
+
+    # get global constants
+    cfg.init('./option_files/wsm6_test.yml')
+    cfg.CONFIG = cfg.sanity_check(cfg.CONFIG)
+    constants.update()
     
     # range_vec = np.arange(0, 100*1000, 500)
     # elevation_angles = [0.2]

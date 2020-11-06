@@ -4,7 +4,7 @@ for the trajectory of the radar beam
 @Author: Hejun Xie
 @Date: 2020-07-16 11:48:54
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-06 22:20:07
+LastEditTime: 2020-11-06 22:48:18
 '''
 
 # Global imports

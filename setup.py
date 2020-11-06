@@ -5,7 +5,7 @@
 @Author: Hejun Xie
 @Date: 2020-04-06 20:54:22
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-15 23:31:12
+LastEditTime: 2020-11-06 22:36:46
 '''
 
 from setuptools import setup, Extension, Command
@@ -30,7 +30,8 @@ setup(  name        = "pyCRO",
         author_email='hejun.xie@zju.edu.cn',
         license='GPL-3.0',
         packages=['pyCRO', 'pyCRO/interpolation', 'pyCRO/radar', 'pyCRO/utilities', 'pyCRO/constants',
-        'pyCRO/db', 'pyCRO/core', 'pyCRO/hydrometeors', 'pyCRO/beam', 'pyCRO/config', 'pyCRO/nwp'],
+        'pyCRO/db', 'pyCRO/core', 'pyCRO/hydrometeors', 'pyCRO/beam', 'pyCRO/config', 'pyCRO/nwp', 
+        'pyCRO/nwp/grapes', 'pyCRO/nwp/wrf'],
         package_data   = {'pyCRO/interpolation' : ['*.o','*.i','*.c','*.so']},
         install_requires=['numpy'],
         zip_safe=False,

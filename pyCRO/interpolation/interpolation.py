@@ -4,7 +4,7 @@ model variables to the radar gates
 Author: Hejun Xie
 Date: 2020-08-15 11:07:01
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-06 22:21:16
+LastEditTime: 2020-11-06 22:35:34
 '''
 
 # Global imports
@@ -361,6 +361,7 @@ def trilin_interp_radial(ds_model, azimuth, distances_profile, heights_profile):
 
 def trilin_interp_radial_WRF(list_vars, azimuth, distances_profile, heights_profile):
     """
+    !!! Deprecated !!!
     Interpolates a radar radial using a specified quadrature and outputs
     a list of subradials (WRF interface)
     Args:

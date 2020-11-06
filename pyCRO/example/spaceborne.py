@@ -3,7 +3,7 @@ Description: test for spaceborne radar
 Author: Hejun Xie
 Date: 2020-10-10 10:44:15
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-12 11:50:45
+LastEditTime: 2020-11-06 23:22:15
 '''
 
 # unit test import
@@ -13,6 +13,7 @@ sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
 # Global imports
 import numpy as np
 import pickle
+import datetime as dt
 # import pyart
 
 # Local imports
@@ -31,9 +32,9 @@ units = {'ZH':'[dBZ]', 'ZDR':'[dBZ]'}
 if __name__ == "__main__":
 
     if not LOAD_RADAR:
-        FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6_test/wrfout_d01_2019-05-17_00_00_00'
+        FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6_test/ERA_interim/wrfout_d01_2019-05-17_00_00_00'
         a = pyCRO.RadarOperator(options_file='./option_files/spaceborne_test.yml')
-        a.load_model_file(FILENAME, itime=40, load_pickle=LOAD_MODEL, pickle_file='mdl.pkl')
+        a.load_model_file([FILENAME], load_datetime=dt.datetime(2019, 5, 17, 10), load_from_file=LOAD_MODEL, load_file='mdl.nc')
 
     # print(a.dic_vars['T'])
 

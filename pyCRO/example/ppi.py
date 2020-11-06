@@ -3,7 +3,7 @@ Description: test for scatter
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-12 11:56:28
+LastEditTime: 2020-11-06 23:36:44
 '''
 
 # unit test import
@@ -13,6 +13,7 @@ sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
 # Global imports
 import numpy as np
 import pickle
+import datetime as dt
 # import pyart
 
 # Local imports
@@ -29,10 +30,11 @@ cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',
 if __name__ == "__main__":
     FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'
     a = pyCRO.RadarOperator(options_file='./option_files/simulate.yml')
-    a.load_model_file(FILENAME, itime=10, load_pickle=LOAD_MODEL, pickle_file='mdl.pkl')
+    a.load_model_file([FILENAME], load_datetime=dt.datetime(2013, 10, 6, 10), load_from_file=LOAD_MODEL, load_file='mdl.nc')
 
     if not LOAD_RADAR:
         r = a.get_PPI(elevations = 1)
+        # r = a.get_PPI_test(elevations = 1)
         with open("./ppi.pkl", "wb") as f:
             pickle.dump(r, f)
     else:

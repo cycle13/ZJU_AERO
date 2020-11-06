@@ -7,7 +7,7 @@ radar:
     sensitivity: [-15,10000]
     3dB_beamwidth: 1.
     K_squared: 0.93
-    nyquist_velocity: 30
+    nyquist_velocity: 30.
 refraction:
     scheme: 2
 integration:
