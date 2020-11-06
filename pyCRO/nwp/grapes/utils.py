@@ -3,7 +3,7 @@ Description: Some utilities for grapes radar-operator interface
 Author: Hejun Xie
 Date: 2020-11-02 17:45:19
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-03 11:31:27
+LastEditTime: 2020-11-06 10:31:43
 '''
 
 # Global import
@@ -13,7 +13,7 @@ import numpy as np
 def WGS_to_GRAPES(coords_WGS, proj_info):
     '''
     Description:
-        Convert from WGS coordinates (lat, lon) to WRF coordinates (I, J)
+        Convert from WGS coordinates (lat, lon) to GRAPES coordinates (I, J)
         currently only for latlong projection
     Params:
         coords_WGS: WGS coordinates, can be:
