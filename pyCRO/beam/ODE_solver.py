@@ -4,7 +4,7 @@ for the trajectory of the radar beam
 @Author: Hejun Xie
 @Date: 2020-07-16 11:48:54
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-03 09:59:35
+LastEditTime: 2020-11-06 22:20:07
 '''
 
 # Global imports
@@ -94,6 +94,8 @@ def ODEZeng2014(range_vec, elevation_angle, coords_radar, N):
     from ..config.cfg import CONFIG
     if CONFIG['nwp']['name'] == 'grapes':
         from ..nwp.grapes import WGS_to_GRAPES as WGS_to_MODEL
+    elif CONFIG['nwp']['name'] == 'wrf':
+        from ..nwp.wrf import WGS_to_WRF as WGS_to_MODEL
 
     # Get info about NWP coordinate system
     proj_MODEL = N.attrs

@@ -4,7 +4,7 @@ model variables to the radar gates
 Author: Hejun Xie
 Date: 2020-08-15 11:07:01
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-03 11:34:12
+LastEditTime: 2020-11-06 22:21:16
 '''
 
 # Global imports
@@ -265,6 +265,8 @@ def trilin_interp_radial(ds_model, azimuth, distances_profile, heights_profile):
 
     if CONFIG['nwp']['name'] == 'grapes':
         from ..nwp.grapes import WGS_to_GRAPES as WGS_to_MODEL
+    elif CONFIG['nwp']['name'] == 'wrf':
+        from ..nwp.wrf import WGS_to_WRF as WGS_to_MODEL
 
     # Initialize WGS84 geoid
     g = pyproj.Geod(ellps='WGS84')

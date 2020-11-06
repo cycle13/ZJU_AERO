@@ -4,7 +4,7 @@ in the method of Zeng and Blahak (2014)
 @Author: Hejun Xie
 @Date: 2020-08-02 08:31:04
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-03 10:08:52
+LastEditTime: 2020-11-06 22:19:52
 '''
 
 # global import
@@ -116,6 +116,8 @@ def ODEZeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_ra
     from ..config.cfg import CONFIG
     if CONFIG['nwp']['name'] == 'grapes':
         from ..nwp.grapes import WGS_to_GRAPES as WGS_to_MODEL
+    elif CONFIG['nwp']['name'] == 'wrf':
+        from ..nwp.wrf import WGS_to_WRF as WGS_to_MODEL
 
     # Get info about NWP coordinate system
     proj_MODEL = N.attrs

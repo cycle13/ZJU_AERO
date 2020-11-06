@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-03 15:49:57
+LastEditTime: 2020-11-06 22:18:46
 '''
 
 
@@ -237,6 +237,9 @@ class RadarOperator(object):
         if self.config['nwp']['name'] == 'grapes':
             from .nwp.grapes import check_if_variables_in_file
             from .nwp.grapes import get_grapes_variables as get_model_variables
+        elif self.config['nwp']['name'] == 'wrf':
+            from .nwp.wrf import check_if_variables_in_file
+            from .nwp.wrf import get_wrf_variables as get_model_variables
 
         vars_ok = check_if_variables_in_file(['P','T','QV','QR','QC','QI','QS','QG','U','V','W'])
 

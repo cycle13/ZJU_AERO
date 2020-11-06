@@ -3,7 +3,7 @@ Description: test WRF interface for radar operator
 Author: Hejun Xie
 Date: 2020-11-02 16:17:47
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-05 21:02:06
+LastEditTime: 2020-11-06 22:31:38
 '''
 
 # unit test import
@@ -31,8 +31,8 @@ DEG = r'$^\circ$'
 
 fields  = ['ZH', 'RVEL', 'ZDR']
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17'}
-vrange  = {'ZH':  (0, 30),
-        'ZDR': (0, 1),
+vrange  = {'ZH':  (0, 60),
+        'ZDR': (0, 10),
         'RVEL': (-15, 15)}
 cmap    = {'ZH':  'pyart_Carbone11',
         'ZDR': 'pyart_Carbone11',
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     a.load_model_file(data_file_list, load_datetime=load_datetime, load_from_file=LOAD_MODEL, load_file='mdl.nc')
 
     if not LOAD_RADAR:
-        r = a.get_PPI(elevations = 0.5)
+        r = a.get_PPI(elevations = 1.494)
         # r = a.get_PPI_test(elevations = 1)
         with open("./ppi.pkl", "wb") as f:
             pickle.dump(r, f)
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     
     a.close()
 
-    exit()
+    # exit()
     # test PyartRadop
     import matplotlib as mpl
     mpl.use('Agg')
@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     for field in fields:
         display.plot_ppi_map(field, 0, vmin=vrange[field][0], vmax=vrange[field][1],
-                            min_lon=114, max_lon=120, min_lat=38.0, max_lat=42.5,
+                            min_lon=113.5, max_lon=119, min_lat=37.5, max_lat=42.0,
                             lon_lines=np.arange(38, 42, 1), projection='lcc',
                             lat_lines=np.arange(113, 119, 1), resolution='h',
                             lat_0=r.latitude['data'],

@@ -4,7 +4,7 @@ The derived variables are useful for radar operator applications
 Author: Hejun Xie
 Date: 2020-11-05 19:29:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-06 21:33:38
+LastEditTime: 2020-11-06 22:24:43
 '''
 
 # Global imports
@@ -100,4 +100,10 @@ def check_if_variables_in_file(varname_list):
         A bool flag indicating if all the variables 
         are available in the model file.
     '''
-    pass
+    vars_ok = True
+    for varname in varname_list:
+        if varname not in long_name.keys() and varname not in raw_var_map.keys():
+            vars_ok = False
+            break
+    
+    return vars_ok
