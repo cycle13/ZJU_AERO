@@ -4,7 +4,7 @@ The derived variables are useful for radar operator applications
 Author: Hejun Xie
 Date: 2020-11-01 10:41:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-02 22:40:54
+LastEditTime: 2020-11-07 12:42:18
 '''
 
 # Global imports
@@ -42,12 +42,12 @@ class GRAPESDerivedVar(DerivedVarWorkstation):
             raw.data: an numpy array.
             raw.dims: something like '('level', 'lat', 'lon')'.
         '''
-        print("Raw var: {}".format(varname))
+        # print("Raw var: {}".format(varname))
         raw = self.fhandle.data_vars[varname].isel(time=self.time_idx)
         return to_reg_grid(raw.data, varname, raw.dims, self.regular_grids)
 
     def _get_derived_var(self, varname):
-        print("Derived var: {}".format(varname))
+        # print("Derived var: {}".format(varname))
         raw_map = { 'U':'u', 'V':'v', 'W':'w', 
                     'QV':'Qv', 'QR':'Qr', 'QS':'Qs', 
                     'QG':'Qg', 'QC':'Qc', 'QI':'Qi'}

@@ -4,7 +4,7 @@ The derived variables are useful for radar operator applications
 Author: Hejun Xie
 Date: 2020-11-05 19:29:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-06 22:24:43
+LastEditTime: 2020-11-07 12:42:00
 '''
 
 # Global imports
@@ -43,12 +43,12 @@ class WRFDerivedVar(DerivedVarWorkstation):
             raw.data: An numpy array.
             raw.dims: Something like '(bottom_top, south_north, west_east)'.
         '''
-        print("Raw var: {}".format(varname))
+        # print("Raw var: {}".format(varname))
         raw = self.fhandle.data_vars[raw_var_map[varname]].isel(Time=self.time_idx)
         return to_reg_grid(raw.data, varname, raw.dims, self.regular_grids)
 
     def _get_derived_var(self, varname):
-        print("Derived var: {}".format(varname))
+        # print("Derived var: {}".format(varname))
 
         mass_density_map = {'QV_v':'QV', 'QR_v':'QR', 'QS_v':'QS', 
                             'QG_v':'QG', 'QC_v':'QC', 'QI_v':'QI'}
