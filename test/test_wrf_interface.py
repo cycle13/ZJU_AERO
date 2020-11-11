@@ -3,7 +3,7 @@ Description: test WRF interface for radar operator
 Author: Hejun Xie
 Date: 2020-11-02 16:17:47
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-06 22:31:38
+LastEditTime: 2020-11-11 10:16:54
 '''
 
 # unit test import
@@ -43,7 +43,7 @@ latex_name = {'ZH': r'$Z_{H}$',
 
 if __name__ == "__main__":
 
-    FOLDER = '/mnt/e/WRF/wsm6_test/ERA_interim'
+    FOLDER = '../pathos/WRF/wsm6_test/ERA_interim'
     data_file_list = glob.glob(FOLDER+os.sep+'wrfout_d01_*')
     load_datetime = dt.datetime(2019,5,17,10)
     

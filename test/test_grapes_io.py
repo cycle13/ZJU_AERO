@@ -3,7 +3,7 @@ Description: test nwp.grapes_io.py
 Author: Hejun Xie
 Date: 2020-11-01 11:12:00
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-02 18:59:02
+LastEditTime: 2020-11-11 10:15:02
 '''
 
 
@@ -16,7 +16,7 @@ import glob
 import os
 import datetime
 
-FOLDER = '/mnt/e/GRAPES/north_china_snowfall_20191112'
+FOLDER = '../pathos/GRAPES/north_china_snowfall_20191112'
 data_file_list = glob.glob(FOLDER+os.sep+'*.nc')
 
 from pyCRO.nwp.grapes import get_grapes_variables

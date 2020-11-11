@@ -22,7 +22,7 @@ core:
     engine: 'rdop'
 microphysics:
     scheme: '1mom'
-    folder_lut: '../../../cosmo_pol/pathos/lut/'
+    folder_lut: '../pathos/lut/'
     scattering: 'tmatrix_masc'
     with_attenuation: 1
     with_ice_crystals: 1

@@ -8,7 +8,7 @@ dielectric constants, velocity, mass...
 Author: Hejun Xie
 Date: 2020-08-18 09:37:31
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 09:28:03
+LastEditTime: 2020-11-11 09:56:59
 '''
 
 # Global import 
@@ -24,7 +24,7 @@ from textwrap import dedent
 
 # Local import
 from ..constants import global_constants as constants
-from ..constants import constants_1mom
+from ..constants import constants_wsm6 as constants_1mom
 from ..hydrometeors.dielectric import dielectric_ice, dielectric_water, dielectric_mixture
 from ..utilities import vlinspace
 

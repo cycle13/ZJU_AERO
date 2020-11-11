@@ -3,7 +3,7 @@ Description: test nwp.wrf_io.py
 Author: Hejun Xie
 Date: 2020-11-01 11:12:00
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-06 22:09:05
+LastEditTime: 2020-11-11 10:17:32
 '''
 
 
@@ -16,7 +16,7 @@ import glob
 import os
 import datetime
 
-FOLDER = '/mnt/e/WRF/wsm6_test/ERA_interim'
+FOLDER = '../pathos/WRF/wsm6_test/ERA_interim'
 data_file_list = glob.glob(FOLDER+os.sep+'wrfout_d01_*')
 
 from pyCRO.nwp.wrf import get_wrf_variables

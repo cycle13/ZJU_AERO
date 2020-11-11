@@ -3,7 +3,7 @@ Description: test graph_wrf_modelvar.py
 Author: Hejun Xie
 Date: 2020-11-07 11:05:47
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-07 12:56:06
+LastEditTime: 2020-11-11 10:16:08
 '''
 
 # unit test import
@@ -19,7 +19,7 @@ import datetime as dt
 # Local imports
 from pyCRO.nwp.graph import graph_wrf_modelvar_timeline
 
-FILE_MDL = '../../../cosmo_pol/pathos/WRF/wsm6_test/ERA5/wrfout_d01_2019-05-17_03_00_00'
+FILE_MDL = '../pathos/WRF/wsm6_test/ERA5/wrfout_d01_2019-05-17_03_00_00'
 start_dt = dt.datetime(2019, 5, 17, 6)
 end_dt = dt.datetime(2019, 5, 17, 18)
 step_dt = dt.timedelta(minutes=15)

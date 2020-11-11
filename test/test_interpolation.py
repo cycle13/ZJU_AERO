@@ -3,7 +3,7 @@ Description: test interpolation
 Author: Hejun Xie
 Date: 2020-08-15 20:59:00
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-06 23:15:28
+LastEditTime: 2020-11-11 10:15:50
 '''
 
 # unit test import
@@ -24,7 +24,7 @@ from pyCRO.utilities import DATAdecorator
 from pyCRO.nwp.wrf import get_wrf_variables, check_if_variables_in_file
 
 BASE_VARIABLES = ['U','V','W','QR_v','QS_v','QG_v','QI_v','RHO','T']
-MODEL_FILE = '../../../cosmo_pol/pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'
+MODEL_FILE = '../pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'
 
 @DATAdecorator('./', False, './dic_variables.pkl')
 def get_dic_variables(filename):

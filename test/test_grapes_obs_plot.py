@@ -3,7 +3,7 @@ Description: plot beijing 20191129 case
 Author: Hejun Xie
 Date: 2020-11-03 16:17:53
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-03 22:54:26
+LastEditTime: 2020-11-11 10:15:27
 '''
 
 import pycwr
@@ -18,7 +18,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # UTC 2019-11-29 12UTC
 current_time = dt.datetime(2019,11,29,18)
-file = r"/mnt/e/RADAR/19.11.29顺义X波段/29/BJXSY.20191129.180003.AR2.bz2"
+file = r"../pathos/RADAR/19.11.29顺义X波段/29/BJXSY.20191129.180003.AR2.bz2"
 
 DEG = r'$^\circ$'
 

@@ -3,14 +3,14 @@ Description: test pycwr
 Author: Hejun Xie
 Date: 2020-08-30 22:20:45
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-08 11:12:41
+LastEditTime: 2020-11-11 10:12:57
 '''
 
 import pycwr
 
 from pycwr.io import read_auto
 
-file = r"/mnt/e/RADAR/19.5.17房山-2/BJXFS.20190517.100000.AR2.bz2"
+file = r"../pathos/RADAR/19.5.17房山-2/BJXFS.20190517.100000.AR2.bz2"
 
 PRD = read_auto(file)
 PyartRadar = PRD.ToPyartRadar()

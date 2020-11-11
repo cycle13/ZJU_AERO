@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-08-02 12:46:24
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-07 16:39:12
+LastEditTime: 2020-11-11 10:13:20
 '''
 
 # unit test import
@@ -28,7 +28,7 @@ from pyCRO.constants import global_constants as constants
 
 @DATAdecorator('./', False, './she.pkl')
 def get_she():
-    FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'
+    FILENAME = '../pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'
     ds = get_wrf_variables([FILENAME], ['N'], dt.datetime(2013,10,6,10))
 
     s1, h1, e1 = fixed_radius_KE(range_vec, elevation_angles, coords_radar)

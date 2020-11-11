@@ -3,7 +3,7 @@ Description: test GRAPES interface for radar operator
 Author: Hejun Xie
 Date: 2020-11-02 16:17:47
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-03 22:48:53
+LastEditTime: 2020-11-11 10:05:56
 '''
 
 # unit test import
@@ -43,7 +43,7 @@ latex_name = {'ZH': r'$Z_{H}$',
 
 if __name__ == "__main__":
 
-    FOLDER = '/mnt/e/GRAPES/north_china_snowfall_20191112'
+    FOLDER = '../pathos/GRAPES/north_china_snowfall_20191112'
     data_file_list = glob.glob(FOLDER+os.sep+'*.nc')
     load_datetime = dt.datetime(2019,11,29,18)
     
