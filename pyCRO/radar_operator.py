@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-06 22:18:46
+LastEditTime: 2020-11-11 22:14:14
 '''
 
 
@@ -359,13 +359,16 @@ class RadarOperator(object):
 
         list_beams = worker(elevations[0], azimuths[0])
 
-        print(list_beams.values)
-
+        np.set_printoptions(threshold=np.inf)
+        print(list_beams.values['ZH'])
+        
         del dic_vars
         del N
         del lut_sz
         gc.collect()
-    
+
+        exit()
+
     def get_spaceborne_swath_test(self, swath_file, slice=None):
         '''
         Simulates a spaceborne radar swath, for single thread test

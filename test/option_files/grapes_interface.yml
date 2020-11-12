@@ -5,7 +5,7 @@ radar:
     radial_resolution: 75
     PRI: 700
     FFT_length: 128
-    sensitivity: [-10, 10000]
+    sensitivity: [-15, 10000]
     3dB_beamwidth: 0.9972
     K_squared: 0.93
     nyquist_velocity: 15.010451
@@ -23,5 +23,6 @@ microphysics:
     scheme: '1mom'
     folder_lut: '../pathos/lut/'
     scattering: 'tmatrix_masc'
+    scattering_S: 'iitm_masc'
     with_attenuation: 1
     with_ice_crystals: 1

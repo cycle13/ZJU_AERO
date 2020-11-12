@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-06 23:15:09
+LastEditTime: 2020-11-12 17:39:12
 '''
 
 # Global import
@@ -130,7 +130,7 @@ class Constant_class(object):
 
         # secondary parameters
         if CONFIG != None:
-            self.WAVELENGTH = self.C/(CONFIG['radar']['frequency']*1E09)*1000
+            self.WAVELENGTH = self.C/(CONFIG['radar']['frequency']*1E09)*1000 # [mm]
 
             # get model top 
             if CONFIG['nwp']['modeltop'] == 'default':

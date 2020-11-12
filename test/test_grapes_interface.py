@@ -3,7 +3,7 @@ Description: test GRAPES interface for radar operator
 Author: Hejun Xie
 Date: 2020-11-02 16:17:47
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 10:05:56
+LastEditTime: 2020-11-12 23:01:32
 '''
 
 # unit test import
@@ -24,15 +24,15 @@ import datetime as dt
 import pyCRO
 import pyart
 
-LOAD_MODEL = False
-LOAD_RADAR = False
+LOAD_MODEL = True
+LOAD_RADAR = True
 DEG = r'$^\circ$'
 
 
 fields  = ['ZH', 'RVEL', 'ZDR']
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17'}
-vrange  = {'ZH':  (0, 30),
-        'ZDR': (0, 1),
+vrange  = {'ZH':  (0, 40),
+        'ZDR': (0, 2),
         'RVEL': (-15, 15)}
 cmap    = {'ZH':  'pyart_Carbone11',
         'ZDR': 'pyart_Carbone11',
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     FOLDER = '../pathos/GRAPES/north_china_snowfall_20191112'
     data_file_list = glob.glob(FOLDER+os.sep+'*.nc')
-    load_datetime = dt.datetime(2019,11,29,18)
+    load_datetime = dt.datetime(2019,11,29,15)
     
     a = pyCRO.RadarOperator(options_file='./option_files/grapes_interface.yml')
     a.load_model_file(data_file_list, load_datetime=load_datetime, load_from_file=LOAD_MODEL, load_file='mdl.nc')
@@ -92,6 +92,6 @@ if __name__ == "__main__":
         display.plot_line_xy(np.array([0.0, 0.0]), np.array([-300000.0, 300000.0]),
                             line_style='k-', lw=1.2)
 
-        plt.savefig('{}_ppi_grapes_{}.png'.format(load_datetime.strftime('%Y-%m-%d-%HUTC'), field), dpi=300, bbox_inches='tight')
+        plt.savefig('{}_ppi_grapes_iitm_{}.png'.format(load_datetime.strftime('%Y-%m-%d-%HUTC'), field), dpi=300, bbox_inches='tight')
 
         plt.close()

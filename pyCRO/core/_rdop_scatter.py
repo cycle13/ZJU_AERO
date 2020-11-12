@@ -4,7 +4,7 @@ from the interpolated radials given by NWP models
 Author: Hejun Xie
 Date: 2020-10-12 10:45:48
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-12 11:10:53
+LastEditTime: 2020-11-12 18:13:12
 '''
 
 # Global imports
@@ -170,6 +170,9 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
             
             # Compute particle numbers N(D) for all diameters
             N = dic_hydro[h].get_N(list_D)
+            # print(h)
+            # print(N[0,:]) # small
+            # print(N[115,:]) # big
             
             '''
             Part 2: Query of the scattering Lookup table
@@ -180,8 +183,10 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
             '''
             Part 3 : Integrate the SZ coefficients over PSD
             '''
-            # sz (n_valid_gates, nbins_D, 12)
-            # N  (n_valid_gates, nbins_D)
+            # sz (n_valid_gates, nbins_D, 12) unit: Z[mm2] S[mm]
+            # N  (n_valid_gates, nbins_D) unit: [mm-1 m-3]
+            # dD unit: [mm]
+            # sz_psd_integ (n_valid_gates, 12) unit: Z[mm2 m-3] S[mm m-3]
             sz_psd_integ = np.einsum('ijk,ij->ik',sz,N) * dD
             
             # Check for special cases where the beam is truncated by model top or topo
