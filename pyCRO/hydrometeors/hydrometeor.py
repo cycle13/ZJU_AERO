@@ -8,7 +8,7 @@ dielectric constants, velocity, mass...
 Author: Hejun Xie
 Date: 2020-08-18 09:37:31
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 09:28:03
+LastEditTime: 2020-11-12 10:51:13
 '''
 
 # Global import 
@@ -24,7 +24,7 @@ from textwrap import dedent
 
 # Local import
 from ..constants import global_constants as constants
-from ..constants import constants_1mom
+from ..constants import constants_wsm6 as constants_1mom
 from ..hydrometeors.dielectric import dielectric_ice, dielectric_water, dielectric_mixture
 from ..utilities import vlinspace
 
@@ -83,10 +83,10 @@ class _Hydrometeor(object):
         self.beta = None
 
         # PSD parameters
-        self.lambda_ = None
-        self.N0 = None
-        self.mu = None
-        self.nu = None
+        self.lambda_ = None # [mm-1]
+        self.N0 = None      # [mm-1 m-3] 
+        self.mu = None      # [-]
+        self.nu = None      # [-]
 
         # Scattering parameters
         self.canting_angle_std = None
@@ -114,10 +114,11 @@ class _Hydrometeor(object):
         # print('D {}'.format(D.shape))
         # print('N0 {}'.format(self.N0.shape))
         if np.isscalar(self.N0):
-            return self.N0*D**self.mu * np.exp(- operator(self.lambda_,D**self.nu))
+            return self.N0 * D**self.mu * \
+                            np.exp(-operator(self.lambda_, D**self.nu))
         else:
-            return operator(self.N0,D**self.mu) * \
-                            np.exp(- operator(self.lambda_,D**self.nu))
+            return operator(self.N0, D**self.mu) * \
+                            np.exp(-operator(self.lambda_, D**self.nu))
         
     def get_V(self,D):
         """
@@ -128,7 +129,7 @@ class _Hydrometeor(object):
         Returns:
             V: the terminal fall velocities, same dimensions as D
         """
-        V = self.alpha * D ** self.beta
+        V = self.alpha * D**self.beta
         return V
 
     def get_D_from_V(self,V):
@@ -154,10 +155,11 @@ class _Hydrometeor(object):
             n: the integratal of the PSD: N(D) with the same dimension as self.lambda_
         """
 
-        v = (self.vel_factor * self.N0 * self.alpha / self.nu *
+        v = (self.vel_factor * self.N0 * self.alpha / self.nu * \
              self.lambda_ ** (-(self.beta + self.mu + 1) / self.nu))
         
-        n = self.ntot_factor*self.N0/self.nu*self.lambda_**(-(self.mu+1)/self.nu)
+        n = self.ntot_factor * self.N0 / self.nu * \
+             self.lambda_ ** (-(self.mu + 1) / self.nu)
         
         if np.isscalar(v):
             v = np.array([v])
@@ -174,7 +176,7 @@ class _Hydrometeor(object):
         Returns:
             m: the particle masses, same dimensions as D
         """
-        return self.a*D**self.b
+        return self.a * D**self.b
 
     def set_psd(self,*args):
         """
@@ -191,49 +193,6 @@ class _Hydrometeor(object):
         """
         if len(args) == 2 and self.scheme == '2mom':
             pass
-
-
-class _Solid(_Hydrometeor):
-    '''
-    Base class for snow, graupel, should not be initialized
-    directly
-    '''
-    
-    def get_fractions(self,D):
-        """
-        Returns the volumic fractions of pure ice and air within
-        the melting snow particles
-        Args:
-            D: vector of diameters in mm
-
-        Returns:
-            A nx2 matrtix of fractions, where n is the number of dimensions.
-            The first column is the fraction of ice, the second the
-            fraction of air
-        """
-        # Uses COSMO mass-diameter rule
-        f_ice = 6*self.a/(np.pi*constants.RHO_I)*D**(self.b-3)
-        f_air = 1-f_ice
-        return [f_ice, f_air]
-
-    def get_m_func(self,T,f):
-        """
-        Returns a function giving the dielectric constant as a function of
-        the diameters, depending on the frequency and the temperature.
-        Used for the computation of scattering properties (see lut submodule)
-        Args:
-            T: temperature in K
-            f: frequency in GHz
-
-        Returns:
-            A lambda function f(D) giving the dielectric constant as a function
-            of the particle diameter
-        """
-        def func(D, T, f):
-            frac = self.get_fractions(D)
-            m_ice = dielectric_ice(T,f)
-            return dielectric_mixture(frac, [m_ice, constants.M_AIR])
-        return lambda D: func(D, T, f)
 
 class Rain(_Hydrometeor):
     '''
@@ -292,13 +251,16 @@ class Rain(_Hydrometeor):
         if len(args) == 2 and self.scheme == '2mom':
             super(Rain,self).set_psd(*args)
         elif self.scheme == '1mom':
+            QM = args[0]
             with np.errstate(divide='ignore'):
-                _lambda = np.array((self.lambda_factor/args[0])**
-                                   (1./(4.+self.mu)))
+                # QM = N0 * a * lambda^-(b+mu+1) * lambda_factor * N0 * a
+                _lambda = (self.N0 * self.a * self.lambda_factor / QM) \
+                    ** (1. / (self.b + self.mu + 1))
+                _lambda = np.array(_lambda)
                 _lambda[args[0]==0] = np.nan
                 self.lambda_ = _lambda
-                self.ntot = (self.ntot_factor *
-                             self.N0 * self.lambda_**(self.mu - 1))
+                self.ntot = self.ntot_factor * self.N0 * \
+                    self.lambda_ ** (-(self.mu + 1))
                 
                 if np.isscalar(self.lambda_):
                     self.lambda_ = np.array([self.lambda_])
@@ -346,7 +308,7 @@ class Rain(_Hydrometeor):
         return lambda D: dielectric_water(T, f)
 
 
-class Snow(_Solid):
+class Snow(_Hydrometeor):
     '''
     Class for snow in the form of aggregates
     '''
@@ -403,15 +365,18 @@ class Snow(_Solid):
             super(Snow,self).set_psd(*args)
 
         elif len(args) == 2 and self.scheme == '1mom':
+            T, QM = args[0], args[1]
             # For N0 use relation by Field et al. 2005 (QJRMS)
-            self.N0 = 13.5*(5.65*10**5*np.exp(-0.107*(args[0]-273.15)))/1000 # mm^-1 m^-3
+            N0_23 = 5.65E5 * np.exp(-0.107*(T-constants.T0)) # [m-4] 
+            self.N0 = 13.5 * N0_23 / 1.0E3 # [mm^-1 m^-3]
             with np.errstate(divide='ignore'):
-                _lambda = np.array((self.a * self.N0 * self.lambda_factor
-                                    / args[1]) ** (1. / (self.b + 1))) # in m-1
+                _lambda = (self.a * self.N0 * self.lambda_factor / QM) ** \
+                    (1. / (self.b + self.mu + 1))
+                _lambda = np.array(_lambda) # in m-1
                 _lambda[args[1] == 0] = np.nan
                 self.lambda_ = _lambda
-                self.ntot = (self.ntot_factor * self.N0 *
-                             self.lambda_ ** (self.mu - 1))
+                self.ntot = self.ntot_factor * self.N0 * \
+                    self.lambda_ ** (-(self.mu + 1))
                 if np.isscalar(self.lambda_):
                     self.lambda_ = np.array([self.lambda_])
                 if np.isscalar(self.ntot):
@@ -473,7 +438,7 @@ class Snow(_Solid):
         cant_std = constants.A_CANT_STD_AGG * D ** constants.B_CANT_STD_AGG
         return cant_std
 
-class Graupel(_Solid):
+class Graupel(_Hydrometeor):
     '''
     Class for graupel
     '''
@@ -529,12 +494,15 @@ class Graupel(_Solid):
         if len(args) == 2 and self.scheme == '2mom':
             super(Graupel,self).set_psd(*args)
         elif self.scheme == '1mom':
+            QM = args[0]
             with np.errstate(divide='ignore'):
-                _lambda = np.array((self.lambda_factor/args[0]) **
-                                    (1./(4.+self.mu)))
+                _lambda = (self.N0 * self.a * self.lambda_factor / QM) ** \
+                                    (1. / (self.b + self.mu + 1))
+                _lambda = np.array(_lambda)
                 _lambda[args[0] == 0] = np.nan
                 self.lambda_ = _lambda
-                self.ntot = self.ntot_factor * self.N0 * self.lambda_**(self.mu - 1)
+                self.ntot = self.ntot_factor * self.N0 * \
+                    self.lambda_ ** (-(self.mu + 1))
                 if np.isscalar(self.lambda_):
                     self.lambda_ = np.array([self.lambda_])
                 if np.isscalar(self.ntot):
@@ -597,7 +565,7 @@ class Graupel(_Solid):
         cant_std = constants.A_CANT_STD_GRAU*D**constants.B_CANT_STD_GRAU
         return cant_std
 
-class IceParticle(_Solid):
+class IceParticle(_Hydrometeor):
     '''
     Class for ice crystals
     '''
@@ -623,8 +591,8 @@ class IceParticle(_Solid):
         self.beta = constants_1mom.BV_I
 
         # PSD parameters
-        self.N0 = None      # Taken from Field et al (2005)
-        self.lambda_ = None
+        self.N0 = None      # Taken from Field et al (2005), not true N0
+        self.lambda_ = None # Taken from Field et al (2005), not true lambda
         self.mu = constants_1mom.MU_I
         self.nu = 1
 
@@ -633,9 +601,9 @@ class IceParticle(_Solid):
         self.canting_angle_std = 5.
 
         # Others
-        self.lambda_factor = constants_1mom.LAMBDA_FACTOR_I
-        self.ntot_factor = constants_1mom.NTOT_FACTOR_I
-        self.vel_factor = constants_1mom.VEL_FACTOR_I
+        self.lambda_factor = None
+        self.ntot_factor = None
+        self.vel_factor = None
 
     def get_N(self,D):
         """
@@ -652,7 +620,7 @@ class IceParticle(_Solid):
         """
         
         # Taken from Field et al (2005)
-        x = np.outer(self.lambda_, D) / 1000.
+        x = np.outer(self.lambda_, D) / 1000. # [-]
         return self.N0[:,None] * constants_1mom.PHI_23_I(x)
         
     def integrate_V(self):
@@ -669,25 +637,30 @@ class IceParticle(_Solid):
         D = np.linspace(self.d_min, self.d_max, self.nbins_D)
         dD = D[1] - D[0]
         N = self.get_N(D)
-        v =  np.sum(N * self.get_V(D)) * dD
-        n = np.sum(N) * dD
+        V = self.get_V(D)
+        v = np.sum(N*V) * dD
+        n = np.sum(N)   * dD
         if np.isscalar(v):
             v = np.array([v])
             n = np.array([n])
         return v, n
 
-    def get_mom_2(self, T, QM):
+    def get_mom_2(self, T, Qn, n):
         """
         Get second moment from third moment using the best fit provided
-        by Field et al (2005)
+        by Field et al (2005):
+            Qn = a(n, Tc)Q2^{b(n, Tc)}, 
+            so Q2 = {Qn/a(n, Tc)}^{1./b(n, Tc)}
         Args:
             T: temperature in K
-            QM: mass concentration in kg/m3
+            Qn: n-order moment, i.e., integration of D^n * N(D),
+             in SI unit [m^(n-3)]
+            n: order of Qn
 
         Returns:
-            The estimated moment of orf_{\text{vol}}^{\text{water}} & =  f_{\text{wet}}^m \frac{\rho^{\text{water}}}{\rho^{m}} \\der 2 of the PSD
+            Q2: 2-order moment, i.e., integration of D^2 * N(D),
+             in SI unit [m^-1]
         """
-        n = 3
         T = T - constants.T0 # Convert to celcius
         a = 5.065339 - 0.062659 * T -3.032362 * n + 0.029469 * T * n \
             - 0.000285 * T**2  + 0.312550 * n**2 + 0.000204 * T**2*n \
@@ -698,7 +671,7 @@ class IceParticle(_Solid):
             - 0.000141 * T**2 + 0.060366 * n**2 + 0.000079 * T**2 * n \
             + 0.000594 * T * n**2 -0.003577 * n**3
 
-        return (QM/a) ** (1/b)
+        return (Qn/a) ** (1./b)
 
     def set_psd(self, arg1, arg2):
         """
@@ -718,26 +691,28 @@ class IceParticle(_Solid):
         # if one moment scheme, arg1 = T, arg2 = Q(M)I
         # if two moments scheme, arg1 =  QNI, arg2 = Q(M)I
 
-        QM = arg2.astype(np.float64)
+        T  = arg1.astype(np.float64)
+        QM = arg2.astype(np.float64) # [kg m-3]
+        Qn = QM / self.a * (1.0E-3)**self.b # [m^(n-3)]
         
         # get first estimated N0 and lambda_
-        T = arg1
-        Q2 = self.get_mom_2(T,QM/constants_1mom.BM_I)
-        N0 = Q2**((self.b + 1)/(self.b - 2)) * QM**((2 + 1)/(2 - self.b))
-        N0 /= 10**5 # From m^-1 to mm^-1
-        lambda_ = (Q2/QM) ** (1/(self.b - 2))
+        Q2 = self.get_mom_2(T, Qn, self.b) # [m^(-1)]
+        N0 = Q2**((self.b+1)/(self.b-2)) * Qn**((2+1)/(2-self.b)) # [m-4] 
+        N0 *= 1.0E-3 # convert from [m-4] to [mm-1 m-3]
+        lambda_ = (Q2/Qn)**(1/(self.b-2))
 
         # Apply correction factor to match third moment
         D = np.linspace(self.d_min, self.d_max, self.nbins_D)
-        x = lambda_[:,None] * D.T / 1000
+        dD = D[1]-D[0]
+        x = lambda_[:,None] * D.T / 1000 # [-]
         N = N0[:,None] * constants_1mom.PHI_23_I(x)
-        QM_est = np.nansum(self.a * D ** self.b * N, axis = 1) * (D[1]-D[0])
-        N0 = N0/QM_est * QM
+        QM_est = np.nansum(self.a * D**self.b * N, axis=1) * dD
+        N0 = N0 * (QM / QM_est)
 
         # assign the attributes
         self.N0 = N0.T
         self.lambda_ = lambda_.T
-        self.ntot = np.nansum(N, axis = 1) *(D[1]-D[0])
+        self.ntot = np.nansum(N, axis=1) * dD
 
         # vectorlize
         if np.isscalar(self.lambda_):
