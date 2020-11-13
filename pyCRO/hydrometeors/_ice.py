@@ -3,7 +3,7 @@ Description: hydrometeor ice
 Author: Hejun Xie
 Date: 2020-11-13 12:14:03
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-13 13:05:56
+LastEditTime: 2020-11-13 22:50:28
 '''
 
 # Global imports
@@ -181,6 +181,6 @@ class IceParticle(_Hydrometeor):
             The aspect-ratios defined by the smaller dimension over the
             larger dimension
         """
-        ar = 11.3 * D ** 0.414 * 1000 ** (-0.414)
+        ar = 11.3 * D**0.414 * 1000**(-0.414)
         return 1/ar
 

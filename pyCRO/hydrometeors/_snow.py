@@ -3,7 +3,7 @@ Description: hydrometeor snow
 Author: Hejun Xie
 Date: 2020-11-13 12:13:17
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-13 12:39:20
+LastEditTime: 2020-11-13 22:45:59
 '''
 
 # Global imports
@@ -126,9 +126,9 @@ class Snow(_Hydrometeor):
             mu: shape parameter of the gamma pdf
 
         """
-        lambd = constants.A_AR_LAMBDA_AGG*D**constants.B_AR_LAMBDA_AGG
+        lambd = constants.A_AR_LAMBDA_AGG * D**constants.B_AR_LAMBDA_AGG
         loc = np.ones(len(lambd))
-        mu = constants.A_AR_M_AGG*D**constants.B_AR_M_AGG
+        mu = constants.A_AR_M_AGG * D**constants.B_AR_M_AGG
         return lambd, loc, mu
 
     def get_canting_angle_std_masc(self, D):
@@ -142,5 +142,5 @@ class Snow(_Hydrometeor):
             the standard deviations of the distribution of canting angles
             for the specified diameters
         """
-        cant_std = constants.A_CANT_STD_AGG * D ** constants.B_CANT_STD_AGG
+        cant_std = constants.A_CANT_STD_AGG * D**constants.B_CANT_STD_AGG
         return cant_std

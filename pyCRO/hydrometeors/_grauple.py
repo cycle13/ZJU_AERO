@@ -3,7 +3,7 @@ Description: hydrometeor grauple
 Author: Hejun Xie
 Date: 2020-11-13 12:13:29
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-13 13:06:34
+LastEditTime: 2020-11-13 22:45:33
 '''
 
 # Global imports
@@ -123,9 +123,9 @@ class Graupel(_Hydrometeor):
             mu: shape parameter of the gamma pdf
 
         """
-        lamb = constants.A_AR_LAMBDA_GRAU * D ** constants.B_AR_LAMBDA_GRAU
+        lamb = constants.A_AR_LAMBDA_GRAU * D**constants.B_AR_LAMBDA_GRAU
         loc =  np.ones(len(lamb))
-        mu = constants.A_AR_M_GRAU*D**constants.B_AR_M_GRAU
+        mu = constants.A_AR_M_GRAU * D**constants.B_AR_M_GRAU
         return lamb, loc, mu
 
     def get_canting_angle_std_masc(self,D):
@@ -139,5 +139,5 @@ class Graupel(_Hydrometeor):
             the standard deviations of the distribution of canting angles
             for the specified diameters
         """
-        cant_std = constants.A_CANT_STD_GRAU*D**constants.B_CANT_STD_GRAU
+        cant_std = constants.A_CANT_STD_GRAU * D**constants.B_CANT_STD_GRAU
         return cant_std
