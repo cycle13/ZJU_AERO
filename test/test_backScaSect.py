@@ -4,7 +4,7 @@ of IITM, TM, and Rayleigh scattering approximation.
 Author: Hejun Xie
 Date: 2020-11-12 17:03:03
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-12 18:07:34
+LastEditTime: 2020-11-13 09:51:15
 '''
 
 # unit test import
@@ -76,3 +76,24 @@ if __name__ == '__main__':
     bss_Rayleigh = get_Rayleigh_backScaSect(T, f)
 
     # start plot
+    import matplotlib.pyplot as plt
+    import matplotlib as mpl
+    mpl.use('Agg')
+
+    plt.rcParams['font.family'] = 'serif'
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    ax.set_title('Horizontal Back scattering section')
+
+    ax.plot(D, bss_IITM, color='r', label='IITM orientation with preference')
+    ax.plot(D, bss_Rayleigh, color='k', label='Rayleigh scattering')
+    
+    ax.set_xlabel(r'Dmax [$mm$]', fontsize=12)
+    ax.set_ylabel(r'Back scattering section [$mm^{2}$]', fontsize=12)
+
+    ax.set_yscale('log')
+
+    ax.legend(frameon=False)
+    
+    plt.savefig('./backScaSect.png', dpi=300, bbox_inches='tight')
+    plt.close(fig)
