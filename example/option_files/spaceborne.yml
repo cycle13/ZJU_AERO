@@ -9,7 +9,6 @@ radar:
     FFT_length:
     sensitivity: 12
     3dB_beamwidth: 0.5
-    K_squared: 0.93
     nyquist_velocity:
 refraction:
     scheme: 2
