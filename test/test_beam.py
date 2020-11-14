@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-08-02 12:46:24
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 10:13:20
+LastEditTime: 2020-11-14 12:00:13
 '''
 
 # unit test import
@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 
 # Local imports
-from pyCRO.beam import fixed_radius_KE, ODEZeng2014, ODEZeng2014_exhaustive
+from pyCRO.beam import fixed_radius_KE, Zeng2014, Zeng2014_exhaustive
 from pyCRO.utilities import DATAdecorator
 from pyCRO.nwp.wrf import get_wrf_variables
 from pyCRO.config import cfg
