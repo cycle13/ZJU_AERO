@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:52:30
 LastEditors: Hejun Xie
-LastEditTime: 2020-08-19 08:59:15
+LastEditTime: 2020-11-14 13:36:20
 '''
 
-from .global_constants import global_constants
+from .constants_global import global_constants
