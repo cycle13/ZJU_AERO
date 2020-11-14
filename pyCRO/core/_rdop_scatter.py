@@ -4,7 +4,7 @@ from the interpolated radials given by NWP models
 Author: Hejun Xie
 Date: 2020-10-12 10:45:48
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:28:55
+LastEditTime: 2020-11-14 13:12:34
 '''
 
 # Global imports
@@ -12,7 +12,6 @@ import numpy as np
 np.warnings.filterwarnings('ignore')
 
 # Local imports
-from ..config.cfg import CONFIG
 from ..interp import Radial
 from ..hydro import create_hydrometeor
 from ..const import global_constants as constants

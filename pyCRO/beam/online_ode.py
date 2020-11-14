@@ -4,7 +4,7 @@ for the trajectory of the radar beam
 @Author: Hejun Xie
 @Date: 2020-07-16 11:48:54
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:29:59
+LastEditTime: 2020-11-14 13:11:16
 '''
 
 # Global imports
@@ -15,7 +15,6 @@ from scipy.interpolate import interp1d
 from scipy.integrate import odeint
 
 # Local imports
-from ..config.cfg import CONFIG
 from ..utils import get_earth_radius
 from ..const import global_constants as constants
 
