@@ -4,7 +4,7 @@ in the method of Zeng and Blahak (2014)
 @Author: Hejun Xie
 @Date: 2020-08-02 08:31:04
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 11:50:42
+LastEditTime: 2020-11-14 12:20:42
 '''
 
 # global import
@@ -18,7 +18,7 @@ from scipy.integrate import solve_ivp
 
 # Local imports
 from ..config.cfg import CONFIG
-from ..utilities import get_earth_radius
+from ..utils import get_earth_radius
 from ..constants import global_constants as constants
 
 

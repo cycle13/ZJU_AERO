@@ -4,7 +4,7 @@ radar beam while taking into account atmospheric refraction
 @Author: Hejun Xie
 @Date: 2020-07-16 17:44:29
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 11:55:51
+LastEditTime: 2020-11-14 12:20:24
 '''
 
 # Global imports
@@ -12,7 +12,7 @@ import numpy as np
 
 # Local imports
 from ..constants import global_constants as constants
-from ..utilities import get_earth_radius
+from ..utils import get_earth_radius
 from .effective_earth_radius import effective_earth_radius
 from .online_ode_exhaustive import Zeng2014_exhaustive
 from .online_ode import Zeng2014

@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:47:37
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 11:47:46
+LastEditTime: 2020-11-14 12:20:32
 '''
 
 # global import
@@ -11,7 +11,7 @@ import numpy as np
 
 # local import
 from ..constants import global_constants as constants
-from ..utilities import get_earth_radius
+from ..utils import get_earth_radius
 
 def effective_earth_radius(range_vec, elevation_angle, coords_radar):
     '''

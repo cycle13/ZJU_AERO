@@ -3,7 +3,7 @@ Description: wrapper for pyart class
 Author: Hejun Xie
 Date: 2020-08-24 21:59:44
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-03 19:53:04
+LastEditTime: 2020-11-14 12:17:19
 '''
 
 # Global imports
@@ -14,7 +14,7 @@ import numpy.ma as ma
 
 # Local imports
 from ..constants import global_constants as constants
-from ..utilities import row_stack
+from ..utils import row_stack
 
 # MODEL
 

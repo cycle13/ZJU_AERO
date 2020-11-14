@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 11:11:11
+LastEditTime: 2020-11-14 12:20:06
 '''
 
 # Global import
@@ -12,7 +12,7 @@ np.seterr(divide='ignore') # Disable divide by zero error
 
 # Local import
 from ..config.cfg import CONFIG
-from ..utilities import K_squared
+from ..utils import K_squared
 
 
 '''

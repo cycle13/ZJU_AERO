@@ -4,7 +4,7 @@ of IITM, TM, and Rayleigh scattering approximation.
 Author: Hejun Xie
 Date: 2020-11-12 17:03:03
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 11:12:54
+LastEditTime: 2020-11-14 12:23:28
 '''
 
 # unit test import
@@ -14,11 +14,12 @@ sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
 
 # Global imports
 import numpy as np
-# np.set_printoptions(threshold=np.inf)
 import xarray as xr
+# np.set_printoptions(threshold=np.inf)
+
 # Local imports
 from pyCRO.db import load_lut
-from pyCRO.utilities import dielectric_ice
+from pyCRO.utils import dielectric_ice
 
 
 def Ki_squared(f, T):

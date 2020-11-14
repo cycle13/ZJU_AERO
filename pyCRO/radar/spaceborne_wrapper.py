@@ -7,7 +7,7 @@ simulating the scan.
 Author: Hejun Xie
 Date: 2020-10-09 15:56:38
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-15 22:49:41
+LastEditTime: 2020-11-14 12:17:07
 '''
 
 # Global imports
@@ -19,7 +19,7 @@ import copy
 
 # Local imports
 from ..constants import global_constants as constants
-from ..utilities import vlinspace
+from ..utils import vlinspace
 
 
 def get_spaceborne_angles(swath_file, swath_slice=None):
