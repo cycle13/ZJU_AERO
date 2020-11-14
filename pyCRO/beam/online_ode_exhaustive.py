@@ -4,7 +4,7 @@ in the method of Zeng and Blahak (2014)
 @Author: Hejun Xie
 @Date: 2020-08-02 08:31:04
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-06 22:47:57
+LastEditTime: 2020-11-14 11:50:42
 '''
 
 # global import
@@ -94,7 +94,7 @@ def _beam_solver(range_vec, coords_radar, n, b, topo, elevation_angle, RE):
     return np.array(s, dtype='float32'), np.array(h, dtype='float32'), np.array(e, dtype='float32')
 
 
-def ODEZeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_radar, N):
+def Zeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_radar, N):
     '''
     Computes the trajectory of a radar beam along a specified radial with the
     ODE method of Zeng and Blahak (2014) in an exhaustive way
@@ -190,7 +190,7 @@ if __name__ == "__main__":
     azimuth_angle = 120
     coords_radar = [27.9, 120.8, 200]
     
-    s, h, e =  ODEZeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_radar, d['N'])
+    s, h, e =  Zeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_radar, d['N'])
     print(s[0])
     print(h[0])
     print(e[0])

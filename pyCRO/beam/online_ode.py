@@ -4,7 +4,7 @@ for the trajectory of the radar beam
 @Author: Hejun Xie
 @Date: 2020-07-16 11:48:54
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-06 22:48:18
+LastEditTime: 2020-11-14 11:52:16
 '''
 
 # Global imports
@@ -73,7 +73,7 @@ def _piecewise_linear(x,y):
     return ufunclike
 
 
-def ODEZeng2014(range_vec, elevation_angle, coords_radar, N):
+def Zeng2014(range_vec, elevation_angle, coords_radar, N):
     '''
     Computes the trajectory of a radar beam along a specified radial with the
     ODE method of Zeng and Blahak (2014)
@@ -153,7 +153,7 @@ if __name__ == "__main__":
     range_vec = np.array([0, 500, 1000, 1500, 2000])
     elevation_angle = [1.0]
     coords_radar = [30, 120, 100]
-    s, h, e =  ODEZeng2014(range_vec, elevation_angle, coords_radar, d['N'])
+    s, h, e =  Zeng2014(range_vec, elevation_angle, coords_radar, d['N'])
     print(s)
     print(h)
     print(e)

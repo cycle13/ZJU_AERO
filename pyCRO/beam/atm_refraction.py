@@ -4,18 +4,18 @@ radar beam while taking into account atmospheric refraction
 @Author: Hejun Xie
 @Date: 2020-07-16 17:44:29
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-30 15:37:38
+LastEditTime: 2020-11-14 11:55:51
 '''
 
 # Global imports
 import numpy as np
 
 # Local imports
-from .fixed_radius import fixed_radius_KE
-from .ODE_solver import ODEZeng2014
-from .ODE_exhaustive_solver import ODEZeng2014_exhaustive
 from ..constants import global_constants as constants
 from ..utilities import get_earth_radius
+from .effective_earth_radius import effective_earth_radius
+from .online_ode_exhaustive import Zeng2014_exhaustive
+from .online_ode import Zeng2014
 
 
 def compute_trajectory_radial(range_vec, elevation_angle, coords_radar,
@@ -43,11 +43,11 @@ def compute_trajectory_radial(range_vec, elevation_angle, coords_radar,
     '''
 
     if refraction_method==1:
-        s, h, e = fixed_radius_KE(range_vec, elevation_angle, coords_radar)
+        s, h, e = effective_earth_radius(range_vec, elevation_angle, coords_radar)
     elif refraction_method==2:
-        s, h, e = ODEZeng2014(range_vec, elevation_angle, coords_radar, N)
+        s, h, e = Zeng2014(range_vec, elevation_angle, coords_radar, N)
     elif refraction_method==3:
-        s, h, e = ODEZeng2014_exhaustive(range_vec, elevation_angle, azimuth_angle, coords_radar, N)
+        s, h, e = Zeng2014_exhaustive(range_vec, elevation_angle, azimuth_angle, coords_radar, N)
 
     return s, h, e
 

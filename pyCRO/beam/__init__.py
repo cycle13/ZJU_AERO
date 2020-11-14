@@ -3,11 +3,11 @@
 @Author: Hejun Xie
 @Date: 2020-07-14 08:58:20
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-12 12:08:39
+LastEditTime: 2020-11-14 11:52:42
 '''
 
 from .atm_refraction import compute_trajectory_radial, compute_trajectory_spaceborne
 
-from .fixed_radius import fixed_radius_KE
-from .ODE_exhaustive_solver import ODEZeng2014_exhaustive
-from .ODE_solver import ODEZeng2014
+from .effective_earth_radius import effective_earth_radius
+from .online_ode_exhaustive import Zeng2014_exhaustive
+from .online_ode import Zeng2014
