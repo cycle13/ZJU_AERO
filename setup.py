@@ -5,7 +5,7 @@
 @Author: Hejun Xie
 @Date: 2020-04-06 20:54:22
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:36:48
+LastEditTime: 2020-11-14 12:37:24
 '''
 
 from setuptools import setup, Extension, Command
@@ -17,7 +17,7 @@ except AttributeError:
     numpy_include = numpy.get_numpy_include()
 
 _interpolation_c = Extension("_interpolation_c",
-                   ["./pyCRO/interpolation/interpolation_c.i","./pyCRO/interpolation/interpolation_c.c"],
+                   ["./pyCRO/interp/interpolation_c.i","./pyCRO/interp/interpolation_c.c"],
                    include_dirs = [numpy_include],
                   )
 
