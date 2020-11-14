@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-13 23:02:32
+LastEditTime: 2020-11-14 12:07:15
 '''
 
 
@@ -23,7 +23,7 @@ from textwrap import dedent
 # Local imports
 from .radar import PyartRadop, PycwrRadop, get_spaceborne_angles, SimulatedSpaceborne
 from .config import cfg
-from .interpolation import get_interpolated_radial, integrate_radials
+from .interp import get_interpolated_radial, integrate_radials
 
 from .constants import global_constants as constants
 from .db import load_all_lut

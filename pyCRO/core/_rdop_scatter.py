@@ -4,7 +4,7 @@ from the interpolated radials given by NWP models
 Author: Hejun Xie
 Date: 2020-10-12 10:45:48
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 11:58:55
+LastEditTime: 2020-11-14 12:10:20
 '''
 
 # Global imports
@@ -13,7 +13,7 @@ np.warnings.filterwarnings('ignore')
 
 # Local imports
 from ..config.cfg import CONFIG
-from ..interpolation import Radial
+from ..interp import Radial
 from ..hydro import create_hydrometeor
 from ..constants import global_constants as constants
 from ..utilities import nansum_arr, sum_arr, vlinspace, nan_cumprod, nan_cumsum, aliasing

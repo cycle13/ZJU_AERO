@@ -3,7 +3,7 @@ Description: test interpolation
 Author: Hejun Xie
 Date: 2020-08-15 20:59:00
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 10:15:50
+LastEditTime: 2020-11-14 12:14:03
 '''
 
 # unit test import
@@ -19,7 +19,7 @@ import datetime as dt
 # Local imports
 from pyCRO.config import cfg
 from pyCRO.constants import global_constants as constants
-from pyCRO.interpolation import get_interpolated_radial
+from pyCRO.interp import get_interpolated_radial
 from pyCRO.utilities import DATAdecorator
 from pyCRO.nwp.wrf import get_wrf_variables, check_if_variables_in_file
 
