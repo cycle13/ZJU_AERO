@@ -3,7 +3,7 @@ Description:  computes all radar observables for a given radial
 Author: Hejun Xie
 Date: 2020-08-20 22:01:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-12 11:13:36
+LastEditTime: 2020-11-14 12:29:13
 '''
 
 # Global imports
@@ -11,7 +11,7 @@ import numpy as np
 np.warnings.filterwarnings('ignore')
 
 # Local imports
-from ..constants import global_constants as constants
+from ..const import global_constants as constants
 
 from ._rdop_scatter import get_radar_observables_rdop
 from ._wrfda_scatter import get_radar_observables_wrfda

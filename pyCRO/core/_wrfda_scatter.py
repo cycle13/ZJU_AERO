@@ -7,7 +7,7 @@ Used for comparision with radar operator
 Author: Hejun Xie
 Date: 2020-10-12 10:46:54
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:10:36
+LastEditTime: 2020-11-14 12:29:04
 '''
 
 # Global imports
@@ -17,7 +17,7 @@ np.warnings.filterwarnings('ignore')
 # Local imports
 from ..config.cfg import CONFIG
 from ..interp import Radial
-from ..constants import global_constants as constants
+from ..const import global_constants as constants
 
 def get_radar_observables_wrfda(list_subradials):
     """

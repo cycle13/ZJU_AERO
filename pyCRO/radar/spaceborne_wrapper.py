@@ -7,7 +7,7 @@ simulating the scan.
 Author: Hejun Xie
 Date: 2020-10-09 15:56:38
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:17:07
+LastEditTime: 2020-11-14 12:25:53
 '''
 
 # Global imports
@@ -18,7 +18,7 @@ import pyproj as pp
 import copy
 
 # Local imports
-from ..constants import global_constants as constants
+from ..const import global_constants as constants
 from ..utils import vlinspace
 
 

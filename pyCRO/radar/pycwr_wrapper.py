@@ -3,7 +3,7 @@ Description: wrapper for pycwr class
 Author: Hejun Xie
 Date: 2020-10-02 16:32:15
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-03 19:53:24
+LastEditTime: 2020-11-14 12:26:01
 '''
 
 # Global import
@@ -13,7 +13,7 @@ import numpy as np
 
 # Local import
 from ..config import cfg
-from ..constants import global_constants as constants
+from ..const import global_constants as constants
 
 RDOP_to_CINRAD_field_mapping = {
     'ZH'    : 'dBZ',

@@ -4,7 +4,7 @@ for the trajectory of the radar beam
 @Author: Hejun Xie
 @Date: 2020-07-16 11:48:54
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:20:51
+LastEditTime: 2020-11-14 12:29:59
 '''
 
 # Global imports
@@ -17,7 +17,7 @@ from scipy.integrate import odeint
 # Local imports
 from ..config.cfg import CONFIG
 from ..utils import get_earth_radius
-from ..constants import global_constants as constants
+from ..const import global_constants as constants
 
 def _deriv_z(z, r, n_h_int, dn_dh_int, RE):
     '''

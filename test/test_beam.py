@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-08-02 12:46:24
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:22:58
+LastEditTime: 2020-11-14 12:30:51
 '''
 
 # unit test import
@@ -24,7 +24,7 @@ from pyCRO.beam import fixed_radius_KE, Zeng2014, Zeng2014_exhaustive
 from pyCRO.utils import DATAdecorator
 from pyCRO.nwp.wrf import get_wrf_variables
 from pyCRO.config import cfg
-from pyCRO.constants import global_constants as constants
+from pyCRO.const import global_constants as constants
 
 @DATAdecorator('./', False, './she.pkl')
 def get_she():

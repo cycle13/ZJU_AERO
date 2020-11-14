@@ -3,7 +3,7 @@ Description: hydrometeor ice
 Author: Hejun Xie
 Date: 2020-11-13 12:14:03
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-13 22:50:28
+LastEditTime: 2020-11-14 12:28:08
 '''
 
 # Global imports
@@ -11,9 +11,10 @@ import numpy as np
 np.seterr(divide='ignore')
 
 # Local imports
+from ..const import global_constants as constants
+from ..const import constants_wsm6 as constants_1mom
 from ._hydrometeor import _Hydrometeor
-from ..constants import global_constants as constants
-from ..constants import constants_wsm6 as constants_1mom
+
 
 class IceParticle(_Hydrometeor):
     '''

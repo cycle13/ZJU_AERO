@@ -10,7 +10,7 @@ LastEditTime: 2020-11-14 12:20:32
 import numpy as np
 
 # local import
-from ..constants import global_constants as constants
+from ..const import global_constants as constants
 from ..utils import get_earth_radius
 
 def effective_earth_radius(range_vec, elevation_angle, coords_radar):
