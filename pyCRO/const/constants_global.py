@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 13:34:58
+LastEditTime: 2020-11-14 17:16:31
 '''
 
 # Global import
@@ -44,16 +44,8 @@ class ConstantClass(object):
         RHO_W: density of liquid water [kg/mm3 ]
         RHO_I: density of ice [kg/mm3 ]
         T0 : water freezing temperature [K]
-        A : Constant used to compute the spectral width due to turbulence
-            see Doviak and Zrnic (p.409) [-]
         RHO_0: Density of air at the sea level [kg/m3]
         KE: 4/3 parameter in the 4/3 refraction model
-        MAX_MODEL_HEIGHT: The maximum height above which simulated radar gates are
-            immediately discarded, i.e. there is not chance the model simulates
-            anything so high. This is used when interpolation MODEL variables to the
-            spaceborne radar beam, because spaceborne is at 407 km from the Earth, 
-            so there is no need at all to simulate all radar gates (this would make 
-            more than 3000 gates at Ka band...)
         T0: freezing temperature of water in K
         A_AR_LAMBDA_AGG: intercept parameter a in the power-law relation defining the
             value of the Lambda in the gamma distribution for aggregate aspect-ratios
@@ -111,13 +103,12 @@ class ConstantClass(object):
                                     'ZDR','RHOHV','KDP']
         
         # 2. Physical parameters
-        self.C = 299792458.
-        self.RHO_W = 1000./(1000**3)
-        self.RHO_I = 916./(1000**3)
-        self.A = 1.6
-        self.RHO_0 = 1.225
-        self.KE = 4./3.
-        self.T0 = 273.15
+        self.C = 299792458.          # [m/s]
+        self.RHO_W = 1000./(1000**3) # [kg mm-3]
+        self.RHO_I = 916./(1000**3)  # [kg mm-3]
+        self.RHO_0 = 1.225           # [kg m-3]
+        self.KE = 4./3.              # [-]
+        self.T0 = 273.15             # [K]
 
         # 3.Power laws based on MASC observations
         # 3.1 Axis-ratios:
@@ -146,11 +137,20 @@ class ConstantClass(object):
     def _init_derived_const(self):
         '''
         initialize some derived constants
+        WAVELENGTH: The wave length of radar [mm]
+        KW: The dielectric constant at T_K_SQUARED, the frequency of radar [-]
+        MAX_MODEL_HEIGHT: The maximum height above which simulated radar gates are
+            immediately discarded, i.e. there is not chance the model simulates
+            anything so high. This is used when interpolation MODEL variables to the
+            spaceborne radar beam, because spaceborne is at 407 km from the Earth, 
+            so there is no need at all to simulate all radar gates (this would make 
+            more than 3000 gates at Ka band...) [m]
+        RANGE_RADAR: The distance of all the radar gates [m]
         '''
         self.WAVELENGTH = self.C/(CONFIG['radar']['frequency']*1E09)*1000 # [mm]
-        self.KW = K_squared(CONFIG['radar']['frequency'], self.T_K_SQUARED)
+        self.KW = K_squared(CONFIG['radar']['frequency'], self.T_K_SQUARED) # [-]
 
-        # get model top 
+        # get model top [m]
         if CONFIG['nwp']['modeltop'] == 'default':
             if CONFIG['nwp']['name'] == 'wrf':
                 self.MAX_MODEL_HEIGHT = 20000
@@ -159,7 +159,7 @@ class ConstantClass(object):
         else:
             self.MAX_MODEL_HEIGHT = CONFIG['nwp']['modeltop']
 
-        # get radar range 
+        # get radar range [m]
         if CONFIG['radar']['type'] in ['ground']:
             self.RANGE_RADAR=np.arange(
                 CONFIG['radar']['radial_resolution']/2.,
