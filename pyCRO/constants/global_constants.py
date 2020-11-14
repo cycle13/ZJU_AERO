@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-12 17:39:12
+LastEditTime: 2020-11-14 11:11:11
 '''
 
 # Global import
@@ -12,6 +12,7 @@ np.seterr(divide='ignore') # Disable divide by zero error
 
 # Local import
 from ..config.cfg import CONFIG
+from ..utilities import K_squared
 
 
 '''
@@ -131,6 +132,7 @@ class Constant_class(object):
         # secondary parameters
         if CONFIG != None:
             self.WAVELENGTH = self.C/(CONFIG['radar']['frequency']*1E09)*1000 # [mm]
+            self.KW = K_squared(CONFIG['radar']['frequency'], self.T_K_SQUARED)
 
             # get model top 
             if CONFIG['nwp']['modeltop'] == 'default':

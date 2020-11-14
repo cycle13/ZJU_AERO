@@ -4,7 +4,7 @@ from the interpolated radials given by NWP models
 Author: Hejun Xie
 Date: 2020-10-12 10:45:48
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-12 18:13:12
+LastEditTime: 2020-11-14 11:16:28
 '''
 
 # Global imports
@@ -67,7 +67,6 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
     radial_res = CONFIG['radar']['radial_resolution']
     # TODO only Guass-Hermite intergration (scheme 1) in interpolation.py
     integration_scheme = CONFIG['integration']['scheme'] 
-    KW = CONFIG['radar']['K_squared']
     nyquist_velocity = CONFIG['radar']['nyquist_velocity']
 
     # No doppler for spaceborne radar
@@ -246,7 +245,7 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
     sz_integ[sz_integ == 0] = np.nan
 
     # Get radar observables
-    ZH, ZV, ZDR, RHOHV, KDP, AH, AV, DELTA_HV = get_pol_from_sz(sz_integ, KW)
+    ZH, ZV, ZDR, RHOHV, KDP, AH, AV, DELTA_HV = get_pol_from_sz(sz_integ)
 
     PHIDP = nan_cumsum(2 * KDP) * radial_res/1000. + DELTA_HV
 
@@ -318,13 +317,14 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
 
     return radar_radial
 
-def get_pol_from_sz(sz, KW):
+def get_pol_from_sz(sz):
     '''
     Computes polarimetric radar observables from integrated scattering properties
+    constants.KW: the refractive factor of water, usually 0.93 for radar applications
     Args:
         sz: integrated scattering matrix, with an arbitrary number of rows
             (gates) and 12 columns (seet lut submodule)
-        KW: the refractive factor of water, usually 0.93 for radar applications
+        
 
     Returns:
          z_h: radar refl. factor at hor. pol. in linear units [mm6 m-3]
@@ -338,9 +338,7 @@ def get_pol_from_sz(sz, KW):
     '''
 
     wavelength = constants.WAVELENGTH
-
-    from pyCRO.config.cfg import CONFIG
-    K_squared = CONFIG['radar']['K_squared']
+    K_squared = constants.KW
 
     # Horizontal reflectivity
     radar_xsect_h = 2*np.pi*(sz[:,0]-sz[:,1]-sz[:,2]+sz[:,3])

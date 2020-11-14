@@ -4,7 +4,7 @@ and checks if entered values are valid
 @Author: Hejun Xie
 @Date: 2020-07-16 10:10:37
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-02 17:20:04
+LastEditTime: 2020-11-13 23:04:37
 '''
 
 
@@ -43,7 +43,6 @@ DEFAULTS={
         'FFT_length':256,\
         'sensitivity':[-5,10000],\
         '3dB_beamwidth':1.,\
-        'K_squared': 0.93,\
         'antenna_speed': 0.2,\
         'nyquist_velocity': None,\
         'frequency': 9.41},\
@@ -94,7 +93,6 @@ VALID_VALUES={
                         float],\
         '3dB_beamwidth': Range(0.1,10.),\
         'nyquist_velocity': [float, None],\
-        'K_squared': [float, None],\
         'antenna_speed': Range(1E-6,10.)},\
     'refraction':
         {'scheme':[1,2,3]},\

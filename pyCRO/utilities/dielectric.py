@@ -4,16 +4,12 @@ provided real antenna diagram
 Author: Hejun Xie
 Date: 2020-08-19 08:49:39
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-03 19:50:12
+LastEditTime: 2020-11-13 23:09:04
 '''
 
 # Global imports
 import numpy as np
 np.seterr(divide='ignore') # Disable divide by zero error
-
-# Local imports
-from ..constants import global_constants as constants
-
 
 def dielectric_ice(t,f):
     """
@@ -76,16 +72,17 @@ def dielectric_water(t,f):
     m = np.sqrt(Epsilon)
     return m
 
-def K_squared(frequency):
+def K_squared(frequency, T):
     """
     Computes the value of |K|^2 used in the definition of the refl. factor
     The temperature is assumed to be of 10°C
     Args:
-        f: the frequency
+        f: the frequency [GHz]
+        T: temperature [k]
     Returns:
         the value of |K|^2 at 10°C and the specified frequency
     """
-    m = dielectric_water(constants.T_K_SQUARED, frequency)
+    m = dielectric_water(T, frequency)
     k = (m**2-1)/(m**2 + 2)
     return np.abs(k)**2
 
