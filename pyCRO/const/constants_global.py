@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 17:16:31
+LastEditTime: 2020-11-14 17:27:01
 '''
 
 # Global import
@@ -110,23 +110,23 @@ class ConstantClass(object):
         self.KE = 4./3.              # [-]
         self.T0 = 273.15             # [K]
 
-        # 3.Power laws based on MASC observations
+        # 3.Power laws based on MASC observations TODO: suspiciously inaccurate
         # 3.1 Axis-ratios:
-        # Aggregates (Snow)
+        # 3.1.1 Aggregates (Snow)
         self.A_AR_LAMBDA_AGG =  8.42003348664
         self.B_AR_LAMBDA_AGG =  -0.568465084269
         self.A_AR_M_AGG =  0.0527252217284
-        self.B_AR_M_AGG = 0.792594862923
-
-        # Graupel
+        self.B_AR_M_AGG = -0.792594862923
+        # 3.2.2 Graupel
         self.A_AR_LAMBDA_GRAU =  1.97869286543
         self.B_AR_LAMBDA_GRAU =  -0.426770312328
         self.A_AR_M_GRAU =  0.0743715480794
-        self.B_AR_M_GRAU =  0.672627814141
-
+        self.B_AR_M_GRAU =  -0.672627814141
         # 3.2 Canting angles std:
+        # 3.2.1 Aggregates (Snow)
         self.A_CANT_STD_AGG = 30.2393875
         self.B_CANT_STD_AGG = -0.077397563
+        # 3.2.2 Graupel
         self.A_CANT_STD_GRAU = 26.65795932
         self.B_CANT_STD_GRAU = -0.10082787
 
