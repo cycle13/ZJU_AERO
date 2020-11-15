@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 17:27:01
+LastEditTime: 2020-11-15 09:53:02
 '''
 
 # Global import
@@ -110,7 +110,8 @@ class ConstantClass(object):
         self.KE = 4./3.              # [-]
         self.T0 = 273.15             # [K]
 
-        # 3.Power laws based on MASC observations TODO: suspiciously inaccurate
+        # 3.Power laws based on MASC observations 
+        # TODO: suspiciously inaccurate, but we have no MASC database accessment.
         # 3.1 Axis-ratios:
         # 3.1.1 Aggregates (Snow)
         self.A_AR_LAMBDA_AGG =  8.42003348664
