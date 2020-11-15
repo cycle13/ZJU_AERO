@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:25:19
+LastEditTime: 2020-11-15 18:34:50
 '''
 
 
@@ -361,6 +361,7 @@ class RadarOperator(object):
 
         np.set_printoptions(threshold=np.inf)
         print(list_beams.values['ZH'])
+        print(list_beams.values['RVEL'])
 
         self.close()
         

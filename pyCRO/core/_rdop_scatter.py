@@ -4,7 +4,7 @@ from the interpolated radials given by NWP models
 Author: Hejun Xie
 Date: 2020-10-12 10:45:48
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 13:12:34
+LastEditTime: 2020-11-15 19:02:38
 '''
 
 # Global imports
@@ -16,26 +16,6 @@ from ..interp import Radial
 from ..hydro import create_hydrometeor
 from ..const import global_constants as constants
 from ..utils import nansum_arr, sum_arr, vlinspace, nan_cumprod, nan_cumsum, aliasing
-
-def proj_vel(U, V, W, vf, theta,phi):
-    """
-    Gets the radial velocity from the 3D wind field and hydrometeor
-    fall velocity
-    Args:
-        U: eastward wind component [m/s]
-        V: northward wind component [m/s]
-        W: vertical wind component [m/s]
-        vf: terminal fall velocity averaged over all hydrometeors [m/s]
-        theta: elevation angle in degrees
-        phi: azimuth angle in degrees
-
-    Returns:
-        The radial velocity, with reference to the radar beam
-        positive values represent flow away from the radar
-    """
-    return ((U*np.sin(phi) + V * np.cos(phi)) * np.cos(theta)
-            + (W - vf) * np.sin(theta))
-
 
 def get_radar_observables_rdop(list_subradials, lut_sz):
     """
@@ -64,15 +44,13 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
     with_ice_crystals = CONFIG['microphysics']['with_ice_crystals']
     att_corr = CONFIG['microphysics']['with_attenuation']
     radial_res = CONFIG['radar']['radial_resolution']
-    # TODO only Guass-Hermite intergration (scheme 1) in interpolation.py
-    integration_scheme = CONFIG['integration']['scheme'] 
+    integration_scheme = CONFIG['integration']['scheme'] # TODO only Guass-Hermite intergration (scheme 1) 
     nyquist_velocity = CONFIG['radar']['nyquist_velocity']
+    simulate_doppler = CONFIG['core']['simulate_doppler']
 
     # No doppler for spaceborne radar
     if CONFIG['radar']['type'] == 'spaceborne':
         simulate_doppler = False
-    else:
-        simulate_doppler = True
 
     # Get dimensions of subradials
     num_beams = len(list_subradials) # Number of subradials (quad. pts)
@@ -90,122 +68,40 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
 
     # Initialize
     # Create dictionnary with all hydrometeor Class instances
-    dic_hydro = {}
-    for h in hydrom_types:
-        dic_hydro[h] = create_hydrometeor(h, microphysics_scheme)
-        # Add info on number of bins to use for numerical integrations
-        # Needs to be the same as in the lookup tables
-        if lut_sz[h].type == 'numpy':
-            _nbins_D = lut_sz[h].value_table.shape[-2]
-            _dmin = lut_sz[h].axes[2][0]
-            _dmax = lut_sz[h].axes[2][-1]
-        elif lut_sz[h].type == 'xarray':
-            _nbins_D = lut_sz[h].get_axis_value('Dmax')
-            _dmin = lut_sz[h].get_axis_value('Dmax')[0]
-            _dmax = lut_sz[h].get_axis_value('Dmax')[-1]
-
-        dic_hydro[h].nbins_D = _nbins_D
-        dic_hydro[h].d_max = _dmax
-        dic_hydro[h].d_min = _dmin
+    dic_hydro = init_hydro_istc(hydrom_types, lut_sz, microphysics_scheme)
     
-    # Initialize integrated scattering matrix, see lut submodule for info
-    # about the 12 columns
-    sz_integ = np.zeros((n_gates,len(hydrom_types),12),
-                        dtype = 'float32') + np.nan
+    # Initialize integrated scattering matrix, see lut submodule for info about the 12 columns
+    sz_integ = np.zeros((n_gates,len(hydrom_types),12), dtype='float32') + np.nan
     
-    # Intialize Doppler variables
-    # average terminal velocity
+    # Intialize Doppler variables average terminal velocity
     if simulate_doppler:
-        rvel_avg = np.zeros(n_gates,) + np.nan
-        total_weight_rvel = np.zeros(n_gates,)
+        rvel_avg = np.zeros((n_gates,), dtype='float32') + np.nan
+        total_weight_rvel = np.zeros((n_gates,), dtype='float32')
 
-    ###########################################################################
     for i, subrad in enumerate(list_subradials): # Loop on subradials (quad pts)
 
         if simulate_doppler:
-            v_integ = np.zeros(n_gates,) # Integrated fall velocity
-            n_integ = np.zeros(n_gates,) # Integrated number of particles
+            vn_integ = np.zeros((n_gates,), dtype='float32') # Integrated V(D)*N(D)
+            n_integ = np.zeros((n_gates,), dtype='float32') # Integrated N(D)
 
         for j, h in enumerate(hydrom_types): # Loop on hydrometeors
             
-            """
-            Since lookup tables are defined for angles in [0,90], we have to
-            check if elevations are larger than 90°, in that case we take
-            180-elevation by symmetricity. Also check if angles are smaller
-            than 0, in that case, flip sign
-            """
-            elev_lut = subrad.elev_profile
-            elev_lut[elev_lut > 90] = 180 - elev_lut[elev_lut > 90]
-            # Also check if angles are smaller than 0, in that case, flip sign
-            elev_lut[elev_lut < 0] = - elev_lut[elev_lut < 0]
-            
-            T = subrad.values['T']
+            return_pack = one_rad_one_hydro(subrad, h, dic_hydro[h], lut_sz[h], 
+                simulate_doppler=simulate_doppler, ngates=n_gates)
 
-            '''
-            Part 1 : Compute the PSD of the particles
-            '''
-
-            QM = subrad.values['Q'+h+'_v'] # Get mass densities
-            valid_data = QM > 0
-            # spped up
-            if not np.any(valid_data):
-                continue # Skip
+            if return_pack is None:
+                continue
+            else:
+                if simulate_doppler:
+                    valid_data, sz_psd_integ, vn_psd_integ, n_psd_integ = return_pack
+                else:
+                    valid_data, sz_psd_integ = return_pack
             
-            # 1 Moment case
-            if microphysics_scheme == '1mom':
-                if h in ['S','I'] :
-                    # For snow and ice crystals, we need T and QM
-                    dic_hydro[h].set_psd(T[valid_data], QM[valid_data])
-                else: # Rain and graupel
-                    dic_hydro[h].set_psd(QM[valid_data])
+            sz_integ[valid_data, j, :] = nansum_arr(sz_integ[valid_data,j,:], sz_psd_integ * subrad.quad_weight)
             
-            if lut_sz[h].type == 'numpy':
-                list_D = lut_sz[h].axes[lut_sz[h].axes_names['d']]
-            elif lut_sz[h].type == 'xarray':
-                list_D = lut_sz[h].get_axis_value('Dmax')
-                
-            dD = list_D[1] - list_D[0]
-            
-            # Compute particle numbers N(D) for all diameters
-            N = dic_hydro[h].get_N(list_D)
-            # print(h)
-            # print(N[0,:]) # small
-            # print(N[115,:]) # big
-            
-            '''
-            Part 2: Query of the scattering Lookup table
-            '''
-            sz = lut_sz[h].lookup_line(e = elev_lut[valid_data],
-                                        t = T[valid_data])
-
-            '''
-            Part 3 : Integrate the SZ coefficients over PSD
-            '''
-            # sz (n_valid_gates, nbins_D, 12) unit: Z[mm2] S[mm]
-            # N  (n_valid_gates, nbins_D) unit: [mm-1 m-3]
-            # dD unit: [mm]
-            # sz_psd_integ (n_valid_gates, 12) unit: Z[mm2 m-3] S[mm m-3]
-            sz_psd_integ = np.einsum('ijk,ij->ik',sz,N) * dD
-            
-            # Check for special cases where the beam is truncated by model top or topo
-            if len(valid_data) < n_gates:
-                valid_data = np.pad(valid_data,(0,n_gates - len(valid_data)),
-                                    mode = 'constant',
-                                    constant_values = False)
-            
-            sz_integ[valid_data,j,:] = nansum_arr(sz_integ[valid_data,j,:],
-                                                      sz_psd_integ *
-                                                      subrad.quad_weight)
-            
-            '''
-            Part 4 : Doppler
-            '''
-            # Get terminal velocity integrated over PSD
             if simulate_doppler:
-                vh,n = dic_hydro[h].integrate_V()
-
-                v_integ[valid_data] = nansum_arr(v_integ[valid_data],vh)
-                n_integ[valid_data] = nansum_arr(n_integ[valid_data],n)
+                vn_integ[valid_data] = nansum_arr(vn_integ[valid_data], vn_psd_integ)
+                n_integ[valid_data] = nansum_arr(n_integ[valid_data], n_psd_integ)
     
         ########################################################################### (inner loop hydrometeor finished)
         
@@ -214,22 +110,22 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
         
         if simulate_doppler:
             # Obtain hydrometeor average fall velocity
-            v_hydro = v_integ/n_integ
+            v_hydro = vn_integ / n_integ
             # Add density weighting
-            v_hydro*(subrad.values['RHO']/subrad.values['RHO'][0])**(0.5)
+            v_hydro * (subrad.values['RHO'] / subrad.values['RHO'][0])**(0.5)
 
             # Get radial velocity knowing hydrometeor fall speed and U,V,W from model
-            theta_deg = subrad.elev_profile
-            phi_deg = subrad.quad_pt[0]
-            theta = np.deg2rad(theta_deg) # elevation
-            phi = np.deg2rad(phi_deg)       # azimuth
-            proj_wind = proj_vel(subrad.values['U'],subrad.values['V'],
+            theta_deg   = subrad.elev_profile
+            phi_deg     = subrad.quad_pt[0]
+            theta       = np.deg2rad(theta_deg) # elevation
+            phi         = np.deg2rad(phi_deg) # azimuth
+            proj_wind = proj_vel(subrad.values['U'], subrad.values['V'],
                                 subrad.values['W'], v_hydro, theta, phi)
 
             # Get mask of valid values
-            total_weight_rvel = sum_arr(total_weight_rvel, ~np.isnan(proj_wind)*subrad.quad_weight)
+            total_weight_rvel = sum_arr(total_weight_rvel, ~np.isnan(proj_wind) * subrad.quad_weight)
             # Average radial velocity for all sub-beams
-            rvel_avg = nansum_arr(rvel_avg, (proj_wind) * subrad.quad_weight)
+            rvel_avg = nansum_arr(rvel_avg, proj_wind * subrad.quad_weight)
     
     ########################################################################### (outer loop subbeam finished)
     
@@ -240,7 +136,7 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
     '''
 
     # some over all hydrometeors (n_valid_gates, n_hydrometeors, 12) --> (n_valid_gates, 12)
-    sz_integ = np.nansum(sz_integ,axis=1)
+    sz_integ = np.nansum(sz_integ, axis=1)
     sz_integ[sz_integ == 0] = np.nan
 
     # Get radar observables
@@ -316,6 +212,127 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
 
     return radar_radial
 
+def one_rad_one_hydro(rad, hydro_name, hydro_istc, db, simulate_doppler=True, ngates=-1):
+    '''
+    Work unit, make the core less procedure-oriented. 
+    Integrate the sz of one subradial and one hydrometeor over particle size distribution.
+    Args:
+        rad: A single radial to integrate sz over psd.
+        hydro_name: A single hydrometeor short name like 'R', 'S', 'G' or 'I'. 
+        hydro_istc: A single hydrometeor instance to integrate sz over psd.
+        db: The database (lookup table of that hydrometeor type).
+        simulate_doppler: Boolean flag indicating whether to integrate V(D)N(D) and N(D).
+        ngates: Apply it to -1 if you want ngates = rad.dist_profile.
+    Returns:
+        if simulate_doppler is True, return valid_data, sz_psd_integ, vn_psd_integ, n_psd_integ;
+        else if simulate_doppler is True only return valid_data, sz_psd_integ;
+        else QM == 0., return None.
+    '''
+
+    """
+    Part 1 . Get e and T, QM from Radial instances
+    Since lookup tables are defined for angles in [0,90], we have to
+    check if elevations are larger than 90°, in that case we take
+    180-elevation by symmetricity. Also check if angles are smaller
+    than 0, in that case, flip sign
+    """
+    # 1.1 e
+    e = rad.elev_profile
+    e[e > 90]   = 180 - e[e > 90]
+    e[e < 0 ]   = - e[e < 0]
+
+    # 1.2 T    
+    T = rad.values['T']
+
+    # 1.3 QM
+    QM = rad.values['Q' + hydro_name + '_v'] # Get mass densities
+    valid_data = QM > 0
+    # speed up if QM == 0.
+    if not np.any(valid_data):
+        return None
+
+    '''
+    Part 2 : Compute the particle size distribution of the particles
+    in unit [mm-1 m-3];
+    in dimension (n_valid_gates, nbins_D).
+    TODO: Only WSM6 (a type of one moment scheme implemented)
+    '''
+
+    # 2.1 set psd for hydrometeor instances
+    if hydro_name in ['S','I']: # For snow and ice crystals, we need T and QM
+        hydro_istc.set_psd(T[valid_data], QM[valid_data])
+    else: # For Rain and graupels, we only need mass concentration QM
+        hydro_istc.set_psd(QM[valid_data])
+
+    # 2.2 get D axis, and increment dD in [mm], from scattering property database
+    if db.type == 'numpy':
+        list_D = db.axes[db.axes_names['d']]
+    elif db.type == 'xarray':
+        list_D = db.get_axis_value('Dmax')
+    dD = list_D[1] - list_D[0]
+    
+    # 2.3 Compute particle size distribution N(D) for all diameters in [mm-1 m-3]
+    N = hydro_istc.get_N(list_D)
+    
+    '''
+    Part 2: Query of the scattering database,
+    in unit [mm2] for Z and [mm] for S;
+    in dimension (n_valid_gates, nbins_D, 12).
+    '''
+    sz = db.lookup_line(e=e[valid_data], t=T[valid_data])
+
+
+    '''
+    Part 3 : Integrate the SZ coefficients over PSD.
+    sz:     
+            dimension: (n_valid_gates, nbins_D, 12) 
+            unit: Z[mm2]; S[mm]
+    N:       
+            dimension: (n_valid_gates, nbins_D) 
+            unit: [mm-1 m-3]
+    dD:      
+            dimension: scalar 
+            unit: [mm]
+    sz_psd_integ: 
+            dimension: (n_valid_gates, 12) 
+            unit: Z[mm2 m-3]; S[mm m-3]
+    '''
+    sz_psd_integ = np.einsum('ijk,ij->ik', sz, N) * dD
+    
+    '''
+    Part 4 :
+    Pad valid data to make it in the same dimension as radar_range
+    Check for special cases where the beam is truncated by model top or topo
+    '''
+    if ngates == -1:
+        ngates = len(rad.dist_profile)
+    if len(valid_data) < ngates:
+        valid_data = np.pad(valid_data, (0, ngates - len(valid_data)), 
+            mode = 'constant', constant_values = False)
+
+    '''
+    Part 5 :
+    Integate V(D)*N(D) and N(D) over particle size distribution
+    if simulate_doppler is True.
+    Get vn_psd_integ, n_psd_integ.
+    vn_psd_integ: 
+            dimension: (n_valid_gates) 
+            unit: [m/s m-3]
+    n_psd_integ: 
+            dimension: (n_valid_gates) 
+            unit: Z[m-3]
+    '''
+    if simulate_doppler:
+        vn_psd_integ, n_psd_integ = hydro_istc.integrate_V()
+    
+    '''
+    Part 6 : return integrated data
+    '''
+    if simulate_doppler:
+        return valid_data, sz_psd_integ, vn_psd_integ, n_psd_integ
+    else:
+        return valid_data, sz_psd_integ
+
 def get_pol_from_sz(sz):
     '''
     Computes polarimetric radar observables from integrated scattering properties
@@ -370,4 +387,54 @@ def get_pol_from_sz(sz):
 
     return z_h,z_v,zdr,rhohv,kdp,ah,av,delta_hv
 
+def proj_vel(U, V, W, vf, theta,phi):
+    """
+    Gets the radial velocity from the 3D wind field and hydrometeor
+    fall velocity
+    Args:
+        U: eastward wind component [m/s]
+        V: northward wind component [m/s]
+        W: vertical wind component [m/s]
+        vf: terminal fall velocity averaged over all hydrometeors [m/s]
+        theta: elevation angle in degrees
+        phi: azimuth angle in degrees
+
+    Returns:
+        The radial velocity, with reference to the radar beam
+        positive values represent flow away from the radar
+    """
+    return ((U*np.sin(phi) + V * np.cos(phi)) * np.cos(theta)
+            + (W - vf) * np.sin(theta))
+
+def init_hydro_istc(hydrom_types, lut_sz, microphysics_scheme):
+    '''
+    initialize hydrometeor instance
+    Args:
+        hydrom_types: A list of hydrometeor names.
+        lut_sz: A dictionary of database for hydrometeors scattering properties.
+        microphysics_scheme: The microphysics scheme of NWP.
     
+    Returns:
+        A dictionary of hydrometeor instance.
+    '''
+
+    dic_hydro = dict()
+    
+    for h in hydrom_types:
+        dic_hydro[h] = create_hydrometeor(h, microphysics_scheme)
+        # Add info on number of bins to use for numerical integrations
+        # Needs to be the same as in the lookup tables
+        if lut_sz[h].type == 'numpy':
+            _nbins_D = lut_sz[h].value_table.shape[-2]
+            _dmin = lut_sz[h].axes[2][0]
+            _dmax = lut_sz[h].axes[2][-1]
+        elif lut_sz[h].type == 'xarray':
+            _nbins_D = lut_sz[h].get_axis_value('Dmax')
+            _dmin = lut_sz[h].get_axis_value('Dmax')[0]
+            _dmax = lut_sz[h].get_axis_value('Dmax')[-1]
+
+        dic_hydro[h].nbins_D = _nbins_D
+        dic_hydro[h].d_max = _dmax
+        dic_hydro[h].d_min = _dmin
+    
+    return dic_hydro

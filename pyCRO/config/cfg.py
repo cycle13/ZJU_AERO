@@ -4,7 +4,7 @@ and checks if entered values are valid
 @Author: Hejun Xie
 @Date: 2020-07-16 10:10:37
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:21:09
+LastEditTime: 2020-11-15 18:49:29
 '''
 
 
@@ -57,7 +57,8 @@ DEFAULTS={
         {'name': 'wrf',\
          'modeltop': 'default'},\
     'core':
-        {'scheme': 1,\
+        {'simulate_doppler':1,\
+        'scheme': 1,\
         'engine':'rdop',\
         'turbulence_correction':0,\
         'motion_correction':0},\
@@ -105,7 +106,8 @@ VALID_VALUES={
         {'name': ['wrf', 'grapes'],\
          'modeltop': [float, 'default']},\
     'core': # TODO: turbulance and motion correction
-        {'scheme': 1,\
+        {'simulate_doppler': [0,1],\
+        'scheme': 1,\
         'engine':['rdop', 'wrfda'],\
         'turbulence_correction':[0,1],
         'motion_correction':[0,1]},\
