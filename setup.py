@@ -5,7 +5,7 @@
 @Author: Hejun Xie
 @Date: 2020-04-06 20:54:22
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-20 17:27:34
+LastEditTime: 2020-11-20 17:39:35
 '''
 
 from setuptools import setup, Extension, Command
@@ -25,7 +25,7 @@ _interpolation_c = Extension("_interpolation_c",
 setup(  name        = "ZJU_AERO",
         description = "Accurate and Efficient Radar Operator of Zhejiang Univeristy",
         version     = "0.1",
-        url='',
+        url         = 'https://gitee.com/zju_bilei_lab/zju_-aero',
         author='Hejun Xie - Zhejiang University',
         author_email='hejun.xie@zju.edu.cn',
         license='GPL-3.0',
