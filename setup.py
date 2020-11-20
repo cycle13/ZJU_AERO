@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 '''
-@Description: setup for pyCRO
+@Description: setup for ZJU_AERO
 @Author: Hejun Xie
 @Date: 2020-04-06 20:54:22
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:37:24
+LastEditTime: 2020-11-20 17:03:34
 '''
 
 from setuptools import setup, Extension, Command
@@ -17,22 +17,22 @@ except AttributeError:
     numpy_include = numpy.get_numpy_include()
 
 _interpolation_c = Extension("_interpolation_c",
-                   ["./pyCRO/interp/interpolation_c.i","./pyCRO/interp/interpolation_c.c"],
+                   ["./ZJU_AERO/interp/interpolation_c.i","./ZJU_AERO/interp/interpolation_c.c"],
                    include_dirs = [numpy_include],
                   )
 
 # setup
-setup(  name        = "pyCRO",
-        description = "China Radar Operator written in python",
+setup(  name        = "ZJU_AERO",
+        description = "Accurate and Efficient Radar Operator from Zhejiang Univeristy",
         version     = "0.1",
-        url='https://github.com/Usami-Renko/pyCRO',
+        url='',
         author='Hejun Xie - Zhejiang University',
         author_email='hejun.xie@zju.edu.cn',
         license='GPL-3.0',
-        packages=['pyCRO', 'pyCRO/interp', 'pyCRO/radar', 'pyCRO/utils', 'pyCRO/const',
-        'pyCRO/db', 'pyCRO/core', 'pyCRO/hydro', 'pyCRO/beam', 'pyCRO/config', 'pyCRO/nwp', 
-        'pyCRO/nwp/grapes', 'pyCRO/nwp/wrf'],
-        package_data   = {'pyCRO/interpolation' : ['*.o','*.i','*.c','*.so']},
+        packages=['ZJU_AERO', 'ZJU_AERO/interp', 'ZJU_AERO/radar', 'ZJU_AERO/utils', 'ZJU_AERO/const',
+        'ZJU_AERO/db', 'ZJU_AERO/core', 'ZJU_AERO/hydro', 'ZJU_AERO/beam', 'ZJU_AERO/config', 'ZJU_AERO/nwp', 
+        'ZJU_AERO/nwp/grapes', 'ZJU_AERO/nwp/wrf'],
+        package_data   = {'ZJU_AERO/interpolation' : ['*.o','*.i','*.c','*.so']},
         install_requires=['numpy'],
         zip_safe=False,
         ext_modules = [_interpolation_c]

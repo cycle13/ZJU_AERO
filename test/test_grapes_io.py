@@ -3,13 +3,13 @@ Description: test nwp.grapes_io.py
 Author: Hejun Xie
 Date: 2020-11-01 11:12:00
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 10:15:02
+LastEditTime: 2020-11-20 17:06:04
 '''
 
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 # Global import
 import glob
@@ -19,8 +19,8 @@ import datetime
 FOLDER = '../pathos/GRAPES/north_china_snowfall_20191112'
 data_file_list = glob.glob(FOLDER+os.sep+'*.nc')
 
-from pyCRO.nwp.grapes import get_grapes_variables
-from pyCRO.nwp.grapes import WGS_to_GRAPES
+from ZJU_AERO.nwp.grapes import get_grapes_variables
+from ZJU_AERO.nwp.grapes import WGS_to_GRAPES
 
 if __name__ == "__main__":
     

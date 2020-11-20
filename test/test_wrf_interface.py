@@ -3,12 +3,12 @@ Description: test WRF interface for radar operator
 Author: Hejun Xie
 Date: 2020-11-02 16:17:47
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 10:16:54
+LastEditTime: 2020-11-20 17:06:41
 '''
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
@@ -21,7 +21,7 @@ import glob
 import datetime as dt
 
 # Local imports
-import pyCRO
+import ZJU_AERO
 import pyart
 
 LOAD_MODEL = False
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     data_file_list = glob.glob(FOLDER+os.sep+'wrfout_d01_*')
     load_datetime = dt.datetime(2019,5,17,10)
     
-    a = pyCRO.RadarOperator(options_file='./option_files/wrf_interface.yml')
+    a = ZJU_AERO.RadarOperator(options_file='./option_files/wrf_interface.yml')
     a.load_model_file(data_file_list, load_datetime=load_datetime, load_from_file=LOAD_MODEL, load_file='mdl.nc')
 
     if not LOAD_RADAR:

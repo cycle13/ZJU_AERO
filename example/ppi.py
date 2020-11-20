@@ -3,12 +3,12 @@ Description: test for scatter
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 10:19:53
+LastEditTime: 2020-11-20 17:07:16
 '''
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 # Global imports
 import numpy as np
@@ -17,7 +17,7 @@ import datetime as dt
 # import pyart
 
 # Local imports
-import pyCRO
+import ZJU_AERO
 import pyart
 
 LOAD_MODEL = False
@@ -29,7 +29,7 @@ cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',
 
 if __name__ == "__main__":
     FILENAME = '../pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'
-    a = pyCRO.RadarOperator(options_file='./option_files/simulate.yml')
+    a = ZJU_AERO.RadarOperator(options_file='./option_files/simulate.yml')
     a.load_model_file([FILENAME], load_datetime=dt.datetime(2013, 10, 6, 10), load_from_file=LOAD_MODEL, load_file='mdl.nc')
 
     if not LOAD_RADAR:

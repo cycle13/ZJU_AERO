@@ -3,12 +3,12 @@ Description: test for spaceborne radar
 Author: Hejun Xie
 Date: 2020-10-10 10:44:15
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 10:20:14
+LastEditTime: 2020-11-20 17:07:26
 '''
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 # Global imports
 import numpy as np
@@ -17,7 +17,7 @@ import datetime as dt
 # import pyart
 
 # Local imports
-import pyCRO
+import ZJU_AERO
 import pyart
 
 LOAD_MODEL = True
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     if not LOAD_RADAR:
         FILENAME = '../pathos/WRF/wsm6_test/ERA_interim/wrfout_d01_2019-05-17_00_00_00'
-        a = pyCRO.RadarOperator(options_file='./option_files/spaceborne_test.yml')
+        a = ZJU_AERO.RadarOperator(options_file='./option_files/spaceborne_test.yml')
         a.load_model_file([FILENAME], load_datetime=dt.datetime(2019, 5, 17, 10), load_from_file=LOAD_MODEL, load_file='mdl.nc')
 
     # print(a.dic_vars['T'])

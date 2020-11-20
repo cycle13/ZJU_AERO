@@ -3,12 +3,12 @@ Description: test graph_wrf_modelvar.py
 Author: Hejun Xie
 Date: 2020-11-07 11:05:47
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 10:16:08
+LastEditTime: 2020-11-20 17:06:27
 '''
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 # Global imports
 import numpy as np
@@ -17,7 +17,7 @@ import datetime as dt
 
 
 # Local imports
-from pyCRO.nwp.graph import graph_wrf_modelvar_timeline
+from ZJU_AERO.nwp.graph import graph_wrf_modelvar_timeline
 
 FILE_MDL = '../pathos/WRF/wsm6_test/ERA5/wrfout_d01_2019-05-17_03_00_00'
 start_dt = dt.datetime(2019, 5, 17, 6)

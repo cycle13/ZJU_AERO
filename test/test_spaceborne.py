@@ -8,7 +8,7 @@ LastEditTime: 2020-11-11 10:16:26
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 # Global imports
 import numpy as np
@@ -16,7 +16,7 @@ import pickle
 # import pyart
 
 # Local imports
-import pyCRO
+import ZJU_AERO
 import pyart
 import datetime as dt
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     if not LOAD_RADAR:
         FILENAME = '../pathos/WRF/wsm6_test/ERA_interim/wrfout_d01_2019-05-17_00_00_00'
-        a = pyCRO.RadarOperator(options_file='./option_files/spaceborne_test.yml')
+        a = ZJU_AERO.RadarOperator(options_file='./option_files/spaceborne_test.yml')
         a.load_model_file([FILENAME], load_datetime=dt.datetime(2019, 5, 17, 10), load_from_file=LOAD_MODEL, load_file='mdl.nc')
 
     # print(a.dic_vars['T'])

@@ -5,23 +5,23 @@ hydrometeor concentration: SNOW, GRAUPEL, RAIN, etc.
 Author: Hejun Xie
 Date: 2020-11-14 18:03:56
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-15 21:38:04
+LastEditTime: 2020-11-20 17:05:18
 '''
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 # Global imports
 import numpy as np
 
 # Local imports
-from pyCRO.core._rdop_scatter import one_rad_one_hydro, get_pol_from_sz 
-from pyCRO.interp import Radial
-from pyCRO.db import load_lut
-from pyCRO.hydro.hydrometeor import Snow
-from pyCRO.config import cfg
-from pyCRO.const import global_constants as constants
+from ZJU_AERO.core._rdop_scatter import one_rad_one_hydro, get_pol_from_sz 
+from ZJU_AERO.interp import Radial
+from ZJU_AERO.db import load_lut
+from ZJU_AERO.hydro.hydrometeor import Snow
+from ZJU_AERO.config import cfg
+from ZJU_AERO.const import global_constants as constants
 
 if __name__ == "__main__":
     # get global constants

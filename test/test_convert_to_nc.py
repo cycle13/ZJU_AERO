@@ -8,10 +8,10 @@ LastEditTime: 2020-11-11 10:13:38
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
-from pyCRO.nwp.grapes import convert_to_nc_general_ctl
-from pyCRO.nwp.grapes import convert_to_nc_specific_ctl
+from ZJU_AERO.nwp.grapes import convert_to_nc_general_ctl
+from ZJU_AERO.nwp.grapes import convert_to_nc_specific_ctl
 
 # CTLFILE = '/mnt/e/GRAPES/north_china_snowfall_20191112/grapes2019112900_10.ctl'
 # NC = '/mnt/e/GRAPES/north_china_snowfall_20191112/grapes2019112900_10.nc'

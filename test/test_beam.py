@@ -8,7 +8,7 @@ LastEditTime: 2020-11-14 12:30:51
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 # global import
 import numpy as np
@@ -20,11 +20,11 @@ import matplotlib.pyplot as plt
 
 
 # Local imports
-from pyCRO.beam import fixed_radius_KE, Zeng2014, Zeng2014_exhaustive
-from pyCRO.utils import DATAdecorator
-from pyCRO.nwp.wrf import get_wrf_variables
-from pyCRO.config import cfg
-from pyCRO.const import global_constants as constants
+from ZJU_AERO.beam import fixed_radius_KE, Zeng2014, Zeng2014_exhaustive
+from ZJU_AERO.utils import DATAdecorator
+from ZJU_AERO.nwp.wrf import get_wrf_variables
+from ZJU_AERO.config import cfg
+from ZJU_AERO.const import global_constants as constants
 
 @DATAdecorator('./', False, './she.pkl')
 def get_she():

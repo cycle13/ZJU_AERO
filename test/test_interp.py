@@ -8,7 +8,7 @@ LastEditTime: 2020-11-14 12:31:11
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 # global import
 import numpy as np
@@ -17,11 +17,11 @@ import copy
 import datetime as dt
 
 # Local imports
-from pyCRO.config import cfg
-from pyCRO.const import global_constants as constants
-from pyCRO.interp import get_interpolated_radial
-from pyCRO.utils import DATAdecorator
-from pyCRO.nwp.wrf import get_wrf_variables, check_if_variables_in_file
+from ZJU_AERO.config import cfg
+from ZJU_AERO.const import global_constants as constants
+from ZJU_AERO.interp import get_interpolated_radial
+from ZJU_AERO.utils import DATAdecorator
+from ZJU_AERO.nwp.wrf import get_wrf_variables, check_if_variables_in_file
 
 BASE_VARIABLES = ['U','V','W','QR_v','QS_v','QG_v','QI_v','RHO','T']
 MODEL_FILE = '../pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'

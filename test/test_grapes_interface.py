@@ -8,7 +8,7 @@ LastEditTime: 2020-11-15 17:00:49
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
@@ -21,7 +21,7 @@ import glob
 import datetime as dt
 
 # Local imports
-import pyCRO
+import ZJU_AERO
 import pyart
 
 LOAD_MODEL = False
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     data_file_list = glob.glob(FOLDER+os.sep+'*.nc')
     load_datetime = dt.datetime(2019,11,29,18)
     
-    a = pyCRO.RadarOperator(options_file='./option_files/grapes_interface.yml')
+    a = ZJU_AERO.RadarOperator(options_file='./option_files/grapes_interface.yml')
     a.load_model_file(data_file_list, load_datetime=load_datetime, load_from_file=LOAD_MODEL, load_file='mdl.nc')
 
     if not LOAD_RADAR:

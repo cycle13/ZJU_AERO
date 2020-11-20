@@ -3,18 +3,18 @@ Description: test lookup table
 Author: Hejun Xie
 Date: 2020-08-19 22:17:23
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 10:14:23
+LastEditTime: 2020-11-20 17:05:53
 '''
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 # Global import
 import numpy as np
 
 # Local import
-from pyCRO.db import load_all_lut
+from ZJU_AERO.db import load_all_lut
 
 if __name__ == "__main__":
 

@@ -28,7 +28,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 
 fields = ['dBZ', 'ZDR', 'KDP', 'PhiDP', 'V', 'CC']
-PYCRO_name = {'dBZ': 'ZH',
+ZJU_AERO_name = {'dBZ': 'ZH',
         'ZDR':'ZDR',
         'KDP':'KDP',
         'PhiDP':'PHIDP',
@@ -53,8 +53,8 @@ for field in fields:
 
     graph = GraphMap(PRD, ccrs.PlateCarree())
     graph.plot_ppi_map(ax, isweep, field)
-    ax.set_title("Observation {} [{}] \n e={:.3f} UTC: 2019-05-17 10:00".format(PYCRO_name[field],
+    ax.set_title("Observation {} [{}] \n e={:.3f} UTC: 2019-05-17 10:00".format(ZJU_AERO_name[field],
     units[field],float(elevation)), fontsize=15)
-    plt.savefig('observation_{}.png'.format(PYCRO_name[field]), dpi=300)
+    plt.savefig('observation_{}.png'.format(ZJU_AERO_name[field]), dpi=300)
 
     del ax, graph, fig

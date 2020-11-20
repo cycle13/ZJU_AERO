@@ -3,12 +3,12 @@ Description: test for scatter
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 10:17:58
+LastEditTime: 2020-11-20 17:07:00
 '''
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 # Global imports
 import numpy as np
@@ -17,7 +17,7 @@ import datetime as dt
 # import pyart
 
 # Local imports
-import pyCRO
+import ZJU_AERO
 import pyart
 
 LOAD_MODEL = False
@@ -29,7 +29,7 @@ cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',
 
 if __name__ == "__main__":
     FILENAME = '../pathos/WRF/wsm6_test/ERA5/wrfout_d01_2019-05-17_00_00_00'
-    a = pyCRO.RadarOperator(options_file='./option_files/wsm6_test.yml')
+    a = ZJU_AERO.RadarOperator(options_file='./option_files/wsm6_test.yml')
     a.load_model_file([FILENAME], load_datetime=dt.datetime(2019, 5, 17, 10), load_from_file=LOAD_MODEL, load_file='mdl.nc')
 
     # print(a.dic_vars['T'])
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     mpl.use('Agg')
 
     fields = ['dBZ', 'ZDR', 'KDP', 'PhiDP', 'V', 'CC']
-    PYCRO_name = {'dBZ': 'ZH',
+    ZJU_AERO_name = {'dBZ': 'ZH',
             'ZDR':'ZDR',
             'KDP':'KDP',
             'PhiDP':'PHIDP',
@@ -82,9 +82,9 @@ if __name__ == "__main__":
         ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
         graph = GraphMap(PRD, ccrs.PlateCarree())
         graph.plot_ppi_map(ax, isweep, field)
-        ax.set_title("Simulation {} [{}] \n e={:.3f} UTC: 2019-05-17 10:00".format(PYCRO_name[field],
+        ax.set_title("Simulation {} [{}] \n e={:.3f} UTC: 2019-05-17 10:00".format(ZJU_AERO_name[field],
         units[field], float(elevation)), fontsize=15)
-        plt.savefig('simulation_{}.png'.format(PYCRO_name[field]), dpi=300)
+        plt.savefig('simulation_{}.png'.format(ZJU_AERO_name[field]), dpi=300)
 
         del fig, ax, graph
 

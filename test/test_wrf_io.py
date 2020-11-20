@@ -9,7 +9,7 @@ LastEditTime: 2020-11-11 10:17:32
 
 # unit test import
 import sys
-sys.path.append('/home/xhj/wkspcs/Radar-Operator/pyCRO/')
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 # Global import
 import glob
@@ -19,8 +19,8 @@ import datetime
 FOLDER = '../pathos/WRF/wsm6_test/ERA_interim'
 data_file_list = glob.glob(FOLDER+os.sep+'wrfout_d01_*')
 
-from pyCRO.nwp.wrf import get_wrf_variables
-from pyCRO.nwp.wrf import WGS_to_WRF
+from ZJU_AERO.nwp.wrf import get_wrf_variables
+from ZJU_AERO.nwp.wrf import WGS_to_WRF
 
 if __name__ == "__main__":
     
