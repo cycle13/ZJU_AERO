@@ -3,10 +3,10 @@
  * @Author: Hejun Xie
  * @Date: 2020-04-06 20:52:07
  * @LastEditors: Hejun Xie
- * @LastEditTime: 2020-11-20 17:09:46
+ * @LastEditTime: 2020-11-20 17:27:26
  -->
 # ZJU_AERO
-China Radar Operator written in python
+Accurate and Efficient Radar Operator of Zhejiang Univeristy
 
 ## Install
 1.  Install arm_pyart, please see https://github.com/ARM-DOE/pyart;

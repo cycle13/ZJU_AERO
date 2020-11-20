@@ -5,7 +5,7 @@
 @Author: Hejun Xie
 @Date: 2020-04-06 20:54:22
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-20 17:03:34
+LastEditTime: 2020-11-20 17:27:34
 '''
 
 from setuptools import setup, Extension, Command
@@ -23,7 +23,7 @@ _interpolation_c = Extension("_interpolation_c",
 
 # setup
 setup(  name        = "ZJU_AERO",
-        description = "Accurate and Efficient Radar Operator from Zhejiang Univeristy",
+        description = "Accurate and Efficient Radar Operator of Zhejiang Univeristy",
         version     = "0.1",
         url='',
         author='Hejun Xie - Zhejiang University',
