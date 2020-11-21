@@ -4,7 +4,7 @@ config subpackage.
 Author: Hejun Xie
 Date: 2020-11-21 11:07:03
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 21:23:26
+LastEditTime: 2020-11-21 23:18:07
 '''
 
 # Local imports, see config_types.py for the definition of Range and TypeList
@@ -14,20 +14,20 @@ from .config_types import Range, TypeList
 Defines the valid values in a dictionnary, if a field is present in
 VALID_VALUES but absent from DEFAULTS, this means that it mandatory and an
 error will be returned if no valid value is provided, ex. frequency
+IF DEFAULTS valus is None, then no correction by sanity check will be made
 '''
 
 DEFAULTS={
     'radar':
         {'type': 'ground',
         'coords': None,
-        'frequency': 9.41,
         'range': None,
         'radial_resolution': 500,
         'sensitivity': [-5, 10000],
         '3dB_beamwidth': 1.,
         'PRI': 700,
         'FFT_length': 256,
-        'nyquist_velocity': None,},
+        'nyquist_velocity': None},
     'refraction':
         {'scheme': 1},
     'integration':
