@@ -4,11 +4,11 @@ config subpackage.
 Author: Hejun Xie
 Date: 2020-11-21 11:07:03
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 17:18:04
+LastEditTime: 2020-11-21 17:24:27
 '''
 
 # Local imports, see utilities.py for the definition of Range and TypeList
-from ..utils import (Range, TypeList)
+from .config_types import Range, TypeList
 
 
 DEFAULTS={

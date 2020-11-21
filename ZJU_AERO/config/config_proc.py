@@ -4,7 +4,7 @@ how to initialize and check it.
 Author: Hejun Xie
 Date: 2020-11-21 11:06:42
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 15:02:24
+LastEditTime: 2020-11-21 17:24:05
 '''
 
 
@@ -18,7 +18,7 @@ from textwrap import dedent
 
 # Local imports, see utilities.py for the definition of Range and TypeList
 from .config_const import DEFAULTS, VALID_VALUES
-from ..utils import (Range, TypeList)
+from .config_types import Range, TypeList
 
 '''
 Initialize CONFIG, which is a global variable, because it needs to be
