@@ -4,7 +4,7 @@ in the method of Zeng and Blahak (2014)
 @Author: Hejun Xie
 @Date: 2020-08-02 08:31:04
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 13:11:24
+LastEditTime: 2020-11-21 11:34:53
 '''
 
 # global import
@@ -112,7 +112,7 @@ def Zeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_radar
         e: list of vector of incident elevation angles along the radial [degrees]
     '''
 
-    from ..config.cfg import CONFIG
+    from ..config.config_proc import CONFIG
     if CONFIG['nwp']['name'] == 'grapes':
         from ..nwp.grapes import WGS_to_GRAPES as WGS_to_MODEL
     elif CONFIG['nwp']['name'] == 'wrf':

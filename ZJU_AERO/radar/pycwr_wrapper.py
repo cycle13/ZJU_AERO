@@ -3,7 +3,7 @@ Description: wrapper for pycwr class
 Author: Hejun Xie
 Date: 2020-10-02 16:32:15
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:26:01
+LastEditTime: 2020-11-21 15:40:41
 '''
 
 # Global import
@@ -12,7 +12,7 @@ import numpy as np
 # np.set_printoptions(threshold=np.inf)
 
 # Local import
-from ..config import cfg
+from ..config.config_proc import CONFIG
 from ..const import global_constants as constants
 
 RDOP_to_CINRAD_field_mapping = {
@@ -49,13 +49,13 @@ class PycwrRadop(core.NRadar.PRD):
         time = [scan['pos_time']['time'],] * nrays
 
         rrange = constants.RANGE_RADAR
-        frequency = cfg.CONFIG['radar']['frequency']
+        frequency = CONFIG['radar']['frequency']
 
         nyquist_velocity = np.array((nsweeps,), dtype=float)
         unambiguous_range = np.array((nsweeps,), dtype=float)
         bins_per_sweep = np.array((nsweeps,), dtype=int)
-        nyquist_velocity[:] = cfg.CONFIG['radar']['nyquist_velocity']
-        unambiguous_range[:] = cfg.CONFIG['radar']['range']
+        nyquist_velocity[:] = CONFIG['radar']['nyquist_velocity']
+        unambiguous_range[:] = CONFIG['radar']['range']
         bins_per_sweep[:] = len(rrange)
 
         if scan_type == 'ppi':

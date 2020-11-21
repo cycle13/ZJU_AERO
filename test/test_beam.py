@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-08-02 12:46:24
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:30:51
+LastEditTime: 2020-11-21 16:36:41
 '''
 
 # unit test import
@@ -20,10 +20,10 @@ import matplotlib.pyplot as plt
 
 
 # Local imports
-from ZJU_AERO.beam import fixed_radius_KE, Zeng2014, Zeng2014_exhaustive
+from ZJU_AERO.beam import effective_earth_radius, Zeng2014_exhaustive, Zeng2014
 from ZJU_AERO.utils import DATAdecorator
 from ZJU_AERO.nwp.wrf import get_wrf_variables
-from ZJU_AERO.config import cfg
+from ZJU_AERO.config import config_init, config_sanity_check
 from ZJU_AERO.const import global_constants as constants
 
 @DATAdecorator('./', False, './she.pkl')
@@ -31,18 +31,18 @@ def get_she():
     FILENAME = '../pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'
     ds = get_wrf_variables([FILENAME], ['N'], dt.datetime(2013,10,6,10))
 
-    s1, h1, e1 = fixed_radius_KE(range_vec, elevation_angles, coords_radar)
-    s2, h2, e2 = ODEZeng2014(range_vec, elevation_angles, coords_radar, ds.data_vars['N'])
-    s3_pre, h3_pre, e3_pre = ODEZeng2014_exhaustive(range_vec, elevation_angles, 
+    s1, h1, e1 = effective_earth_radius(range_vec, elevation_angles, coords_radar)
+    s2, h2, e2 = Zeng2014(range_vec, elevation_angles, coords_radar, ds.data_vars['N'])
+    s3_pre, h3_pre, e3_pre = Zeng2014_exhaustive(range_vec, elevation_angles, 
     azimuth_angle, coords_radar, ds.data_vars['N'])
     s3, h3, e3 = s3_pre[0], h3_pre[0], e3_pre[0]
     return s1,s2,s3, h1,h2,h3, e1,e2,e3 
 
 if __name__ == "__main__":
-
     # get global constants
-    cfg.init('./option_files/wsm6_test.yml')
-    cfg.CONFIG = cfg.sanity_check(cfg.CONFIG)
+    config_init('./option_files/wsm6_test.yml')
+    from ZJU_AERO.config.config_proc import CONFIG
+    CONFIG = config_sanity_check(CONFIG)
     constants.update()
     
     # range_vec = np.arange(0, 100*1000, 500)

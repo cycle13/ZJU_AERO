@@ -4,7 +4,7 @@ radar beam while taking into account atmospheric refraction
 @Author: Hejun Xie
 @Date: 2020-07-16 17:44:29
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:29:39
+LastEditTime: 2020-11-21 16:12:48
 '''
 
 # Global imports
@@ -64,7 +64,9 @@ def compute_trajectory_spaceborne(elevation):
         h: vector of heights above ground along the radial [m]
         e: vector of incident elevation angles along the radial [degrees]
     '''
-    from ..config.cfg import CONFIG
+    from ..config.config_proc import CONFIG
+
+    # print(CONFIG)
 
     # Get info about spaceborne radar position
     latitude = CONFIG['radar']['coords'][0]

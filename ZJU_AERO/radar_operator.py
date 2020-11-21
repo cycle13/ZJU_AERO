@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-15 18:34:50
+LastEditTime: 2020-11-21 16:48:02
 '''
 
 
@@ -15,14 +15,13 @@ import multiprocess as mp
 import numpy as np
 import xarray as xr
 import copy
-# import pyWRF as pw
 import gc
 import pickle
 from textwrap import dedent
 
 # Local imports
 from .radar import PyartRadop, PycwrRadop, get_spaceborne_angles, SimulatedSpaceborne
-from .config import cfg
+from .config import config_init, config_sanity_check
 from .interp import get_interpolated_radial, integrate_radials
 
 from .const import global_constants as constants
@@ -58,14 +57,15 @@ class RadarOperator(object):
 
         # delete the module's globals
         print('Reading options defined in options file')
-        cfg.init(options_file) # Initialize options with specified file
+        config_init(options_file) # Initialize options with specified file
+        from .config.config_proc import CONFIG
 
         self.current_microphys_scheme = '1mom'
         self.dic_vars = None
         self.N = 0 # atmospheric refractivity
 
         self.lut_sz = None
-        self.config = cfg.CONFIG
+        self.config = CONFIG
 
         if output_variables in ['all','only_model','only_radar']:
             self.output_variables = output_variables
@@ -83,13 +83,10 @@ class RadarOperator(object):
         for hydrom, lut in self.lut_sz.items():
             if lut.type == 'xarray':
                 lut.close()
-        pass
         try:
             del dic_vars, N, lut_sz, output_variables
         except:
             pass
-        # self.config = None
-        # cfg.CONFIG = None
     
     @property
     def config(self):
@@ -111,42 +108,26 @@ class RadarOperator(object):
         Args:
             config_dic: a dictionnary specifying the new configuration to
                 use.
-            check: boolean to state if the specified new configuration
-                dictionary should be checked and missing/invalid values should
-                be replaced (as when a new .yml file is loaded). True by
-                default
         '''
-        # if check == False, no sanity check will be done, do this only
-        # if you are sure of what you are doing
+        from .config.config_proc import CONFIG
 
         print('Loading new configuration...')
-        checked_config = cfg.sanity_check(config_dic)
+        checked_config = config_sanity_check(config_dic)
 
-        if hasattr(self, 'config'):
-            # If frequency was changed or if melting is considered and not before
-            #  reload appropriate lookup tables
-            if checked_config['radar']['frequency'] != \
-                 self.config['radar']['frequency'] or \
-                 checked_config['microphysics']['with_melting'] != \
-                 self.config['microphysics']['with_melting'] \
-                 or not self.lut_sz:
+        # 1. update radar operator config and CONFIG in config module
+        self.__config = checked_config
+        CONFIG = checked_config
 
-                 print('Reloading lookup tables...')
-                 self.__config = checked_config
-                 cfg.CONFIG = checked_config
-                 # Recompute constants
-                 constants.update() # Update constants now that we know user config
-                 self.set_lut()
+        # 2. update derived constants
+        constants.update() # Update constants now that we know user config
 
-            else:
-                self.__config = checked_config
-                cfg.CONFIG = checked_config
-                # Recompute constants
-                constants.update() # Update constants now that we know user config
-        else:
-            self.__config = checked_config
-            cfg.CONFIG = checked_config
-            constants.update()
+        # 3. reload scattering property database if needed
+        first_config = not hasattr(self, 'config')
+        if not first_config:
+            lut_needs_reload = checked_config['radar']['frequency'] != self.config['radar']['frequency'] or \
+                        checked_config['microphysics']['with_melting'] != self.config['microphysics']['with_melting'] or \
+                        not self.lut_sz
+        if first_config or lut_needs_reload:
             self.set_lut()
     
     def set_lut(self):
@@ -241,8 +222,6 @@ class RadarOperator(object):
             from .nwp.wrf import check_if_variables_in_file
             from .nwp.wrf import get_wrf_variables as get_model_variables
 
-        vars_ok = check_if_variables_in_file(['P','T','QV','QR','QC','QI','QS','QG','U','V','W'])
-
         if self.config['refraction']['scheme'] in [2,3]:
             if check_if_variables_in_file(['T','P','QV']):
                 vars_to_load.extend('N')
@@ -254,11 +233,14 @@ class RadarOperator(object):
                 '''
                 print(dedent(msg))
                 self.config['refraction_method']='4/3'
+        
+        # check if all vars in file
+        vars_ok = check_if_variables_in_file(['P','T','QV','QR','QC','QI','QS','QG','U','V','W'])
 
         if not vars_ok:
             msg = '''
             Not all necessary variables could be found in file
-            For 1-moment scheme, the WRF file must contain
+            For 1-moment scheme, the MODEL file must contain
             Temperature, Pressure, U-wind component, V-wind component,
             W-wind component, and mass-densities (Q) for Vapour, Rain, Snow,
             Graupel, Ice cloud
@@ -370,75 +352,7 @@ class RadarOperator(object):
         del lut_sz
         gc.collect()
 
-        exit()
-
-    def get_spaceborne_swath_test(self, swath_file, slice=None):
-        '''
-        Simulates a spaceborne radar swath, for single thread test
-        Args:
-            swath_file: a spaceborne file, not implemented yet, only for test.
-            slice: slice of the spacebrone radar pixels in model domain. If slice is None,
-            then the total swath is simulated.
-
-        Returns:
-            An instance of the SimulatedSpaceborne class (see spaceborne_wrapper.py) which
-            contains the simulated radar observables.
-        '''
-
-        # Check if model file has been loaded
-        if self.dic_vars=={}:
-            print('No model file has been loaded! Aborting...')
-            return
-
-        # Needs to be done in order to deal with Multiprocessing's annoying limitations
-        global dic_vars, N, lut_sz, output_variables
-        dic_vars, N, lut_sz, output_variables = self.define_globals()
-
-        print(cfg.CONFIG)
-
-        # get spaceborne radar observation angles
-        az,elev,rang,coords_spaceborne = get_spaceborne_angles(swath_file, slice)
-
-        def worker(params):
-            # print(params)
-            azimuth=params[0]
-            elev=params[1]
-
-            # Update spaceborne position and range vector for each beam
-            cfg.CONFIG['radar']['range'] = params[2]
-            cfg.CONFIG['radar']['coords'] = [params[3],
-                                            params[4],
-                                            params[5]]
-
-            list_subradials = get_interpolated_radial(dic_vars,
-                                                        azimuth,
-                                                        elev,N = N)
-
-            # print(integrate_radials(list_subradials).values['T'])
-
-            if output_variables in ['all','only_radar']:
-                output = get_radar_observables(list_subradials,lut_sz)
-            if output_variables == 'only_model':
-                output =  integrate_radials(list_subradials)
-            elif output_variables == 'all':
-                output = combine_subradials((output,
-                        integrate_radials(list_subradials)))
-
-            return output
-        
-        output = worker((az[0,0], elev[0,0], rang[0,0], 
-        coords_spaceborne[0,0], coords_spaceborne[0,1], coords_spaceborne[0,2]))
-
-        (nscan, npixel) = az.shape
-        
-        self.close()
-
-        del dic_vars
-        del N
-        del lut_sz
-        gc.collect()
-        
-        return output    
+        exit()    
 
     def get_PPI(self, elevations, azimuths = None, az_step = None, az_start = 0,
                 az_stop = 359, plot_engine='pyart'):
@@ -644,7 +558,78 @@ class RadarOperator(object):
                 plot_instance = PycwrRadop('rhi',simulated_sweep)
 
             return plot_instance
-    
+
+    def get_spaceborne_swath_test(self, swath_file, slice=None):
+        '''
+        Simulates a spaceborne radar swath, for single thread test
+        Args:
+            swath_file: a spaceborne file, not implemented yet, only for test.
+            slice: slice of the spacebrone radar pixels in model domain. If slice is None,
+            then the total swath is simulated.
+
+        Returns:
+            An instance of the SimulatedSpaceborne class (see spaceborne_wrapper.py) which
+            contains the simulated radar observables.
+        '''
+        from .config import config_proc as cfg
+
+        # Check if model file has been loaded
+        if self.dic_vars=={}:
+            print('No model file has been loaded! Aborting...')
+            return
+
+        # Needs to be done in order to deal with Multiprocessing's annoying limitations
+        global dic_vars, N, lut_sz, output_variables
+        dic_vars, N, lut_sz, output_variables = self.define_globals()
+
+        # get spaceborne radar observation angles
+        az,elev,rang,coords_spaceborne = get_spaceborne_angles(swath_file, slice)
+
+        def worker(params):
+            # print(params)
+            azimuth=params[0]
+            elev=params[1]
+
+            # Update spaceborne position and range vector for each beam
+            cfg.CONFIG['radar']['range'] = params[2]
+            cfg.CONFIG['radar']['coords'] = [params[3],
+                                            params[4],
+                                            params[5]]
+
+            list_subradials = get_interpolated_radial(dic_vars,
+                                                        azimuth,
+                                                        elev,N = N)
+
+            # print(integrate_radials(list_subradials).values['T'])
+
+            if output_variables in ['all','only_radar']:
+                output = get_radar_observables(list_subradials,lut_sz)
+            if output_variables == 'only_model':
+                output =  integrate_radials(list_subradials)
+            elif output_variables == 'all':
+                output = combine_subradials((output,
+                        integrate_radials(list_subradials)))
+
+            return output
+        
+        output = worker((az[0,0], elev[0,0], rang[0,0], 
+        coords_spaceborne[0,0], coords_spaceborne[0,1], coords_spaceborne[0,2]))
+
+        (nscan, npixel) = az.shape
+
+        np.set_printoptions(threshold=np.inf)
+        print(output.values['ZH'])
+        
+        self.close()
+
+        del dic_vars
+        del N
+        del lut_sz
+        gc.collect()
+        
+        # return output
+        exit()
+
     def get_spaceborne_swath(self, swath_file, slice=None):
         '''
         Simulates a spaceborne radar swath
@@ -657,6 +642,8 @@ class RadarOperator(object):
             An instance of the SimulatedSpaceborne class (see spaceborne_wrapper.py) which
             contains the simulated radar observables.
         '''
+
+        from .config import config_proc as cfg
 
         # Check if model file has been loaded
         if self.dic_vars=={}:
@@ -740,4 +727,3 @@ class RadarOperator(object):
                                                     (nscan,npixel))
 
             return list_beams_formatted
-    

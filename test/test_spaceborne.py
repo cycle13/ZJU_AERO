@@ -3,7 +3,7 @@ Description: test for spaceborne radar
 Author: Hejun Xie
 Date: 2020-10-10 10:44:15
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 10:16:26
+LastEditTime: 2020-11-21 16:45:14
 '''
 
 # unit test import
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     # print(a.dic_vars['T'])
 
     if not LOAD_RADAR:
-        r = a.get_spaceborne_swath('test')
+        r = a.get_spaceborne_swath_test('test')
         with open("./swath.pkl", "wb") as f:
             pickle.dump(r, f)
     else:
