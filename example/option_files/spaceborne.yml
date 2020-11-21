@@ -1,15 +1,10 @@
 # Spaceborne Radar with no fixed coords, no need to apply it 
 radar:
     type: 'spaceborne'
-    coords:
-    range:
     frequency: 35.6
     radial_resolution: 250
-    PRI: 700
-    FFT_length:
     sensitivity: 12
     3dB_beamwidth: 0.5
-    nyquist_velocity:
 refraction:
     scheme: 2
 # TODO: Now spaceborne radar do not support beam broadening
