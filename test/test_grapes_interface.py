@@ -3,7 +3,7 @@ Description: test GRAPES interface for radar operator
 Author: Hejun Xie
 Date: 2020-11-02 16:17:47
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 15:57:52
+LastEditTime: 2020-11-21 19:54:14
 '''
 
 # unit test import
@@ -48,11 +48,12 @@ if __name__ == "__main__":
     load_datetime = dt.datetime(2019,11,29,18)
     
     a = ZJU_AERO.RadarOperator(options_file='./option_files/grapes_interface.yml')
+    a.close(); exit()
     a.load_model_file(data_file_list, load_datetime=load_datetime, load_from_file=LOAD_MODEL, load_file='mdl.nc')
 
     if not LOAD_RADAR:
-        r = a.get_PPI(elevations = 0.5)
-        # r = a.get_PPI_test(elevations = 1)
+        # r = a.get_PPI(elevations = 0.5)
+        r = a.get_PPI_test(elevations = 1)
         with open("./ppi.pkl", "wb") as f:
             pickle.dump(r, f)
     else:

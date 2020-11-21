@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 16:48:02
+LastEditTime: 2020-11-21 19:56:35
 '''
 
 
@@ -53,10 +53,7 @@ class RadarOperator(object):
         Returns:
             A RadarOperator class instance
         '''
-
-
-        # delete the module's globals
-        print('Reading options defined in options file')
+        
         config_init(options_file) # Initialize options with specified file
         from .config.config_proc import CONFIG
 
