@@ -3,7 +3,7 @@ Description: test for scatter
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-20 17:07:00
+LastEditTime: 2020-11-22 19:47:14
 '''
 
 # unit test import
@@ -36,6 +36,7 @@ if __name__ == "__main__":
 
     if not LOAD_RADAR:
         r = a.get_PPI(elevations = 1.494, plot_engine='pycwr')
+        # r = a.get_PPI_test(elevations = 1.0)
         with open("./ppi.pkl", "wb") as f:
             pickle.dump(r, f)
     else:

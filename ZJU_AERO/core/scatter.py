@@ -3,7 +3,7 @@ Description:  computes all radar observables for a given radial
 Author: Hejun Xie
 Date: 2020-08-20 22:01:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-22 10:51:40
+LastEditTime: 2020-11-22 19:46:56
 '''
 
 # Global imports
@@ -56,49 +56,61 @@ def cut_at_sensitivity(list_subradials):
     '''
     from ..config.cfg import CONFIG
     sens_config = CONFIG['radar']['sensitivity']
-    if not isinstance(sens_config,list):
+
+    # deal with single value case ZH(dBZ)
+    if not isinstance(sens_config, list):
         sens_config = [sens_config]
 
-    if len(sens_config) == 3: # Sensitivity - gain - snr
-        threshold_func = lambda r: (sens_config[0] + constants.RADAR_CONSTANT_DB
-                         + sens_config[2] + 20*np.log10(r/1000.))
-    elif len(sens_config) == 2: # ZH - range
-        threshold_func = lambda r: ((sens_config[0] -
-                                     20 * np.log10(sens_config[1] / 1000.)) +
-                                     20 * np.log10(r / 1000.))
-    elif len(sens_config) == 1: # ZH
+    if len(sens_config) == 3: # [Sensitivity(dBm), Gain(dBm), SNR(dB)]
+        threshold_func = lambda r: sens_config[0] + sens_config[1] + sens_config[2] \
+                                    + 20 * np.log10(r / 1000.)
+    elif len(sens_config) == 2: # [ZH(dBZ), range(m)]
+        threshold_func = lambda r: sens_config[0] \
+                                    - 20 * np.log10(sens_config[1] / 1000.) \
+                                    + 20 * np.log10(r / 1000.)
+    elif len(sens_config) == 1: # [ZH(dBZ)]
         threshold_func = lambda r: sens_config[0]
-
     else:
         print('Sensitivity parameters are invalid, cannot cut at specified sensitivity')
         print('Enter either a single value of refl (dBZ) or a list of',
               '[refl (dBZ), distance (m)] or a list of [sensitivity (dBm), gain (dBm) and snr (dB)]')
-
         return list_subradials
+    
+    rranges = constants.RANGE_RADAR
 
-    if isinstance(list_subradials[0],list): # Loop on list of lists
-        for i,sweep in enumerate(list_subradials):
-            for j,b, in enumerate(sweep):
-                rranges = (CONFIG['radar']['radial_resolution'] *
-                           np.arange(len(b.dist_profile)))
-                mask = 10*np.log10(b.values['ZH']) < threshold_func(rranges)
-                for k in b.values.keys():
-                    if k in constants.SIMULATED_VARIABLES:
-                        if k == 'DSPECTRUM':
-                            logspectrum = 10 * np.log10(list_subradials[i][j].values[k])
-                            thresh = threshold_func(rranges)
-                            thresh =  np.tile(thresh,
-                                              (logspectrum.shape[1],1)).T
-                            list_subradials[i][j].values[k][logspectrum < thresh] = np.nan
-                        else:
-                            list_subradials[i][j].values[k][mask] = np.nan
-
+    # Case if list_subradial is a list of radar sweeps
+    if isinstance(list_subradials[0], list):
+        for isweep, sweep in enumerate(list_subradials):
+            for isubradial, subradial in enumerate(sweep):
+                subradial = list_subradials[isweep][isubradial]
+                _cut_at_sensitivity(subradial, rranges, threshold_func)
+    # Case if list_subradial is a single sweep
     else:
-        for i, subradial in enumerate(list_subradials): # Loop on simple list
-            rranges = (CONFIG['radar']['radial_resolution'] *
-                       np.arange(len(subradial.dist_profile)))
-            mask = 10 * np.log10(subradial.values['ZH']) < threshold_func(rranges)
-            for k in subradial.values.keys():
-                if k in constants.SIMULATED_VARIABLES:
-                    list_subradials[i].values[k][mask] = np.nan
+        for isubradial, subradial in enumerate(list_subradials):
+            subradial = list_subradials[isubradial]
+            _cut_at_sensitivity(subradial, rranges, threshold_func)
+            
     return list_subradials
+
+def _cut_at_sensitivity(subradial, rranges, threshold_func):
+    '''
+    Cut the the SIMULATED_VARIABLES by radar sensitivity
+    threshold function.
+
+    Args:
+        subradial: A single Radial instance.
+        rranges: Radar gates distance[m].
+        threshold_func: A threshold function.
+    Returns:
+        A modified subradial instance setting all the 
+        SIMULATED_VARIABLES to np.nan where ZH(dBZ) is below 
+        the threshold function threshold_func(r):
+        ZH(dBZ) < threshold_func(r).
+    '''
+    
+    # Also get rid of radar gates where ZH == np.nan
+    mask = np.array( 10 * np.log10(subradial.values['ZH']) < threshold_func(rranges) ) | \
+            np.isnan(subradial.values['ZH'])
+    for varname in subradial.values.keys():
+        if varname in constants.SIMULATED_VARIABLES:
+            subradial.values[varname][mask] = np.nan
