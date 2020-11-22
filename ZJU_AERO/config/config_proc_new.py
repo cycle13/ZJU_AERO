@@ -4,7 +4,7 @@ how to initialize and check it.
 Author: Hejun Xie
 Date: 2020-11-21 11:06:42
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 23:25:15
+LastEditTime: 2020-11-22 10:38:05
 '''
 
 
@@ -20,14 +20,16 @@ from textwrap import dedent
 from .config_const import DEFAULTS, VALID_VALUES
 from .config_types import Range, TypeList
 
-'''
-Initialize CONFIG, which is a global variable, because it needs to be
-accesses everywhere in the radar operator (this might not be the most
-pythonic way of doing it, but I couldn't find a better way...) '
-'''
 
-global CONFIG
-CONFIG = None
+def createConfig(options_file):
+    '''
+    Initialize CONFIG, which is a global variable, because it needs to be
+    accesses everywhere in the radar operator (this might not be the most
+    pythonic way of doing it, but I couldn't find a better way...) '
+    '''
+    global CONFIG
+    CONFIG = ConfigClass(options_file)
+    CONFIG.check_sanity()
 
 class ConfigClass(object):
     def __init__(self, options_file):
