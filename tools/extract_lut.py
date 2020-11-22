@@ -4,7 +4,7 @@ as a netCDF format file (LevelA-database)
 Author: Hejun Xie
 Date: 2020-09-17 10:04:49
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-20 17:04:30
+LastEditTime: 2020-11-22 11:34:15
 '''
 
 import os
@@ -15,8 +15,8 @@ import numpy as np
 import xarray as xr
 from scipy.integrate import quad  
 
-RAW_DATA_ROOT = '/mnt/d/ZJU_AERO/radardb_hexgon'
-LEVELA_DATA_TARGET = '/mnt/d/COSMO_POL/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelA.nc'
+RAW_DATA_ROOT = '/mnt/e/ZJU_AERO/radardb_hexgon'
+LEVELA_DATA_TARGET = '/mnt/e/COSMO_POL/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelA.nc'
 NBETA = 91
 NELEVATION = 91
 ANAME = 'amplmatrix_fw_test.dat'
