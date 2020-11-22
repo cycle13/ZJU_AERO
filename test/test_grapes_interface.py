@@ -3,7 +3,7 @@ Description: test GRAPES interface for radar operator
 Author: Hejun Xie
 Date: 2020-11-02 16:17:47
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 19:54:14
+LastEditTime: 2020-11-22 11:07:47
 '''
 
 # unit test import
@@ -48,7 +48,6 @@ if __name__ == "__main__":
     load_datetime = dt.datetime(2019,11,29,18)
     
     a = ZJU_AERO.RadarOperator(options_file='./option_files/grapes_interface.yml')
-    a.close(); exit()
     a.load_model_file(data_file_list, load_datetime=load_datetime, load_from_file=LOAD_MODEL, load_file='mdl.nc')
 
     if not LOAD_RADAR:

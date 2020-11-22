@@ -5,7 +5,7 @@ hydrometeor concentration: SNOW, GRAUPEL, RAIN, etc.
 Author: Hejun Xie
 Date: 2020-11-14 18:03:56
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 16:30:55
+LastEditTime: 2020-11-22 11:19:52
 '''
 
 # unit test import
@@ -20,14 +20,13 @@ from ZJU_AERO.core._rdop_scatter import one_rad_one_hydro, get_pol_from_sz
 from ZJU_AERO.interp import Radial
 from ZJU_AERO.db import load_lut
 from ZJU_AERO.hydro.hydrometeor import Snow
-from ZJU_AERO.config import config_init, config_sanity_check
+from ZJU_AERO.config import createConfig
 from ZJU_AERO.const import global_constants as constants
 
 if __name__ == "__main__":
     # get global constants
-    config_init('./option_files/wsm6_test.yml')
-    from ZJU_AERO.config.config_proc import CONFIG
-    CONFIG = config_sanity_check(CONFIG)
+    createConfig('./option_files/wsm6_test.yml')
+    from ZJU_AERO.config.cfg import CONFIG
     constants.update()
 
     db = load_lut('../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc', engine='xarray')

@@ -3,7 +3,7 @@ Description: test interpolation
 Author: Hejun Xie
 Date: 2020-08-15 20:59:00
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 16:32:41
+LastEditTime: 2020-11-22 11:20:30
 '''
 
 # unit test import
@@ -17,7 +17,7 @@ import copy
 import datetime as dt
 
 # Local imports
-from ZJU_AERO.config import config_init, config_sanity_check
+from ZJU_AERO.config import createConfig
 from ZJU_AERO.const import global_constants as constants
 from ZJU_AERO.interp import get_interpolated_radial
 from ZJU_AERO.utils import DATAdecorator
@@ -48,9 +48,8 @@ def get_dic_variables(filename):
 if __name__ == "__main__":
 
     # get global constants
-    config_init('./option_files/wsm6_test.yml')
-    from ZJU_AERO.config.config_proc import CONFIG
-    CONFIG = config_sanity_check(CONFIG)
+    createConfig('./option_files/wsm6_test.yml')
+    from ZJU_AERO.config.cfg import CONFIG
     constants.update()
 
     dic_variables, N = get_dic_variables(MODEL_FILE)

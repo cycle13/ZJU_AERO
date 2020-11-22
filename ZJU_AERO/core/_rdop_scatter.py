@@ -4,7 +4,7 @@ from the interpolated radials given by NWP models
 Author: Hejun Xie
 Date: 2020-10-12 10:45:48
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 15:42:01
+LastEditTime: 2020-11-22 10:51:51
 '''
 
 # Global imports
@@ -38,7 +38,7 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
 
     # Get info from user config
     # Some schme are displayed here but not implemented yet...
-    from ..config.config_proc import CONFIG
+    from ..config.cfg import CONFIG
     core_scheme = CONFIG['core']['scheme'] # TODO
     microphysics_scheme = CONFIG['microphysics']['scheme'] # TODO only '1mom'
     with_ice_crystals = CONFIG['microphysics']['with_ice_crystals']

@@ -3,7 +3,7 @@ Description:  computes all radar observables for a given radial
 Author: Hejun Xie
 Date: 2020-08-20 22:01:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 16:04:03
+LastEditTime: 2020-11-22 10:51:40
 '''
 
 # Global imports
@@ -32,7 +32,7 @@ def get_radar_observables(list_subradials, lut_sz):
         A radial class instance containing the integrated radar observables
     """
 
-    from ..config.config_proc import CONFIG
+    from ..config.cfg import CONFIG
     core_engine = CONFIG['core']['engine']
 
     if core_engine == 'rdop':
@@ -54,7 +54,7 @@ def cut_at_sensitivity(list_subradials):
     Returns:
          the list_subradials but censored with the radar sensitivity
     '''
-    from ..config.config_proc import CONFIG
+    from ..config.cfg import CONFIG
     sens_config = CONFIG['radar']['sensitivity']
     if not isinstance(sens_config,list):
         sens_config = [sens_config]

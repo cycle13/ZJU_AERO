@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 11:35:31
+LastEditTime: 2020-11-22 10:51:29
 '''
 
 # Global import
@@ -30,7 +30,7 @@ class ConstantClass(object):
         Update the derived part of the constant using new CONFIG.
         '''
         global CONFIG
-        from ..config.config_proc import CONFIG
+        from ..config.cfg import CONFIG
         if CONFIG is not None:
             self._init_derived_const()
     

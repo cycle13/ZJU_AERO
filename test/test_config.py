@@ -3,7 +3,7 @@ Description: test config subpackage
 Author: Hejun Xie
 Date: 2020-11-21 22:41:58
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-22 10:35:02
+LastEditTime: 2020-11-22 11:19:14
 '''
 
 # unit test import
@@ -12,7 +12,7 @@ sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 
 # Local import 
-from ZJU_AERO.config.config_proc_new import createConfig
+from ZJU_AERO.config.cfg import createConfig
 
 if __name__ == "__main__":
     # cc = ConfigClass('./option_files/configtest.yml')
@@ -20,6 +20,6 @@ if __name__ == "__main__":
     # print(cc['radar'])
 
     createConfig('./option_files/configtest.yml')
-    from ZJU_AERO.config.config_proc_new import CONFIG
+    from ZJU_AERO.config.cfg import CONFIG
     print(CONFIG)
 

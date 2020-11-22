@@ -3,7 +3,7 @@ Description: wrapper for pycwr class
 Author: Hejun Xie
 Date: 2020-10-02 16:32:15
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 15:40:41
+LastEditTime: 2020-11-22 10:54:41
 '''
 
 # Global import
@@ -12,7 +12,6 @@ import numpy as np
 # np.set_printoptions(threshold=np.inf)
 
 # Local import
-from ..config.config_proc import CONFIG
 from ..const import global_constants as constants
 
 RDOP_to_CINRAD_field_mapping = {
@@ -37,6 +36,7 @@ class PycwrRadop(core.NRadar.PRD):
             a PycwrRadop instance which can be used as specified in the
             pycwr doc: https://github.com/YvZheng/pycwr
         '''
+        from ..config.cfg import CONFIG
 
         sitename = 'RDOP'
         nsweeps = len(scan['data'])

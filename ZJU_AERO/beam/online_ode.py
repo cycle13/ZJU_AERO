@@ -4,7 +4,7 @@ for the trajectory of the radar beam
 @Author: Hejun Xie
 @Date: 2020-07-16 11:48:54
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 15:42:27
+LastEditTime: 2020-11-22 10:50:56
 '''
 
 # Global imports
@@ -90,7 +90,7 @@ def Zeng2014(range_vec, elevation_angle, coords_radar, N):
         e: vector of incident elevation angles along the radial [degrees]
     '''
 
-    from ..config.config_proc import CONFIG
+    from ..config.cfg import CONFIG
     if CONFIG['nwp']['name'] == 'grapes':
         from ..nwp.grapes import WGS_to_GRAPES as WGS_to_MODEL
     elif CONFIG['nwp']['name'] == 'wrf':

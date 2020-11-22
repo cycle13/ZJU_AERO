@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-08-02 12:46:24
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 16:36:41
+LastEditTime: 2020-11-22 11:17:49
 '''
 
 # unit test import
@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 from ZJU_AERO.beam import effective_earth_radius, Zeng2014_exhaustive, Zeng2014
 from ZJU_AERO.utils import DATAdecorator
 from ZJU_AERO.nwp.wrf import get_wrf_variables
-from ZJU_AERO.config import config_init, config_sanity_check
+from ZJU_AERO.config import createConfig
 from ZJU_AERO.const import global_constants as constants
 
 @DATAdecorator('./', False, './she.pkl')
@@ -40,9 +40,8 @@ def get_she():
 
 if __name__ == "__main__":
     # get global constants
-    config_init('./option_files/wsm6_test.yml')
-    from ZJU_AERO.config.config_proc import CONFIG
-    CONFIG = config_sanity_check(CONFIG)
+    createConfig('./option_files/wsm6_test.yml')
+    from ZJU_AERO.config.cfg import CONFIG
     constants.update()
     
     # range_vec = np.arange(0, 100*1000, 500)

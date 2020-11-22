@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 19:56:35
+LastEditTime: 2020-11-22 11:25:21
 '''
 
 
@@ -21,7 +21,7 @@ from textwrap import dedent
 
 # Local imports
 from .radar import PyartRadop, PycwrRadop, get_spaceborne_angles, SimulatedSpaceborne
-from .config import config_init, config_sanity_check
+from .config import createConfig
 from .interp import get_interpolated_radial, integrate_radials
 
 from .const import global_constants as constants
@@ -54,8 +54,8 @@ class RadarOperator(object):
             A RadarOperator class instance
         '''
         
-        config_init(options_file) # Initialize options with specified file
-        from .config.config_proc import CONFIG
+        createConfig(options_file) # Initialize options with specified file
+        from .config.cfg import CONFIG
 
         self.current_microphys_scheme = '1mom'
         self.dic_vars = None
@@ -106,25 +106,24 @@ class RadarOperator(object):
             config_dic: a dictionnary specifying the new configuration to
                 use.
         '''
-        from .config.config_proc import CONFIG
+        from .config.cfg import CONFIG
 
-        print('Loading new configuration...')
-        checked_config = config_sanity_check(config_dic)
-
-        # 1. update radar operator config and CONFIG in config module
-        self.__config = checked_config
-        CONFIG = checked_config
-
-        # 2. update derived constants
-        constants.update() # Update constants now that we know user config
-
-        # 3. reload scattering property database if needed
+        # 1. get flag of loading scattering property database
         first_config = not hasattr(self, 'config')
         if not first_config:
-            lut_needs_reload = checked_config['radar']['frequency'] != self.config['radar']['frequency'] or \
-                        checked_config['microphysics']['with_melting'] != self.config['microphysics']['with_melting'] or \
+            lut_needs_reload = CONFIG['radar']['frequency'] != self.config['radar']['frequency'] or \
+                        CONFIG['microphysics']['with_melting'] != self.config['microphysics']['with_melting'] or \
                         not self.lut_sz
-        if first_config or lut_needs_reload:
+        flag_load_lut = first_config or lut_needs_reload
+
+        # 2. update radar operator config and CONFIG in config module
+        self.__config = copy.deepcopy(CONFIG)
+
+        # 3. update derived constants
+        constants.update() # Update constants now that we know user config
+
+        # 4. load scattering property database
+        if flag_load_lut:
             self.set_lut()
     
     def set_lut(self):
@@ -136,7 +135,6 @@ class RadarOperator(object):
         has_ice = self.config['microphysics']['with_ice_crystals']
         scattering_method_all = self.config['microphysics']['scattering']
         freq = self.config['radar']['frequency']
-        # freq = 5.6
         folder_lut = self.config['microphysics']['folder_lut']
 
         list_hydrom = ['R','S','G']
@@ -568,7 +566,7 @@ class RadarOperator(object):
             An instance of the SimulatedSpaceborne class (see spaceborne_wrapper.py) which
             contains the simulated radar observables.
         '''
-        from .config import config_proc as cfg
+        from .config import cfg
 
         # Check if model file has been loaded
         if self.dic_vars=={}:
@@ -640,7 +638,13 @@ class RadarOperator(object):
             contains the simulated radar observables.
         '''
 
-        from .config import config_proc as cfg
+        '''
+        Attention for this import:
+        from .config.cfg import CONFIG 
+        is ok for single thread test,
+        but in multiprocessing, CONFIG cannot be updated. 
+        '''
+        from .config import cfg
 
         # Check if model file has been loaded
         if self.dic_vars=={}:

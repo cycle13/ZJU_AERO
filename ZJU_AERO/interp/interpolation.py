@@ -4,7 +4,7 @@ model variables to the radar gates
 Author: Hejun Xie
 Date: 2020-08-15 11:07:01
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 15:41:38
+LastEditTime: 2020-11-22 10:50:08
 '''
 
 # Global imports
@@ -108,7 +108,7 @@ def get_interpolated_radial(ds_model, azimuth, elevation, N = None,
     keys = list(ds_model.data_vars.keys())
 
     # Get options
-    from ..config.config_proc import CONFIG
+    from ..config.cfg import CONFIG
     bandwidth_3dB = CONFIG['radar']['3dB_beamwidth']
     integration_scheme = CONFIG['integration']['scheme']
     refraction_method = CONFIG['refraction']['scheme']
@@ -260,7 +260,7 @@ def trilin_interp_radial(ds_model, azimuth, distances_profile, heights_profile):
     """
 
     # Get position of virtual radar from user configuration
-    from ..config.config_proc import CONFIG
+    from ..config.cfg import CONFIG
     radar_pos = CONFIG['radar']['coords']
 
     if CONFIG['nwp']['name'] == 'grapes':
@@ -381,7 +381,7 @@ def trilin_interp_radial_WRF(list_vars, azimuth, distances_profile, heights_prof
     """
 
     # Get position of virtual radar from user configuration
-    from ..config.config_proc import CONFIG
+    from ..config.cfg import CONFIG
     radar_pos = CONFIG['radar']['coords']
 
 
