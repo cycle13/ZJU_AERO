@@ -3,7 +3,7 @@ Description: plot beijing 20191129 case
 Author: Hejun Xie
 Date: 2020-11-03 16:17:53
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-13 11:26:35
+LastEditTime: 2020-11-24 21:33:55
 '''
 
 import pycwr
@@ -37,19 +37,23 @@ display = pyart.graph.RadarMapDisplayBasemap(r)
 import matplotlib.pyplot as plt
 plt.figure()
 
-fields  = ['reflectivity', 'differential_reflectivity', 'velocity']
+fields  = ['reflectivity', 'differential_reflectivity', 'velocity', 'specific_differential_phase']
 vrange  = {'reflectivity':  (0, 40),
         'differential_reflectivity': (0, 2),
-        'velocity': (-15, 15)}
+        'velocity': (-15, 15),
+        'specific_differential_phase': (-1, 6)}
 cmap    = {'reflectivity':  'pyart_Carbone11',
         'differential_reflectivity': 'pyart_Carbone11',
-        'velocity': 'pyart_BuOr8'}
+        'velocity': 'pyart_BuOr8',
+        'specific_differential_phase': 'pyart_RefDiff'}
 latex_name = {'reflectivity': r'$Z_{H}$',
         'differential_reflectivity': r'$Z_{DR}$',
-        'velocity': r'$V_r$'}
+        'velocity': r'$V_r$',
+        'specific_differential_phase': r'$K_{DP}$'}
 short_name = {'reflectivity':  'ZH',
         'differential_reflectivity': 'ZDR',
-        'velocity': 'RVEL'}    
+        'velocity': 'RVEL',
+        'specific_differential_phase': 'KDP'}    
 
 sweep = 0
 

@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-22 10:51:29
+LastEditTime: 2020-11-25 17:05:10
 '''
 
 # Global import
@@ -168,3 +168,4 @@ class ConstantClass(object):
                 CONFIG['radar']['radial_resolution'])
 
 global_constants = ConstantClass()
+
