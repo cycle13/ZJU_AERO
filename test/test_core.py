@@ -5,7 +5,7 @@ hydrometeor concentration: SNOW, GRAUPEL, RAIN, etc.
 Author: Hejun Xie
 Date: 2020-11-14 18:03:56
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-22 11:19:52
+LastEditTime: 2020-12-07 22:01:13
 '''
 
 # unit test import
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     from ZJU_AERO.config.cfg import CONFIG
     constants.update()
 
-    db = load_lut('../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc', engine='xarray')
+    db = load_lut('../pathos/lut/tm_masc/lut_SZ_S_9_41_1mom_LevelB.nc', engine='xarray')
     hydro_istc = Snow('1mom')
     hydro_name = 'S'
 

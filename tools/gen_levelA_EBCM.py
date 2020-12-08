@@ -3,7 +3,7 @@ Description: computing lookup table using pytmatrix
 Author: Hejun Xie
 Date: 2020-12-06 10:21:24
 LastEditors: Hejun Xie
-LastEditTime: 2020-12-06 23:44:21
+LastEditTime: 2020-12-08 11:09:03
 '''
 
 # unit test import
@@ -120,7 +120,7 @@ def _gen_one_tm(list_elevation, list_beta, D, T, AR, frequency, wavelength):
             # Back Scattering Z
             scatt.set_geometry(geom_back)
             Z = scatt.get_Z()
-            # print(Z)
+            print(Z)
             
             
             for real_variable in real_variables:
@@ -130,15 +130,14 @@ def _gen_one_tm(list_elevation, list_beta, D, T, AR, frequency, wavelength):
             # Forward Scattering S
             scatt.set_geometry(geom_forw)
             S = scatt.get_S()
-            # print(S)
+            print(S)
 
             for complex_variable in complex_variables:
                 complex_index = complex_variables_map[complex_variable]
                 temp_lut[complex_variable].loc[loc_dict] = S[complex_index[0], complex_index[1]]
             
             # exit()
-        
-    # print(temp_lut)
+
     # exit()
 
     del scatt
@@ -206,7 +205,7 @@ def gen_levelA(hydrom_type, frequency, levela_name_lut):
                 ''' 
                 # pack = _gen_one_tm(list_elevation, list_beta, D, T, AR, frequency, wavelength)
                 # assign_dataset_pieces(pack)
-                
+                # exit()            
                 args = (list_elevation, list_beta, D, T, AR, frequency, wavelength)
                 pool.apply_async(_gen_one_tm, args=args, callback=assign_dataset_pieces)
     
