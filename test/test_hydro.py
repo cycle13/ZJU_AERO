@@ -3,7 +3,7 @@ Description: hydrometeor interpolation
 Author: Hejun Xie
 Date: 2020-08-19 12:55:00
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-20 17:06:13
+LastEditTime: 2020-12-11 10:12:54
 '''
 
 # unit test import
@@ -12,11 +12,16 @@ sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
 
 # Local imports
-from ZJU_AERO.config import cfg
-cfg.init('./option_files/interpolation.yml')
-
-from ZJU_AERO.hydro.hydrometeor import Snow, IceParticle 
+from ZJU_AERO.config.cfg import createConfig
+from ZJU_AERO.const import global_constants as constants
+from ZJU_AERO.hydro.hydrometeor import Snow, IceParticle, Rain, Graupel
 
 if __name__ == "__main__":
+    createConfig('./option_files/interpolation.yml')
+    constants.update()
+
     s = Snow('1mom')
     i = IceParticle('1mom')
+    r = Rain('1mom')
+
+    print(r.get_aspect_ratio(14.0))

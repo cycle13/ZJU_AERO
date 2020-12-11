@@ -3,7 +3,7 @@ Description: computing lookup table using pytmatrix
 Author: Hejun Xie
 Date: 2020-12-06 10:21:24
 LastEditors: Hejun Xie
-LastEditTime: 2020-12-08 11:09:03
+LastEditTime: 2020-12-08 12:03:36
 '''
 
 # unit test import
@@ -37,7 +37,7 @@ GENERATE_2MOM = False
 FORCE_REGENERATION_SCATTER_TABLES = True
 
 # The frequencies in GHz for which the lookup tables will be computed
-FREQUENCIES=[9.41]
+FREQUENCIES=[35.0]
 # Snow, graupel, hail, rain and ice, currently only snow implemented
 HYDROM_TYPES=['S'] 
 
@@ -120,7 +120,7 @@ def _gen_one_tm(list_elevation, list_beta, D, T, AR, frequency, wavelength):
             # Back Scattering Z
             scatt.set_geometry(geom_back)
             Z = scatt.get_Z()
-            print(Z)
+            # print(Z)
             
             
             for real_variable in real_variables:
@@ -130,7 +130,7 @@ def _gen_one_tm(list_elevation, list_beta, D, T, AR, frequency, wavelength):
             # Forward Scattering S
             scatt.set_geometry(geom_forw)
             S = scatt.get_S()
-            print(S)
+            # print(S)
 
             for complex_variable in complex_variables:
                 complex_index = complex_variables_map[complex_variable]

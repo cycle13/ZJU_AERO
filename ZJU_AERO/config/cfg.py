@@ -4,7 +4,7 @@ how to initialize and check it.
 Author: Hejun Xie
 Date: 2020-11-21 11:06:42
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-22 10:38:05
+LastEditTime: 2020-12-11 10:00:04
 '''
 
 
@@ -104,9 +104,9 @@ class ConfigClass(object):
                     # MANDATORY
                     else:
                         msg = '''
-                            This key is mandatory,
+                            This key: {} is mandatory,
                             please provide a valid value, aborting...
-                            '''
+                            '''.format(key)
                         raise ValueError(dedent(msg)) 
 
                 # Check validity

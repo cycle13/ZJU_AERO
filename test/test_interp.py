@@ -3,7 +3,7 @@ Description: test interpolation
 Author: Hejun Xie
 Date: 2020-08-15 20:59:00
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-22 11:20:30
+LastEditTime: 2020-12-11 10:13:59
 '''
 
 # unit test import
@@ -48,7 +48,7 @@ def get_dic_variables(filename):
 if __name__ == "__main__":
 
     # get global constants
-    createConfig('./option_files/wsm6_test.yml')
+    createConfig('./option_files/interpolation.yml')
     from ZJU_AERO.config.cfg import CONFIG
     constants.update()
 
