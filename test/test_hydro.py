@@ -3,13 +3,15 @@ Description: hydrometeor interpolation
 Author: Hejun Xie
 Date: 2020-08-19 12:55:00
 LastEditors: Hejun Xie
-LastEditTime: 2020-12-11 10:12:54
+LastEditTime: 2020-12-11 10:36:01
 '''
 
 # unit test import
 import sys
 sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 
+# Global imports
+import numpy as np
 
 # Local imports
 from ZJU_AERO.config.cfg import createConfig
@@ -24,4 +26,4 @@ if __name__ == "__main__":
     i = IceParticle('1mom')
     r = Rain('1mom')
 
-    print(r.get_aspect_ratio(14.0))
+    print( r.get_aspect_ratio(np.array([9.0, 10.0, 12.0])) )

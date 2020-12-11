@@ -3,7 +3,7 @@ Description: hydrometeor rain
 Author: Hejun Xie
 Date: 2020-11-13 12:13:05
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:27:58
+LastEditTime: 2020-12-11 10:39:10
 '''
 
 # Global imports
@@ -49,7 +49,7 @@ class Rain(_Hydrometeor):
         self.nu = 1.0
 
         # Canting angle stdev, taken from Bringi
-        self.canting_angle_std = 10.
+        self.canting_angle_std = 7.
 
         # Others
         self.lambda_factor = constants_1mom.LAMBDA_FACTOR_R
@@ -121,7 +121,7 @@ class Rain(_Hydrometeor):
             7.66e-4 * D[D>=1.5] ** 3 - 4.095e-5 * D[D>=1.5] ** 4)
 
         # This model tends to diverge for large drops so we threshold it to
-        # a reasonable max drop size
-        ar[D>=self.d_max] = ar[D<=self.d_max][-1]
+        # a reasonable max drop size (10mm)
+        ar[D>=10.] = ar[D<=10.][-1]
 
         return 1./ar
