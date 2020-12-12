@@ -1,0 +1,28 @@
+DBS:
+  FOLDER_LUT: '../pathos/lut/tm_masc/' # place to hold database files
+  LEVELA_TYPE: 'TM' # 'IITM' or 'TM'
+  FREQUENCIES: [9.41] # The frequencies in GHz for which the lookup tables will be computed
+  HYDROM_TYPES: ['S', 'R'] # Snow, graupel, hail, rain and ice, currently only snow implemented
+DIMENSIONS:
+  # D: Maximum Diameter [mm], DMAX and DMIN depends on hydrometeor settings
+  # NUM_DIAMETERS: 64
+  NUM_DIAMETERS: 4
+  # T: Temperature [K] for solid hydrometeors
+  TEMPERATURES_SOL: [203, 213, 223, 233, 243, 253, 263, 273] 
+  # T: Temperature [K] for liquid hydrometeors
+  TEMPERATURES_LIQ: [268, 273, 278, 283, 288, 293, 298, 303, 308, 313, 318] 
+  # MAX_AR: 7 The maximum aspect-ratio to consider, avoids crashing the T-matrix 
+  # AR: aspect ratio [Horizontal to rotational axis]
+  ARS:
+    S: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]
+    G: [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
+    R: 'SINGLE'
+    I: 'SINGLE'
+  # ELEVATIONS: elevations [deg]
+  # ELEVATIONS: [0, 91, 1] # np.arange
+  ELEVATIONS: [0, 2, 1] # np.arange
+  # BETAS: Euler angle beta [deg]
+  # BETAS: [0, 91, 1] # np.arange
+  BETAS: [0, 2, 1] # np.arange
+  # NALPHA: setting for pytmatrix averaging over angles
+  NALPHA: 5

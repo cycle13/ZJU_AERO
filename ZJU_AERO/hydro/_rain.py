@@ -3,7 +3,7 @@ Description: hydrometeor rain
 Author: Hejun Xie
 Date: 2020-11-13 12:13:05
 LastEditors: Hejun Xie
-LastEditTime: 2020-12-11 10:39:10
+LastEditTime: 2020-12-12 17:19:09
 '''
 
 # Global imports
@@ -122,6 +122,7 @@ class Rain(_Hydrometeor):
 
         # This model tends to diverge for large drops so we threshold it to
         # a reasonable max drop size (10mm)
-        ar[D>=10.] = ar[D<=10.][-1]
+        ar[D>=10.] = (1.065 - 6.25e-2 * 10.- 3.99e-3 * 10. ** 2 +
+            7.66e-4 * 10. ** 3 - 4.095e-5 * 10. ** 4)
 
         return 1./ar

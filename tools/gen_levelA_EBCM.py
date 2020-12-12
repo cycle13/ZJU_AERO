@@ -3,7 +3,7 @@ Description: computing lookup table using pytmatrix
 Author: Hejun Xie
 Date: 2020-12-06 10:21:24
 LastEditors: Hejun Xie
-LastEditTime: 2020-12-08 12:03:36
+LastEditTime: 2020-12-12 17:29:43
 '''
 
 # unit test import
@@ -18,48 +18,36 @@ from pytmatrix import orientation
 from pytmatrix.tmatrix import Scatterer
 import multiprocessing as mp 
 from scipy import stats
+import yaml
 
 # Local imports
 from ZJU_AERO.const import global_constants as constants
 from ZJU_AERO.interp import quadrature
 from ZJU_AERO.hydro import create_hydrometeor
-from ZJU_AERO.utils import dielectric_ice
+from ZJU_AERO.utils import dielectric_ice, dielectric_water
 
-BASE_FOLDER = '../pathos/lut/tm_masc/'
-FOLDER_LUT = BASE_FOLDER
-
-# Specify if one-moment and/or two-moments lookup table should be computed, currently only
-# one moment scheme implemented
-GENERATE_1MOM = True
-GENERATE_2MOM = False
 
 # Whether to regenerate  all lookup tables, even if already present
 FORCE_REGENERATION_SCATTER_TABLES = True
 
-# The frequencies in GHz for which the lookup tables will be computed
-FREQUENCIES=[35.0]
-# Snow, graupel, hail, rain and ice, currently only snow implemented
-HYDROM_TYPES=['S'] 
 
-# D: [mm] 
-NUM_DIAMETERS = 64
-# NUM_DIAMETERS = 4
+with open('db.yaml', 'r') as yamlfile:
+    db_cfg = yaml.load(yamlfile, Loader=yaml.SafeLoader)
 
-# T: Temperature [K] 
-TEMPERATURES_SOL = np.arange(203., 283., 10.)
+# Load DBS settings
+for key in db_cfg['DBS']:
+    locals()[key] = db_cfg['DBS'][key]
 
-# AR: aspect ratio [Horizontal to rotational axis]
-AR_MIN = 1.0
-AR_MAX = 8.0
-ARS = np.arange(AR_MIN, AR_MAX, 1.)
-
-# E: elevations [deg]
-ELEVATIONS = range(0,91,1)
-# ELEVATIONS = range(0,2,1)
-
-# BETA: Euler angle beta [deg]
-BETAS = range(0,91,1)
-# BETAS = range(0,2,1)
+# Load DIMENSIONS settings:
+for key in db_cfg['DIMENSIONS']:
+    if key in ['ELEVATIONS', 'BETAS']:
+        params = db_cfg['DIMENSIONS'][key]
+        locals()[key] = np.arange(params[0], params[1], params[2])
+    else:
+        locals()[key] = db_cfg['DIMENSIONS'][key]
+    
+    if isinstance(locals()[key], list):
+        locals()[key] = np.array(locals()[key])
 
 # the key in levelA and levelB dictionaries
 real_variables      = [ 'p11_bw', 'p12_bw', 'p13_bw', 'p14_bw',
@@ -78,19 +66,22 @@ complex_variables   =  [ 's11_fw', 's12_fw',
 complex_variables_map   = { 's11_fw':(0,0), 's12_fw':(0,1), 
                             's21_fw':(1,0), 's22_fw':(1,1)}
 
-def _gen_one_tm(list_elevation, list_beta, D, T, AR, frequency, wavelength):
+def _gen_one_tm(hydrom_type, list_elevation, list_beta, D, T, AR, frequency, wavelength):
     '''
     Params:
         scatt: A scatter instance defined in pytmatrix.
         list_elevation: list of radar elevation
         list_beta: list of Euler angle beta
     '''
+    # Get m
+    if hydrom_type in ['S','G','I']:
+        m = dielectric_ice(T, frequency)
+    elif hydrom_type in ['R']:
+        m = dielectric_water(T, frequency)
 
     # Get configuration for one T-matrix
     scatt = Scatterer(radius=D/2., radius_type=Scatterer.RADIUS_MAXIMUM, 
-            wavelength=wavelength, m=dielectric_ice(T, frequency), axis_ratio=AR, ndgs=10)
-
-    # print('Dmax={:>.3f}, temperature={:>.3f}, aspect_ratio={:>.3f}'.format(D, T, AR))
+            wavelength=wavelength, m=m, axis_ratio=AR, ndgs=10)
 
     temp_dic = dict()
     dims = ['elevation', 'beta']
@@ -112,8 +103,7 @@ def _gen_one_tm(list_elevation, list_beta, D, T, AR, frequency, wavelength):
             scatt.beta_p = np.array([beta], dtype='float32')
             scatt.beta_w = np.array([1.], dtype='float32')
             scatt.orient = orientation.orient_averaged_fixed
-            scatt.n_alpha = 5
-            
+            scatt.n_alpha = NALPHA
 
             loc_dict = dict(elevation=elevation, beta=beta)
             
@@ -121,7 +111,6 @@ def _gen_one_tm(list_elevation, list_beta, D, T, AR, frequency, wavelength):
             scatt.set_geometry(geom_back)
             Z = scatt.get_Z()
             # print(Z)
-            
             
             for real_variable in real_variables:
                 real_index = real_variables_map[real_variable]
@@ -141,12 +130,21 @@ def _gen_one_tm(list_elevation, list_beta, D, T, AR, frequency, wavelength):
     # exit()
 
     del scatt
-    return (temp_lut, D, T, AR)
+
+    if ARS[hydrom_type] != 'SINGLE':
+        return (temp_lut, D, T, AR)
+    else:
+        return (temp_lut, D, T, None)
 
 def assign_dataset_pieces(pack):
     ds, D, T, AR = pack[0], pack[1], pack[2], pack[3]
-    print('Dmax={:>.3f}, temperature={:>.3f}, aspect_ratio={:>.3f}'.format(D, T, AR))
-    loc_dict = dict(Dmax=D, temperature=T, aspect_ratio=AR)
+    
+    if AR is not None:
+        print('Dmax={:>.3f}, temperature={:>.3f}, aspect_ratio={:>.3f}'.format(D, T, AR))
+        loc_dict = dict(Dmax=D, temperature=T, aspect_ratio=AR)
+    else:
+        print('Dmax={:>.3f}, temperature={:>.3f}'.format(D, T))
+        loc_dict = dict(Dmax=D, temperature=T)
     
     for real_variable in real_variables:
         levela_lut[real_variable].loc[loc_dict] = ds[real_variable]
@@ -173,10 +171,18 @@ def gen_levelA(hydrom_type, frequency, levela_name_lut):
     
     list_D = np.linspace(hydrom.d_min, hydrom.d_max, NUM_DIAMETERS).astype('float32') # [mm]
     wavelength=constants.C / (frequency * 1E09) * 1000 # [mm]
-    list_temperature = TEMPERATURES_SOL # [K]
     list_elevation = ELEVATIONS # [deg]
     list_beta = BETAS # [deg]
-    list_AR = ARS # [ar<1. for snowplates]
+    # Get list_temperature [K]
+    if hydrom_type in ['S','G','I']:
+        list_temperature = TEMPERATURES_SOL 
+    elif hydrom_type in ['R']:
+        list_temperature = TEMPERATURES_LIQ
+    # Get list_AR [ar<1. for snowplates]
+    if ARS[hydrom_type] != 'SINGLE':
+        list_AR = np.array(ARS[hydrom_type])
+    else:
+        list_AR = [None]
 
     # start formulating the levelB database
     dims = ['aspect_ratio', 'temperature', 'Dmax', 'beta', 'elevation']
@@ -185,6 +191,9 @@ def gen_levelA(hydrom_type, frequency, levela_name_lut):
         'Dmax': list_D, 
         'beta': list_beta,
         'elevation': list_elevation}
+    if isinstance(list_AR, list): # == [None]
+        coords.pop('aspect_ratio')
+        dims.remove('aspect_ratio')
     size = tuple([len(coords[dim]) for dim in dims])
     datadic = {}
     for real_variable in real_variables:
@@ -192,21 +201,21 @@ def gen_levelA(hydrom_type, frequency, levela_name_lut):
     for complex_variable in complex_variables:
         datadic[complex_variable] = (dims, np.empty(size, dtype='complex64'))
     levela_lut = xr.Dataset(datadic, coords)
-    
 
     # pool = mp.Pool(processes=mp.cpu_count(), maxtasksperchild=1)
     pool = mp.Pool(processes=mp.cpu_count())
     for D in list_D:
         for T in list_temperature:
             for AR in list_AR:
-                # print('Dmax={:>.3f}, temperature={:>.3f}, aspect_ratio={:>.3f}'.format(D, T, AR))
-                '''
-                1. The args should have no user defined class
-                ''' 
+                if AR is None:
+                    AR = hydrom.get_aspect_ratio(D)
                 # pack = _gen_one_tm(list_elevation, list_beta, D, T, AR, frequency, wavelength)
                 # assign_dataset_pieces(pack)
-                # exit()            
-                args = (list_elevation, list_beta, D, T, AR, frequency, wavelength)
+                # exit()
+                '''
+                1. The args should have no user defined class
+                '''            
+                args = (hydrom_type, list_elevation, list_beta, D, T, AR, frequency, wavelength)
                 pool.apply_async(_gen_one_tm, args=args, callback=assign_dataset_pieces)
     
     # Gather processes of multiprocess
