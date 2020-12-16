@@ -3,7 +3,7 @@ Description: computing lookup table using pytmatrix
 Author: Hejun Xie
 Date: 2020-12-06 10:21:24
 LastEditors: Hejun Xie
-LastEditTime: 2020-12-12 17:29:43
+LastEditTime: 2020-12-16 08:19:49
 '''
 
 # unit test import
@@ -180,7 +180,8 @@ def gen_levelA(hydrom_type, frequency, levela_name_lut):
         list_temperature = TEMPERATURES_LIQ
     # Get list_AR [ar<1. for snowplates]
     if ARS[hydrom_type] != 'SINGLE':
-        list_AR = np.array(ARS[hydrom_type])
+        params = ARS[hydrom_type]
+        list_AR = np.arange(params[0], params[1], params[2])
     else:
         list_AR = [None]
 

@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-25 17:05:10
+LastEditTime: 2020-12-15 14:13:48
 '''
 
 # Global import
@@ -114,22 +114,22 @@ class ConstantClass(object):
         # TODO: suspiciously inaccurate, but we have no MASC database accessment.
         # 3.1 Axis-ratios:
         # 3.1.1 Aggregates (Snow)
-        self.A_AR_LAMBDA_AGG =  8.42003348664
-        self.B_AR_LAMBDA_AGG =  -0.568465084269
-        self.A_AR_M_AGG =  0.0527252217284
-        self.B_AR_M_AGG = -0.792594862923
+        self.A_AR_LAMBDA_AGG =  8.42
+        self.B_AR_LAMBDA_AGG =  -0.57
+        self.A_AR_M_AGG =  0.053
+        self.B_AR_M_AGG = 0.79
         # 3.2.2 Graupel
-        self.A_AR_LAMBDA_GRAU =  1.97869286543
-        self.B_AR_LAMBDA_GRAU =  -0.426770312328
-        self.A_AR_M_GRAU =  0.0743715480794
-        self.B_AR_M_GRAU =  -0.672627814141
+        self.A_AR_LAMBDA_GRAU =  3.2
+        self.B_AR_LAMBDA_GRAU =  -0.42
+        self.A_AR_M_GRAU =  0.074
+        self.B_AR_M_GRAU =  0.67
         # 3.2 Canting angles std:
         # 3.2.1 Aggregates (Snow)
-        self.A_CANT_STD_AGG = 30.2393875
-        self.B_CANT_STD_AGG = -0.077397563
+        self.A_CANT_STD_AGG = 30.0
+        self.B_CANT_STD_AGG = -0.077
         # 3.2.2 Graupel
-        self.A_CANT_STD_GRAU = 26.65795932
-        self.B_CANT_STD_GRAU = -0.10082787
+        self.A_CANT_STD_GRAU = 40.0
+        self.B_CANT_STD_GRAU = -0.11
 
         # 4. some missing global constant
         self.T_K_SQUARED = 283.15       # [K] Tk = 10 Celsius degree
