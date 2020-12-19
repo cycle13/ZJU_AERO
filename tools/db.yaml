@@ -1,8 +1,8 @@
 DBS:
   FOLDER_LUT: '../pathos/lut/tm_masc/' # place to hold database files
   LEVELA_TYPE: 'TM' # 'IITM' or 'TM'
-  FREQUENCIES: [35.0] # The frequencies in GHz for which the lookup tables will be computed
-  HYDROM_TYPES: ['S', 'G', 'I', 'R'] # Snow, graupel, hail, rain and ice, currently only snow implemented
+  FREQUENCIES: [9.41] # The frequencies in GHz for which the lookup tables will be computed
+  HYDROM_TYPES: ['S'] # Snow, graupel, hail, rain and ice, currently only snow implemented
 DIMENSIONS:
   # D: Maximum Diameter [mm], DMAX and DMIN depends on hydrometeor settings
   # NUM_DIAMETERS: 4
