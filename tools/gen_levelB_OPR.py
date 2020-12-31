@@ -4,7 +4,7 @@ FOR OPERATIONAL USE
 Author: Hejun Xie
 Date: 2020-09-18 10:16:55
 LastEditors: Hejun Xie
-LastEditTime: 2020-12-16 09:55:36
+LastEditTime: 2020-12-31 18:47:18
 '''
 
 # unit test import
@@ -181,7 +181,9 @@ def _integrate_over_pdf(hydrom, hydrom_type, frequency, elevation, temperature, 
     
     ds_out = xr.Dataset(datadic, coords=coords)
 
+    # print(ds_out.data_vars['p12_bw'])
     # print(ds_out)
+    
     return (ds_out, temperature, elevation)
 
 def assign_dataset_pieces(pack):
@@ -249,7 +251,7 @@ def sz_lut(hydrom_type, frequency, levela_name_lut, levelb_name_lut):
         pool = mp.Pool(processes=mp.cpu_count())
         for e in list_elevation:
             for t in list_temperature:
-                # pack = _integrate_over_pdf(hydrom, frequency, e, t, list_D, list_beta, list_asp)
+                # pack = _integrate_over_pdf(hydrom, hydrom_type, frequency, e, t, list_D, list_beta, list_asp)
                 # assign_dataset_pieces(pack)
                 # exit()
                 args = (hydrom, hydrom_type, frequency, e, t, list_D, list_beta, list_asp)
@@ -258,6 +260,8 @@ def sz_lut(hydrom_type, frequency, levela_name_lut, levelb_name_lut):
         # Gather processes of multiprocess
         pool.close()
         pool.join()
+
+        # pack = _integrate_over_pdf(hydrom, hydrom_type, frequency, 1., 253., list_D, list_beta, list_asp)
 
         levelb_lut.to_netcdf(levelb_name_lut, engine="h5netcdf")
         

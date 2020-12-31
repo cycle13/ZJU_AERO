@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-12-15 14:13:48
+LastEditTime: 2020-12-31 16:48:29
 '''
 
 # Global import
@@ -125,7 +125,8 @@ class ConstantClass(object):
         self.B_AR_M_GRAU =  0.67
         # 3.2 Canting angles std:
         # 3.2.1 Aggregates (Snow)
-        self.A_CANT_STD_AGG = 30.0
+        # self.A_CANT_STD_AGG = 30.0
+        self.A_CANT_STD_AGG = 40.0
         self.B_CANT_STD_AGG = -0.077
         # 3.2.2 Graupel
         self.A_CANT_STD_GRAU = 40.0
