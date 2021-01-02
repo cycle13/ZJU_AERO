@@ -3,7 +3,7 @@ Description: test level A and Level B database
 Author: Hejun Xie
 Date: 2020-12-30 15:11:58
 LastEditors: Hejun Xie
-LastEditTime: 2021-01-02 18:11:37
+LastEditTime: 2021-01-02 19:07:54
 '''
 
 # unit test import
@@ -17,11 +17,39 @@ import numpy as np
 # Local imports
 from ZJU_AERO.db import load_lut
 
+# plot settings
+from mpl_toolkits.basemap import Basemap
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+plt.rcParams['font.family'] = 'serif'
+
+
 IITM_LEVELA = '../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelA.nc'
 IITM_LEVELB = '../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc'
 IITM_LEVELB_EXP = '../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB_exp/t253.0e1.0.nc'
 TM_LEVELA = '../pathos/lut/tm_masc/lut_SZ_S_9_41_1mom_LevelA.nc'
 TM_LEVELB = '../pathos/lut/tm_masc/lut_SZ_S_9_41_1mom_LevelB.nc'
+
+def plot(ptype, iitm_data, tm_data, Dmax, picname):
+
+    fig, ax = plt.subplots(figsize=(12,6))
+    
+    ax.plot(Dmax,   tm_data, color='r', label='IITM hexagon'  )
+    ax.plot(Dmax, iitm_data, color='b', label='EBCM spheroid' )
+
+    ax.set_xlabel(r'Dmax [$mm$]', fontsize=14)
+
+    if ptype == 'ZDR':
+        ax.set_ylabel(r'$Z_{DR}$ [dBZ]', fontsize=14)
+    elif ptype == 'KDP':
+        ax.set_ylabel(r'$K_{DP}$ [-]', fontsize=14)
+        # ax.set_yscale('log')
+
+    ax.legend(loc='best', frameon=False, fontsize=10)
+
+    plt.savefig(picname, dpi=300)
+    plt.close()
 
 if __name__ == "__main__":
 
@@ -32,12 +60,12 @@ if __name__ == "__main__":
     # sz = db.lookup_line(e=[1.], t=[253.]).squeeze()
     # db.close()
 
-    # print(sz.shape)
-
     # zdr = (sz[:,0]-sz[:,1]-sz[:,2]+sz[:,3]) / (sz[:,0]+sz[:,1]+sz[:,2]+sz[:,3])
+    # kdp = sz[:,10]-sz[:,8]
     # ZDR = 10 * np.log10(zdr)
 
     # print(ZDR)
+    # print(kdp)
     # exit()
     
 
@@ -45,6 +73,7 @@ if __name__ == "__main__":
     1. LEVELB ZDR
     '''
     with xr.open_dataset(IITM_LEVELB, engine="h5netcdf") as iitm_levelb:
+        Dmax = iitm_levelb.coords['Dmax'].data
         # iitm_slice = iitm_levelb.sel(temperature=253, elevation=1.0, Dmax=20.0, method='nearest')
         iitm_slice = iitm_levelb.sel(temperature=253, elevation=1.0, method='nearest')
         iitm_zdr = (iitm_slice['p11_bw'] - iitm_slice['p12_bw'] - \
@@ -63,10 +92,8 @@ if __name__ == "__main__":
         tm_ZDR = 10 * np.log10(tm_zdr.data)
         tm_kdp = tm_slice['s22_fw'].data.real - tm_slice['s11_fw'].data.real
     
-    print(iitm_ZDR)
-    print(tm_ZDR)
-    # print(iitm_kdp)
-    # print(tm_kdp)
+    plot('ZDR', iitm_ZDR, tm_ZDR, Dmax, 'ZDR_LEVELB.png')
+    plot('KDP', iitm_kdp, tm_kdp, Dmax, 'KDP_LEVELB.png')
     # exit()
 
     '''
@@ -97,8 +124,6 @@ if __name__ == "__main__":
 
         iitm_slice = iitm_levela.sel(temperature=253, aspect_ratio=AR,
         beta=BETA, elevation=1.0, method='nearest')
-        
-        # iitm_slice = iitm_levela.sel(temperature=253, elevation=1.0, Dmax=20.0, method='nearest')
 
         iitm_zh = 2 * np.pi * (iitm_slice['p11_bw'] - iitm_slice['p12_bw'] - \
             iitm_slice['p21_bw'] + iitm_slice['p22_bw'])
@@ -115,8 +140,6 @@ if __name__ == "__main__":
         tm_slice = tm_levela.sel(temperature=253, aspect_ratio=AR,
         beta=BETA, elevation=1.0, method='nearest')
 
-        # tm_slice = tm_levela.sel(temperature=253, elevation=1.0, Dmax=20.0, method='nearest')
-
         tm_zh = 2 * np.pi * (tm_slice['p11_bw'] - tm_slice['p12_bw'] - \
             tm_slice['p21_bw'] + tm_slice['p22_bw'])
         
@@ -130,9 +153,5 @@ if __name__ == "__main__":
     iitm_ZDR = 10 * np.log10(iitm_zdr.data)
     tm_ZDR = 10 * np.log10(tm_zdr.data)
     
-    # print(iitm_ZDR.min(), iitm_ZDR.max(), iitm_ZDR.mean())
-    # print(tm_ZDR.min(), tm_ZDR.max(), tm_ZDR.mean())
-    print(iitm_ZDR)
-    print(tm_ZDR)
-    # print(iitm_kdp)
-    # print(tm_kdp)
+    plot('ZDR', iitm_ZDR, tm_ZDR, Dmax, 'ZDR_LEVELA.png')
+    plot('KDP', iitm_kdp, tm_kdp, Dmax, 'KDP_LEVELA.png')
