@@ -3,11 +3,19 @@ Description: test level A and Level B database
 Author: Hejun Xie
 Date: 2020-12-30 15:11:58
 LastEditors: Hejun Xie
-LastEditTime: 2021-01-02 17:19:15
+LastEditTime: 2021-01-02 18:11:37
 '''
 
+# unit test import
+import sys
+sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
+
+# Global imports
 import xarray as xr
 import numpy as np
+
+# Local imports
+from ZJU_AERO.db import load_lut
 
 IITM_LEVELA = '../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelA.nc'
 IITM_LEVELB = '../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc'
@@ -16,6 +24,22 @@ TM_LEVELA = '../pathos/lut/tm_masc/lut_SZ_S_9_41_1mom_LevelA.nc'
 TM_LEVELB = '../pathos/lut/tm_masc/lut_SZ_S_9_41_1mom_LevelB.nc'
 
 if __name__ == "__main__":
+
+    '''
+    0. LEVELB API
+    '''
+    # db = load_lut(IITM_LEVELB, engine='xarray')
+    # sz = db.lookup_line(e=[1.], t=[253.]).squeeze()
+    # db.close()
+
+    # print(sz.shape)
+
+    # zdr = (sz[:,0]-sz[:,1]-sz[:,2]+sz[:,3]) / (sz[:,0]+sz[:,1]+sz[:,2]+sz[:,3])
+    # ZDR = 10 * np.log10(zdr)
+
+    # print(ZDR)
+    # exit()
+    
 
     '''
     1. LEVELB ZDR
@@ -27,7 +51,7 @@ if __name__ == "__main__":
            iitm_slice['p21_bw'] + iitm_slice['p22_bw']) / \
           (iitm_slice['p11_bw'] + iitm_slice['p12_bw'] + \
            iitm_slice['p21_bw'] + iitm_slice['p22_bw'])
-        iitm_ZDR = np.log10(iitm_zdr.data)
+        iitm_ZDR = 10 * np.log10(iitm_zdr.data)
         iitm_kdp = iitm_slice['s22_fw'].data.real - iitm_slice['s11_fw'].data.real
     
     with xr.open_dataset(TM_LEVELB, engine="h5netcdf") as tm_levelb:
@@ -36,7 +60,7 @@ if __name__ == "__main__":
            tm_slice['p21_bw'] + tm_slice['p22_bw']) / \
           (tm_slice['p11_bw'] + tm_slice['p12_bw'] + \
            tm_slice['p21_bw'] + tm_slice['p22_bw'])
-        tm_ZDR = np.log10(tm_zdr.data)
+        tm_ZDR = 10 * np.log10(tm_zdr.data)
         tm_kdp = tm_slice['s22_fw'].data.real - tm_slice['s11_fw'].data.real
     
     print(iitm_ZDR)
@@ -64,8 +88,8 @@ if __name__ == "__main__":
     '''
     3. LEVELA ZDR
     '''
-    AR = 1.4
-    BETA = 20.0
+    AR = 1.5
+    BETA = 30.0
 
     wavelength = 299792458. / (9.41E09) * 1000 # [mm]
     
@@ -103,8 +127,8 @@ if __name__ == "__main__":
 
         tm_kdp = tm_slice['s22_fw'].data.real - tm_slice['s11_fw'].data.real
 
-    iitm_ZDR = np.log10(iitm_zdr.data)
-    tm_ZDR = np.log10(tm_zdr.data)
+    iitm_ZDR = 10 * np.log10(iitm_zdr.data)
+    tm_ZDR = 10 * np.log10(tm_zdr.data)
     
     # print(iitm_ZDR.min(), iitm_ZDR.max(), iitm_ZDR.mean())
     # print(tm_ZDR.min(), tm_ZDR.max(), tm_ZDR.mean())
