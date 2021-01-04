@@ -3,7 +3,7 @@ Description: computing lookup table using pytmatrix
 Author: Hejun Xie
 Date: 2020-12-06 10:21:24
 LastEditors: Hejun Xie
-LastEditTime: 2020-12-16 08:19:49
+LastEditTime: 2021-01-04 21:34:03
 '''
 
 # unit test import
@@ -96,10 +96,14 @@ def _gen_one_tm(hydrom_type, list_elevation, list_beta, D, T, AR, frequency, wav
     temp_lut = xr.Dataset(temp_dic, coords)
     
     for elevation in list_elevation:
+        # elevation = 1.0
+
         geom_back=(90-elevation, 180-(90-elevation), 0., 180, 0.0, 0.0)
         geom_forw=(90-elevation, 90-elevation, 0., 0.0, 0.0, 0.0)
 
         for beta in list_beta:
+            # beta = 30.0
+            
             scatt.beta_p = np.array([beta], dtype='float32')
             scatt.beta_w = np.array([1.], dtype='float32')
             scatt.orient = orientation.orient_averaged_fixed
@@ -110,7 +114,10 @@ def _gen_one_tm(hydrom_type, list_elevation, list_beta, D, T, AR, frequency, wav
             # Back Scattering Z
             scatt.set_geometry(geom_back)
             Z = scatt.get_Z()
+            # zdr = (Z[0,0] - Z[0,1] - Z[1,0] + Z[1,1]) / (Z[0,0] + Z[0,1] + Z[1,0] + Z[1,1])
+            # ZDR = 10 * np.log10(zdr)
             # print(Z)
+            # print(ZDR)
             
             for real_variable in real_variables:
                 real_index = real_variables_map[real_variable]
@@ -119,7 +126,9 @@ def _gen_one_tm(hydrom_type, list_elevation, list_beta, D, T, AR, frequency, wav
             # Forward Scattering S
             scatt.set_geometry(geom_forw)
             S = scatt.get_S()
+            # kdp = S[1,1].real - S[0,0].real 
             # print(S)
+            # print(kdp)
 
             for complex_variable in complex_variables:
                 complex_index = complex_variables_map[complex_variable]
@@ -146,10 +155,15 @@ def assign_dataset_pieces(pack):
         print('Dmax={:>.3f}, temperature={:>.3f}'.format(D, T))
         loc_dict = dict(Dmax=D, temperature=T)
     
+    '''
+    There is an annoying issue with the value assignment
+    for xarray DataArray using '.loc', we just transpose the two-dimension array
+    to fix the issue.
+    '''
     for real_variable in real_variables:
-        levela_lut[real_variable].loc[loc_dict] = ds[real_variable]
+        levela_lut[real_variable].loc[loc_dict] = np.transpose(ds[real_variable].data)
     for complex_variable in complex_variables:
-        levela_lut[complex_variable].loc[loc_dict] = ds[complex_variable]
+        levela_lut[complex_variable].loc[loc_dict] = np.transpose(ds[complex_variable].data)
     
     del ds
     return
@@ -195,6 +209,8 @@ def gen_levelA(hydrom_type, frequency, levela_name_lut):
     if isinstance(list_AR, list): # == [None]
         coords.pop('aspect_ratio')
         dims.remove('aspect_ratio')
+    # print(coords)
+    # exit()
     size = tuple([len(coords[dim]) for dim in dims])
     datadic = {}
     for real_variable in real_variables:
@@ -210,7 +226,7 @@ def gen_levelA(hydrom_type, frequency, levela_name_lut):
             for AR in list_AR:
                 if AR is None:
                     AR = hydrom.get_aspect_ratio(D)
-                # pack = _gen_one_tm(list_elevation, list_beta, D, T, AR, frequency, wavelength)
+                # pack = _gen_one_tm(hydrom_type, list_elevation, list_beta, D, T, AR, frequency, wavelength)
                 # assign_dataset_pieces(pack)
                 # exit()
                 '''
@@ -223,7 +239,11 @@ def gen_levelA(hydrom_type, frequency, levela_name_lut):
     pool.close()
     pool.join()
 
-    print(levela_lut)
+    # pack = _gen_one_tm(hydrom_type, list_elevation, list_beta, 20.0, 253.0, 1.5, frequency, wavelength)
+    # assign_dataset_pieces(pack)
+
+    # print(levela_lut)
+    print(levela_name_lut)
 
     levela_lut.to_netcdf(levela_name_lut, engine="h5netcdf")
 

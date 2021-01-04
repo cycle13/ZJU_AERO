@@ -1,6 +1,6 @@
 DBS:
-  FOLDER_LUT: '../pathos/lut/iitm_masc/' # place to hold database files
-  LEVELA_TYPE: 'IITM' # 'IITM' or 'TM'
+  FOLDER_LUT: '../pathos/lut/tm_masc/' # place to hold database files
+  LEVELA_TYPE: 'TM' # 'IITM' or 'TM'
   FREQUENCIES: [9.41] # The frequencies in GHz for which the lookup tables will be computed
   HYDROM_TYPES: ['S'] # Snow, graupel, hail, rain and ice, currently only snow implemented
 DIMENSIONS:
@@ -8,6 +8,7 @@ DIMENSIONS:
   # NUM_DIAMETERS: 4
   NUM_DIAMETERS: 64
   # T: Temperature [K] for solid hydrometeors
+  # TEMPERATURES_SOL: [253]
   TEMPERATURES_SOL: [203, 213, 223, 233, 243, 253, 263, 273] 
   # T: Temperature [K] for liquid hydrometeors
   TEMPERATURES_LIQ: [268, 273, 278, 283, 288, 293, 298, 303, 308, 313, 318] 
@@ -19,10 +20,10 @@ DIMENSIONS:
     R: 'SINGLE'
     I: 'SINGLE'
   # ELEVATIONS: elevations [deg]
-  # ELEVATIONS: [0, 2, 1] # np.arange
+  # ELEVATIONS: [1, 3, 1] # np.arange
   ELEVATIONS: [0, 91, 1] # np.arange
   # BETAS: Euler angle beta [deg]
-  # BETAS: [0, 2, 1] # np.arange
+  # BETAS: [30, 32, 1] # np.arange
   BETAS: [0, 91, 1] # np.arange
   # NALPHA: setting for pytmatrix averaging over angles
   NALPHA: 5
