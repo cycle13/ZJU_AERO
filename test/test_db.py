@@ -3,7 +3,7 @@ Description: test level A and Level B database
 Author: Hejun Xie
 Date: 2020-12-30 15:11:58
 LastEditors: Hejun Xie
-LastEditTime: 2021-01-03 14:55:15
+LastEditTime: 2021-01-05 10:24:44
 '''
 
 # unit test import
@@ -72,28 +72,28 @@ if __name__ == "__main__":
     '''
     1. LEVELB ZDR
     '''
-    # with xr.open_dataset(IITM_LEVELB, engine="h5netcdf") as iitm_levelb:
-    #     Dmax = iitm_levelb.coords['Dmax'].data
-    #     # iitm_slice = iitm_levelb.sel(temperature=253, elevation=1.0, Dmax=20.0, method='nearest')
-    #     iitm_slice = iitm_levelb.sel(temperature=253, elevation=1.0, method='nearest')
-    #     iitm_zdr = (iitm_slice['p11_bw'] - iitm_slice['p12_bw'] - \
-    #        iitm_slice['p21_bw'] + iitm_slice['p22_bw']) / \
-    #       (iitm_slice['p11_bw'] + iitm_slice['p12_bw'] + \
-    #        iitm_slice['p21_bw'] + iitm_slice['p22_bw'])
-    #     iitm_ZDR = 10 * np.log10(iitm_zdr.data)
-    #     iitm_kdp = iitm_slice['s22_fw'].data.real - iitm_slice['s11_fw'].data.real
+    with xr.open_dataset(IITM_LEVELB, engine="h5netcdf") as iitm_levelb:
+        Dmax = iitm_levelb.coords['Dmax'].data
+        # iitm_slice = iitm_levelb.sel(temperature=253, elevation=1.0, Dmax=20.0, method='nearest')
+        iitm_slice = iitm_levelb.sel(temperature=253, elevation=1.0, method='nearest')
+        iitm_zdr = (iitm_slice['p11_bw'] - iitm_slice['p12_bw'] - \
+           iitm_slice['p21_bw'] + iitm_slice['p22_bw']) / \
+          (iitm_slice['p11_bw'] + iitm_slice['p12_bw'] + \
+           iitm_slice['p21_bw'] + iitm_slice['p22_bw'])
+        iitm_ZDR = 10 * np.log10(iitm_zdr.data)
+        iitm_kdp = iitm_slice['s22_fw'].data.real - iitm_slice['s11_fw'].data.real
     
-    # with xr.open_dataset(TM_LEVELB, engine="h5netcdf") as tm_levelb:
-    #     tm_slice = tm_levelb.sel(temperature=253, elevation=1.0, method='nearest')
-    #     tm_zdr = (tm_slice['p11_bw'] - tm_slice['p12_bw'] - \
-    #        tm_slice['p21_bw'] + tm_slice['p22_bw']) / \
-    #       (tm_slice['p11_bw'] + tm_slice['p12_bw'] + \
-    #        tm_slice['p21_bw'] + tm_slice['p22_bw'])
-    #     tm_ZDR = 10 * np.log10(tm_zdr.data)
-    #     tm_kdp = tm_slice['s22_fw'].data.real - tm_slice['s11_fw'].data.real
+    with xr.open_dataset(TM_LEVELB, engine="h5netcdf") as tm_levelb:
+        tm_slice = tm_levelb.sel(temperature=253, elevation=1.0, method='nearest')
+        tm_zdr = (tm_slice['p11_bw'] - tm_slice['p12_bw'] - \
+           tm_slice['p21_bw'] + tm_slice['p22_bw']) / \
+          (tm_slice['p11_bw'] + tm_slice['p12_bw'] + \
+           tm_slice['p21_bw'] + tm_slice['p22_bw'])
+        tm_ZDR = 10 * np.log10(tm_zdr.data)
+        tm_kdp = tm_slice['s22_fw'].data.real - tm_slice['s11_fw'].data.real
     
-    # plot('ZDR', iitm_ZDR, tm_ZDR, Dmax, 'ZDR_LEVELB.png')
-    # plot('KDP', iitm_kdp, tm_kdp, Dmax, 'KDP_LEVELB.png')
+    plot('ZDR', iitm_ZDR, tm_ZDR, Dmax, 'ZDR_LEVELB.png')
+    plot('KDP', iitm_kdp, tm_kdp, Dmax, 'KDP_LEVELB.png')
     # exit()
 
     '''
@@ -137,11 +137,11 @@ if __name__ == "__main__":
     
     with xr.open_dataset(TM_LEVELA, engine="h5netcdf") as tm_levela:
 
-        # tm_slice = tm_levela.sel(temperature=253, aspect_ratio=AR,
-        # beta=BETA, elevation=1.0, method='nearest')
+        tm_slice = tm_levela.sel(temperature=253, aspect_ratio=AR,
+        beta=BETA, elevation=1.0, method='nearest')
 
-        tm_slice = tm_levela.sel(temperature=253, aspect_ratio=1.5,
-        beta=30.0, elevation=1.0, Dmax=20.0, method='nearest')
+        # tm_slice = tm_levela.sel(temperature=253, aspect_ratio=1.5,
+        # beta=30.0, elevation=1.0, Dmax=20.0, method='nearest')
 
         tm_zh = 2 * np.pi * (tm_slice['p11_bw'] - tm_slice['p12_bw'] - \
             tm_slice['p21_bw'] + tm_slice['p22_bw'])
@@ -156,8 +156,8 @@ if __name__ == "__main__":
     iitm_ZDR = 10 * np.log10(iitm_zdr.data)
     tm_ZDR = 10 * np.log10(tm_zdr.data)
 
-    print(tm_ZDR)
-    print(tm_kdp)
+    # print(tm_ZDR)
+    # print(tm_kdp)
     
-    # plot('ZDR', iitm_ZDR, tm_ZDR, Dmax, 'ZDR_LEVELA.png')
-    # plot('KDP', iitm_kdp, tm_kdp, Dmax, 'KDP_LEVELA.png')
+    plot('ZDR', iitm_ZDR, tm_ZDR, Dmax, 'ZDR_LEVELA.png')
+    plot('KDP', iitm_kdp, tm_kdp, Dmax, 'KDP_LEVELA.png')
