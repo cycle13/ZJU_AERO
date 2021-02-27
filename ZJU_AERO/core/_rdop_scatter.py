@@ -4,7 +4,7 @@ from the interpolated radials given by NWP models
 Author: Hejun Xie
 Date: 2020-10-12 10:45:48
 LastEditors: Hejun Xie
-LastEditTime: 2021-01-02 18:15:15
+LastEditTime: 2021-02-27 16:04:18
 '''
 
 # Global imports
@@ -47,6 +47,9 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
     integration_scheme = CONFIG['integration']['scheme'] # TODO only Guass-Hermite intergration (scheme 1) 
     nyquist_velocity = CONFIG['radar']['nyquist_velocity']
     simulate_doppler = CONFIG['core']['simulate_doppler']
+
+    # Constants
+    RHO_0 = constants.RHO_0 # Air Density at mean sea level [kg*m-3]
 
     # No doppler for spaceborne radar
     if CONFIG['radar']['type'] == 'spaceborne':
@@ -111,8 +114,9 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
         if simulate_doppler:
             # Obtain hydrometeor average fall velocity
             v_hydro = vn_integ / n_integ
-            # Add density weighting
-            v_hydro * (subrad.values['RHO'] / subrad.values['RHO'][0])**(0.5)
+            # Add density adjustments
+            # rho_air in unit [kg*m-3]
+            v_hydro *= (RHO_0 / subrad.values['RHO'])**(0.5)
 
             # Get radial velocity knowing hydrometeor fall speed and U,V,W from model
             theta_deg   = subrad.elev_profile
