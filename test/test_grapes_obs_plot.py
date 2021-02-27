@@ -3,7 +3,7 @@ Description: plot beijing 20191129 case
 Author: Hejun Xie
 Date: 2020-11-03 16:17:53
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-24 21:33:55
+LastEditTime: 2021-02-27 10:48:38
 '''
 
 import pycwr
@@ -39,7 +39,7 @@ plt.figure()
 
 fields  = ['reflectivity', 'differential_reflectivity', 'velocity', 'specific_differential_phase']
 vrange  = {'reflectivity':  (0, 40),
-        'differential_reflectivity': (0, 2),
+        'differential_reflectivity': (0, 0.5),
         'velocity': (-15, 15),
         'specific_differential_phase': (-1, 6)}
 cmap    = {'reflectivity':  'pyart_Carbone11',

@@ -24,4 +24,4 @@ microphysics:
     scattering: 'tmatrix_masc'
     scattering_S: 'iitm_masc'
     with_attenuation: 1
-    with_ice_crystals: 1
+    with_ice_crystals: 0

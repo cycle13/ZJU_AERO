@@ -3,7 +3,7 @@ Description: test GRAPES interface for radar operator
 Author: Hejun Xie
 Date: 2020-11-02 16:17:47
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-22 15:02:49
+LastEditTime: 2021-02-27 10:32:35
 '''
 
 # unit test import
@@ -32,7 +32,7 @@ DEG = r'$^\circ$'
 fields  = ['ZH', 'RVEL', 'ZDR']
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17'}
 vrange  = {'ZH':  (0, 40),
-        'ZDR': (0, 2),
+        'ZDR': (0, 0.5),
         'RVEL': (-15, 15)}
 cmap    = {'ZH':  'pyart_Carbone11',
         'ZDR': 'pyart_Carbone11',
