@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-22 19:35:19
+LastEditTime: 2021-02-27 22:10:31
 '''
 
 
@@ -731,3 +731,40 @@ class RadarOperator(object):
                                                     (nscan,npixel))
 
             return list_beams_formatted
+
+    def get_VPROF(self):
+        '''
+        Simulates a 90° elevation profile based on the user configuration
+
+        Returns:
+            A vertical profile at 90° elevation
+        '''
+
+        # Check if model file has been loaded
+        if self.dic_vars=={}:
+            print('No model file has been loaded! Aborting...')
+            return
+
+        # Needs to be done in order to deal with Multiprocessing's annoying limitations
+        global dic_vars, N, lut_sz, output_variables
+        dic_vars, N, lut_sz, output_variables = self.define_globals()
+
+        # Radar ranges
+        rranges = constants.RANGE_RADAR
+
+        list_subradials = get_interpolated_radial(dic_vars, 0.0, 90.0, N)
+
+        output = get_radar_observables(list_subradials, lut_sz)
+
+        # Cut at given sensitivity
+        output = cut_at_sensitivity([output])[0]
+
+        if output_variables == 'all':
+            output = combine_subradials((output, integrate_radials(list_subradials)))
+
+        del dic_vars
+        del N
+        del lut_sz
+        gc.collect()
+
+        return output
