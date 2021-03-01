@@ -4,7 +4,7 @@ config subpackage.
 Author: Hejun Xie
 Date: 2020-11-21 11:07:03
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-21 23:18:07
+LastEditTime: 2021-03-01 18:58:40
 '''
 
 # Local imports, see config_types.py for the definition of Range and TypeList
@@ -25,7 +25,7 @@ DEFAULTS={
         'radial_resolution': 500,
         'sensitivity': [-5, 10000],
         '3dB_beamwidth': 1.,
-        'PRI': 700,
+        'PRI': 700, # Pulse Repetition Interval [us]
         'FFT_length': 256,
         'nyquist_velocity': None},
     'refraction':
@@ -40,7 +40,8 @@ DEFAULTS={
          'modeltop': 'default'},
     'core':
         {'simulate_doppler': 1,
-        'scheme': 1,
+         'doppler_scheme': 1,
+         'doppler_spectrum': 0,
         'engine': 'rdop'},
     'microphysics':
         {'scheme': '1mom',
@@ -80,7 +81,8 @@ VALID_VALUES={
          'modeltop': [float, 'default']}, # default: wrf=20km, grapes=30km
     'core':
         {'simulate_doppler': [0, 1],
-        'scheme': 1,
+         'doppler_scheme': [1, 2],
+         'doppler_spectrum': [0, 1],
         'engine': ['rdop', 'wrfda']},
     'microphysics':
         {'scheme': ['1mom', '2mom'],

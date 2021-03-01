@@ -3,8 +3,7 @@ radar:
     range: 200000
     frequency: 9.41
     radial_resolution: 75
-    PRI: 700
-    FFT_length: 128
+    FFT_length: 16
     sensitivity: [-15, 10000]
     3dB_beamwidth: 0.9972
     nyquist_velocity: 15.010451
@@ -18,6 +17,8 @@ nwp:
     name: 'grapes'
 core:
     engine: 'rdop'
+    doppler_scheme: 2
+    doppler_spectrum: 1
 microphysics:
     scheme: '1mom'
     folder_lut: '../pathos/lut/'

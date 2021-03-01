@@ -4,18 +4,19 @@ from the interpolated radials given by NWP models
 Author: Hejun Xie
 Date: 2020-10-12 10:45:48
 LastEditors: Hejun Xie
-LastEditTime: 2021-02-27 16:04:18
+LastEditTime: 2021-03-01 18:49:34
 '''
 
 # Global imports
 import numpy as np
+import time
 np.warnings.filterwarnings('ignore')
 
 # Local imports
 from ..interp import Radial
 from ..hydro import create_hydrometeor
-from ..const import global_constants as constants
 from ..utils import nansum_arr, sum_arr, vlinspace, nan_cumprod, nan_cumsum, aliasing
+from . import _core_utils as utils
 
 def get_radar_observables_rdop(list_subradials, lut_sz):
     """
@@ -33,14 +34,16 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
     """
 
     # Get scheme setup
-    global core_scheme
+    global doppler_scheme
+    global doppler_spectrum
     global microphysics_scheme
 
     # Get info from user config
     # Some schme are displayed here but not implemented yet...
     from ..config.cfg import CONFIG
-    core_scheme = CONFIG['core']['scheme'] # TODO
-    microphysics_scheme = CONFIG['microphysics']['scheme'] # TODO only '1mom'
+    doppler_scheme = CONFIG['core']['doppler_scheme'] 
+    doppler_spectrum = CONFIG['core']['doppler_spectrum']
+    microphysics_scheme = CONFIG['microphysics']['scheme'] # TODO '2mom'
     with_ice_crystals = CONFIG['microphysics']['with_ice_crystals']
     att_corr = CONFIG['microphysics']['with_attenuation']
     radial_res = CONFIG['radar']['radial_resolution']
@@ -48,8 +51,9 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
     nyquist_velocity = CONFIG['radar']['nyquist_velocity']
     simulate_doppler = CONFIG['core']['simulate_doppler']
 
-    # Constants
-    RHO_0 = constants.RHO_0 # Air Density at mean sea level [kg*m-3]
+    from ..const import global_constants as constants
+    print(constants.VARRAY)
+    exit()
 
     # No doppler for spaceborne radar
     if CONFIG['radar']['type'] == 'spaceborne':
@@ -116,7 +120,7 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
             v_hydro = vn_integ / n_integ
             # Add density adjustments
             # rho_air in unit [kg*m-3]
-            v_hydro *= (RHO_0 / subrad.values['RHO'])**(0.5)
+            v_hydro *= utils.get_rho_corr(subrad.values['RHO'])
 
             # Get radial velocity knowing hydrometeor fall speed and U,V,W from model
             theta_deg   = subrad.elev_profile
@@ -145,13 +149,14 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
 
     # Get radar observables
     ZH, ZV, ZDR, RHOHV, KDP, AH, AV, DELTA_HV = get_pol_from_sz(sz_integ)
-
-    PHIDP = nan_cumsum(2 * KDP) * radial_res/1000. + DELTA_HV
-
+    PHIDP = nan_cumsum(2 * KDP) * (radial_res / 1000.) + DELTA_HV
+    
     if att_corr:
-        # AH and AV are in dB so we need to convert them to linear
-        ZV *= nan_cumprod(10**(-0.1*AV*(radial_res/1000.))) # divide to get dist in km
-        ZH *= nan_cumprod(10**(-0.1*AH*(radial_res/1000.)))
+        ATT_V = nan_cumsum( - 2 * AV * (radial_res / 1000.) )
+        ATT_H = nan_cumsum( - 2 * AH * (radial_res / 1000.) )
+        # AV and AH are in dB so we need to convert them to linear
+        ZV *= 10 ** (0.1 * ATT_V )
+        ZH *= 10 ** (0.1 * ATT_H )
         ZDR = ZH / ZV
     
     if simulate_doppler:
@@ -316,8 +321,12 @@ def one_rad_one_hydro(rad, hydro_name, hydro_istc, db, simulate_doppler=True, ng
 
     '''
     Part 5 :
-    Integate V(D)*N(D) and N(D) over particle size distribution
-    if simulate_doppler is True.
+    if simulate doppler then:
+    doppler_scheme == 1:
+        Integrate V(D)*N(D) and N(D) over particle size distribution
+    doppler_scheme == 2:
+        Integrate V(D)*N(D)*rcs_h(D) and N(D)*rcs_h(D) over particle size distribution
+
     Get vn_psd_integ, n_psd_integ.
     vn_psd_integ: 
             dimension: (n_valid_gates) 
@@ -327,7 +336,17 @@ def one_rad_one_hydro(rad, hydro_name, hydro_istc, db, simulate_doppler=True, ng
             unit: Z[m-3]
     '''
     if simulate_doppler:
-        vn_psd_integ, n_psd_integ = hydro_istc.integrate_V()
+        if doppler_scheme == 1:
+            vn_psd_integ, n_psd_integ = hydro_istc.integrate_V()
+        elif doppler_scheme == 2:
+            # Horizontal back-scattering cross section [mm2] 
+            rcs = utils.get_rcs_h(sz) # (n_valid_gates, nbins_D)
+            # Terminal velocity [m s-1] 
+            v_f = hydro_istc.get_V(list_D) # (nbins_D)
+
+            # perform the integration
+            vn_psd_integ = np.trapz(np.multiply(v_f, N * rcs), list_D, axis=1)
+            n_psd_integ = np.trapz(N * rcs, list_D, axis=1)
     
     '''
     Part 6 : return integrated data
@@ -343,7 +362,7 @@ def get_pol_from_sz(sz):
     constants.KW: the refractive factor of water, usually 0.93 for radar applications
     Args:
         sz: integrated scattering matrix, with an arbitrary number of rows
-            (gates) and 12 columns (seet lut submodule)
+            (gates) and 12 columns (see lut submodule)
         
 
     Returns:
@@ -357,39 +376,29 @@ def get_pol_from_sz(sz):
          delta_hv: total phase shift upon backscattering [deg]
     '''
 
-    wavelength = constants.WAVELENGTH
-    K_squared = constants.KW
-
     # Horizontal reflectivity
-    radar_xsect_h = 2*np.pi*(sz[:,0]-sz[:,1]-sz[:,2]+sz[:,3])
-    z_h = wavelength**4/(np.pi**5*K_squared)*radar_xsect_h
+    z_h = utils.get_z_h(sz)
 
     # Vertical reflectivity
-    radar_xsect_v = 2*np.pi*(sz[:,0]+sz[:,1]+sz[:,2]+sz[:,3])
-    z_v = wavelength**4/(np.pi**5*K_squared)*radar_xsect_v
+    z_v = utils.get_z_v(sz)
 
     # Differential reflectivity
-    zdr = radar_xsect_h/radar_xsect_v
+    zdr = utils.get_zdr(sz)
 
     # Differential phase shift
-    kdp = 1e-3 * (180.0/np.pi) * wavelength * (sz[:,10]-sz[:,8])
+    kdp = utils.get_kdp(sz)
 
     # Attenuation
-    ext_xsect_h = 2 * wavelength * sz[:,11]
-    ext_xsect_v = 2 * wavelength * sz[:,9]
-    ah = 4.343e-3 * ext_xsect_h
-    av = 4.343e-3 * ext_xsect_v
-
+    ah = utils.get_att_h(sz)
+    av = utils.get_att_v(sz)
+    
     # Copolar correlation coeff.
-    a = (sz[:,4] + sz[:,7])**2 + (sz[:,6] - sz[:,5])**2
-    b = (sz[:,0] - sz[:,1] - sz[:,2] + sz[:,3])
-    c = (sz[:,0] + sz[:,1] + sz[:,2] + sz[:,3])
-    rhohv = np.sqrt(a / (b*c))
+    rho_hv = utils.get_rho_hv(sz)
 
     # Backscattering differential phase
-    delta_hv = np.arctan2(sz[:,5] - sz[:,6], -sz[:,4] - sz[:,7])
+    delta_hv = utils.get_delta_hv(sz)
 
-    return z_h,z_v,zdr,rhohv,kdp,ah,av,delta_hv
+    return z_h, z_v, zdr, rho_hv, kdp, ah, av, delta_hv
 
 def proj_vel(U, V, W, vf, theta,phi):
     """

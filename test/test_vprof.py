@@ -4,7 +4,7 @@ and Full doppler scheme
 Author: Hejun Xie
 Date: 2021-02-27 19:52:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-02-28 16:02:18
+LastEditTime: 2021-03-01 18:03:20
 '''
 
 
@@ -26,10 +26,11 @@ import datetime as dt
 import ZJU_AERO
 import pyart
 
-LOAD_MODEL = True
-LOAD_RADAR = True
+LOAD_MODEL = False
+LOAD_RADAR = False
 DEG = r'$^\circ$'
 
+# np.set_printoptions(threshold=np.inf)
 
 fields  = ['ZH', 'RVEL', 'ZDR']
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17'}
@@ -67,6 +68,9 @@ if __name__ == "__main__":
 
     rs = list()
     for load_datetime in load_datetimes:
+
+        load_datetime = dt.datetime(2019,11,29,18)
+
         load_timestr = load_datetime.strftime("%Y%m%d%H")
         mpkl = './vprof/mdl{}.nc'.format(load_timestr)
         rpkl = "./vprof/vprof{}.pkl".format(load_timestr)
@@ -82,6 +86,8 @@ if __name__ == "__main__":
         else:
             with open(rpkl, "rb") as f:
                 r = pickle.load(f)
+        
+        exit()
         
         rs.append(r)
     

@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2020-12-31 16:48:29
+LastEditTime: 2021-03-01 18:59:35
 '''
 
 # Global import
@@ -141,6 +141,9 @@ class ConstantClass(object):
         initialize some derived constants
         WAVELENGTH: The wave length of radar [mm]
         KW: The dielectric constant at T_K_SQUARED, the frequency of radar [-]
+        VNYQ: Nyquist velocity of the radar [m/s]
+        VRES: velocity resolution in the Doppler spectrum (bin width) [m/s]
+        VARRAY: velocity array in the Doppler spectrum [m/s]
         MAX_MODEL_HEIGHT: The maximum height above which simulated radar gates are
             immediately discarded, i.e. there is not chance the model simulates
             anything so high. This is used when interpolation MODEL variables to the
@@ -151,6 +154,12 @@ class ConstantClass(object):
         '''
         self.WAVELENGTH = self.C/(CONFIG['radar']['frequency']*1E09)*1000 # [mm]
         self.KW = K_squared(CONFIG['radar']['frequency'], self.T_K_SQUARED) # [-]
+        if CONFIG['radar']['nyquist_velocity'] == None:
+            self.VNYQ = (self.WAVELENGTH / 1000.) / (1E-6 * CONFIG['radar']['PRI']) / 2. # [m s-1]
+        else:
+            self.VNYQ = CONFIG['radar']['nyquist_velocity']
+        self.VRES = 2 * self.VNYQ / CONFIG['radar']['FFT_length']
+        self.VARRAY = np.arange( - self.VNYQ, self.VNYQ + self.VRES, self.VRES)
 
         # get model top [m]
         if CONFIG['nwp']['modeltop'] == 'default':
