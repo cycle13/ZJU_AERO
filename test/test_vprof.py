@@ -4,7 +4,7 @@ and Full doppler scheme
 Author: Hejun Xie
 Date: 2021-02-27 19:52:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-01 18:03:20
+LastEditTime: 2021-03-02 18:25:45
 '''
 
 
@@ -67,30 +67,30 @@ if __name__ == "__main__":
     load_datetimes = get_timelines(time_range, time_step)
 
     rs = list()
+    a = ZJU_AERO.RadarOperator(options_file='./option_files/vprof.yml')
+
     for load_datetime in load_datetimes:
 
-        load_datetime = dt.datetime(2019,11,29,18)
+        print(load_datetime)
 
+        # load_datetime = dt.datetime(2019,11,29,18)
         load_timestr = load_datetime.strftime("%Y%m%d%H")
         mpkl = './vprof/mdl{}.nc'.format(load_timestr)
         rpkl = "./vprof/vprof{}.pkl".format(load_timestr)
         
+        a.load_model_file(data_file_list, load_datetime=load_datetime, load_from_file=LOAD_MODEL, load_file=mpkl)
         if not LOAD_RADAR:
-            a = ZJU_AERO.RadarOperator(options_file='./option_files/vprof.yml')
-            a.load_model_file(data_file_list, load_datetime=load_datetime, load_from_file=LOAD_MODEL, load_file=mpkl)
-            
             r = a.get_VPROF()
             with open(rpkl, "wb") as f:
                 pickle.dump(r, f)
-            a.close()
         else:
             with open(rpkl, "rb") as f:
                 r = pickle.load(f)
-        
-        exit()
-        
         rs.append(r)
-    
+        # exit()
+    a.close()
+    # exit()
+
     units = {'dBZ':'[dBZ]', 'V':'[m/s]', 'W':'[m/s]'}
     longname = {'dBZ':'Refelctivity', 'V':'Radial Velocity', 'W':'Spectrum Width'}
 
@@ -107,33 +107,45 @@ if __name__ == "__main__":
     
     dBZ = np.zeros((len(load_datetimes), len(heights)), dtype='float32')
     V = np.zeros((len(load_datetimes), len(heights)), dtype='float32')
+    W = np.zeros((len(load_datetimes), len(heights)), dtype='float32')
 
     for ir,r in enumerate(rs):
         dBZ[ir,:] = 10 * np.log10(r.values['ZH'][idx])
         V[ir,:] = r.values['RVEL'][idx]
+        W[ir,:] = r.values['SW'][idx]
 
     time = range(len(load_datetimes))
 
-    fig = plt.figure(figsize=(10,8))
+    fig = plt.figure(figsize=(10,12))
     xticklabels = [load_datetime.strftime('%Y-%m-%d %H') for load_datetime in load_datetimes]
 
-    ax = plt.subplot(211)
+    ax = plt.subplot(311)
     pm = ax.pcolormesh(time, heights, dBZ.T, cmap='pyart_Carbone11', 
     vmin=-40, vmax=30, shading='auto')
-    ax.set_xticks(time)
+    ax.set_xticks(time[::2])
     ax.set_xticklabels([])
     ax.set_ylabel('Height [km]', fontsize=14)
     cb = fig.colorbar(pm, ax=ax)
     cb.ax.set_ylabel('{} {}'.format(longname['dBZ'], units['dBZ']), fontsize=14)
 
-    ax = plt.subplot(212)
+    ax = plt.subplot(312)
     pm = ax.pcolormesh(time, heights, V.T, cmap='pyart_BuOr8', 
     vmin=-2, vmax=0., shading='auto')
-    ax.set_xticks(time)
-    ax.set_xticklabels(xticklabels, fontsize=9, rotation=30)
+    ax.set_xticks(time[::2])
+    ax.set_xticklabels([])
     ax.set_ylabel('Height [km]', fontsize=14)
     cb = fig.colorbar(pm, ax=ax)
     cb.ax.set_ylabel('{} {}'.format(longname['V'], units['V']), fontsize=14)
+
+    ax = plt.subplot(313)
+    pm = ax.pcolormesh(time, heights, W.T, cmap='pyart_Carbone17', 
+    vmin=0, vmax=2, shading='auto')
+    ax.set_xticks(time[::2])
+    ax.set_xticklabels(xticklabels[::2], fontsize=9, rotation=30)
+    ax.set_ylabel('Height [km]', fontsize=14)
+    ax.set_xlabel('Time')
+    cb = fig.colorbar(pm, ax=ax)
+    cb.ax.set_ylabel('{} {}'.format(longname['W'], units['W']), fontsize=14)
 
     fig.tight_layout()
 

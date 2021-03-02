@@ -3,7 +3,7 @@ Description: Some utilities used in core submodule
 Author: Hejun Xie
 Date: 2021-03-01 09:57:09
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-01 16:27:40
+LastEditTime: 2021-03-01 21:55:45
 '''
 
 import numpy as np
@@ -11,6 +11,13 @@ from ..const import global_constants as constants
 
 rad2deg = 180. / np.pi
 deg2rad = np.pi / 180.
+
+def _get_varray():
+    '''
+    Get the radial velocity array 
+    Unit: [m s-1]
+    '''
+    return constants.VARRAY
 
 def _get_wavelength():
     '''
@@ -268,3 +275,48 @@ def get_rho_corr(rho):
         rho_corr: rho correction coefficient for terminal velocity [-]
     '''
     return ( _get_rho_0() / rho )**(0.5)
+
+def proj_vel(U, V, W, vf, theta, phi):
+    """
+    Gets the radial velocity from the 3D wind field and hydrometeor
+    fall velocity
+    Args:
+        U: eastward wind component [m/s]
+        V: northward wind component [m/s]
+        W: vertical wind component [m/s]
+        vf: terminal fall velocity [m/s]
+        theta: elevation angle [degree]
+        phi: azimuth angle [degree]
+
+    Returns:
+        The radial velocity, with reference to the radar beam
+        positive values represent flow away from the radar [m/s]
+    """
+
+    theta = np.deg2rad(theta) # elevation
+    phi   = np.deg2rad(phi) # azimuth
+
+    return ((U*np.sin(phi) + V * np.cos(phi)) * np.cos(theta)
+            + (W - vf) * np.sin(theta))
+
+def proj_vel_back(U, V, W, vrad, theta, phi):
+    """
+    Gets the hydrometeor fall velocity from the 3D wind field and 
+    radial velocity
+    Args:
+        U: eastward wind component [m/s]
+        V: northward wind component [m/s]
+        W: vertical wind component [m/s]
+        vrad: radial velocity [m/s]
+        theta: elevation angle [degree]
+        phi: azimuth angle [degree]
+
+    Returns:
+        The terminal fall velocity of hydrometeors 
+    """
+
+    theta = np.deg2rad(theta) # elevation
+    phi   = np.deg2rad(phi) # azimuth
+
+    return W + (U * np.sin(phi) + V * np.cos(phi)) / np.tan(theta) - \
+        vrad / np.sin(theta)

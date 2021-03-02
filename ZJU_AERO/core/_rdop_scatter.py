@@ -4,7 +4,7 @@ from the interpolated radials given by NWP models
 Author: Hejun Xie
 Date: 2020-10-12 10:45:48
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-01 18:49:34
+LastEditTime: 2021-03-02 17:20:59
 '''
 
 # Global imports
@@ -17,6 +17,7 @@ from ..interp import Radial
 from ..hydro import create_hydrometeor
 from ..utils import nansum_arr, sum_arr, vlinspace, nan_cumprod, nan_cumsum, aliasing
 from . import _core_utils as utils
+from ._doppler_spectrum import get_doppler_spectrum
 
 def get_radar_observables_rdop(list_subradials, lut_sz):
     """
@@ -34,30 +35,26 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
     """
 
     # Get scheme setup
-    global doppler_scheme
-    global doppler_spectrum
+    global simulate_doppler, simulate_spectrum, doppler_scheme
     global microphysics_scheme
 
     # Get info from user config
     # Some schme are displayed here but not implemented yet...
     from ..config.cfg import CONFIG
     doppler_scheme = CONFIG['core']['doppler_scheme'] 
-    doppler_spectrum = CONFIG['core']['doppler_spectrum']
-    microphysics_scheme = CONFIG['microphysics']['scheme'] # TODO '2mom'
+    microphysics_scheme = CONFIG['microphysics']['scheme'] # TODO 2-moment scheme
     with_ice_crystals = CONFIG['microphysics']['with_ice_crystals']
     att_corr = CONFIG['microphysics']['with_attenuation']
     radial_res = CONFIG['radar']['radial_resolution']
     integration_scheme = CONFIG['integration']['scheme'] # TODO only Guass-Hermite intergration (scheme 1) 
     nyquist_velocity = CONFIG['radar']['nyquist_velocity']
     simulate_doppler = CONFIG['core']['simulate_doppler']
-
-    from ..const import global_constants as constants
-    print(constants.VARRAY)
-    exit()
+    simulate_spectrum = CONFIG['core']['doppler_spectrum']
 
     # No doppler for spaceborne radar
     if CONFIG['radar']['type'] == 'spaceborne':
         simulate_doppler = False
+        simulate_spectrum = False
 
     # Get dimensions of subradials
     num_beams = len(list_subradials) # Number of subradials (quad. pts)
@@ -84,15 +81,25 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
     if simulate_doppler:
         rvel_avg = np.zeros((n_gates,), dtype='float32') + np.nan
         total_weight_rvel = np.zeros((n_gates,), dtype='float32')
+    # Initialize Full Doppler spectrum
+    if simulate_spectrum:
+        varray = utils._get_varray()
+        doppler_spectrum = np.zeros((n_gates, len(varray)), dtype='float32') + np.nan
 
     for i, subrad in enumerate(list_subradials): # Loop on subradials (quad pts)
 
         if simulate_doppler:
             vn_integ = np.zeros((n_gates,), dtype='float32') # Integrated V(D)*N(D)
             n_integ = np.zeros((n_gates,), dtype='float32') # Integrated N(D)
+        if simulate_spectrum:
+            ah_subrad = np.zeros((n_gates,), dtype='float32') # attenuation coefficient of a sub-radial [dB km-1]
 
         for j, h in enumerate(hydrom_types): # Loop on hydrometeors
             
+            '''
+            Part I
+            Get the integrated SZ for one hydrometeor and one sub-radial
+            '''
             return_pack = one_rad_one_hydro(subrad, h, dic_hydro[h], lut_sz[h], 
                 simulate_doppler=simulate_doppler, ngates=n_gates)
 
@@ -104,15 +111,32 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
                 else:
                     valid_data, sz_psd_integ = return_pack
             
+            '''
+            Part II
+            Add integrated items to sz_integ, vn_integ, n_integ, which counts all hydrometeor types (and
+            all subradials for sz_integ but not for vn_integ and n_integ).
+            That means the hydrometeor (weighted) averaged falling speed are computed for every sub-radial,
+            but the bulk scattering amplitude matrix S and bulk scattering phase matrix Z are computed a 
+            set of radials.
+            '''
             sz_integ[valid_data, j, :] = nansum_arr(sz_integ[valid_data,j,:], sz_psd_integ * subrad.quad_weight)
             
             if simulate_doppler:
                 vn_integ[valid_data] = nansum_arr(vn_integ[valid_data], vn_psd_integ)
                 n_integ[valid_data] = nansum_arr(n_integ[valid_data], n_psd_integ)
+            
+            '''
+            Part III
+            Get the attenuation coefficient of this sub-radial
+            for Full doppler spectrum solver and add that up for all hydrometeor types 
+            '''
+            if simulate_spectrum and att_corr:
+                ah_per_hydro = utils.get_att_h(sz_psd_integ)
+                ah_subrad = nansum_arr(ah_subrad, ah_per_hydro)
     
         ########################################################################### (inner loop hydrometeor finished)
         
-        """ For every beam, we get the average fall velocity for
+        """ For every subradial, we get the average fall velocity for
         all hydrometeors and the resulting radial velocity """
         
         if simulate_doppler:
@@ -123,19 +147,37 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
             v_hydro *= utils.get_rho_corr(subrad.values['RHO'])
 
             # Get radial velocity knowing hydrometeor fall speed and U,V,W from model
-            theta_deg   = subrad.elev_profile
-            phi_deg     = subrad.quad_pt[0]
-            theta       = np.deg2rad(theta_deg) # elevation
-            phi         = np.deg2rad(phi_deg) # azimuth
-            proj_wind = proj_vel(subrad.values['U'], subrad.values['V'],
+            theta   = subrad.elev_profile
+            phi     = subrad.quad_pt[0]
+            proj_wind = utils.proj_vel(subrad.values['U'], subrad.values['V'],
                                 subrad.values['W'], v_hydro, theta, phi)
 
             # Get mask of valid values
-            total_weight_rvel = sum_arr(total_weight_rvel, ~np.isnan(proj_wind) * subrad.quad_weight)
+            total_weight_rvel = nansum_arr(total_weight_rvel, proj_wind * subrad.quad_weight)
             # Average radial velocity for all sub-beams
             rvel_avg = nansum_arr(rvel_avg, proj_wind * subrad.quad_weight)
+        
+        """ For every subradial we get the doppler spectrum """
+        if simulate_spectrum:
+            '''
+            subrad_spectrum: doppler spectrum
+                unit: [mm6 m-3]
+                dimension: (n_gates, len_FFT)
+            A_ACCU_H: Accumulated Attenuation in horizontal polarization (two-way)
+                unit: [dB]
+                dimension: (n_gates) --> (ngates, 1)
+            '''
+            # exit()
+            subrad_spectrum = get_doppler_spectrum(subrad, dic_hydro, lut_sz)
+
+            if att_corr:
+                A_ACCU_H =  nan_cumsum( - 2 * ah_subrad * (radial_res / 1000.) )
+                subrad_spectrum *= 10 ** (0.1 * A_ACCU_H[:,None])
+            
+            # two-dimension array is not compatible with nansum_arr 
+            doppler_spectrum = np.nansum([doppler_spectrum, subrad_spectrum * subrad.quad_weight], axis=0)
     
-    ########################################################################### (outer loop subbeam finished)
+    ########################################################################### (outer loop sub-radial finished)
     
     '''
     Here we derive the final quadrature integrated radar observables after
@@ -152,11 +194,11 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
     PHIDP = nan_cumsum(2 * KDP) * (radial_res / 1000.) + DELTA_HV
     
     if att_corr:
-        ATT_V = nan_cumsum( - 2 * AV * (radial_res / 1000.) )
-        ATT_H = nan_cumsum( - 2 * AH * (radial_res / 1000.) )
+        A_ACCU_V = nan_cumsum( - 2 * AV * (radial_res / 1000.) )
+        A_ACCU_H = nan_cumsum( - 2 * AH * (radial_res / 1000.) )
         # AV and AH are in dB so we need to convert them to linear
-        ZV *= 10 ** (0.1 * ATT_V )
-        ZH *= 10 ** (0.1 * ATT_H )
+        ZV *= 10 ** (0.1 * A_ACCU_V)
+        ZH *= 10 ** (0.1 * A_ACCU_H)
         ZDR = ZH / ZV
     
     if simulate_doppler:
@@ -169,6 +211,28 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
             # elevation angle
             nyq = nyquist_velocity
             rvel_avg = aliasing(rvel_avg, nyq)
+    
+    if simulate_spectrum:
+        '''
+        doppler_spectrum: doppler spectrum
+                unit: [mm6 m-3]
+                dimension: (n_gates, len_FFT)
+        varray: discernible velocity of FFT scheme
+                unit [m s-1]
+                dimension: (len_FFT)
+        rvel_avg, avel_std: radial velocity V and spectrum width W
+                unit [m s-1]
+                dimension: (n_gates)
+        '''
+        vd = np.trapz(np.multiply(doppler_spectrum, varray), varray, axis=1)
+        d = np.trapz(doppler_spectrum, varray, axis=1)
+        rvel_avg = vd / d
+
+        rvel_avg_expand = np.tile(np.expand_dims(rvel_avg, axis=1), (1,len(varray)))
+        # varray_expand = np.tile(np.expand_dims(varray, axis=0), (n_gates,1))
+        delta_v_square = (varray - rvel_avg_expand)**2
+        rvel_var = np.trapz(np.multiply(doppler_spectrum, delta_v_square), varray, axis=1) / d
+        rvel_std = np.sqrt(rvel_var)
 
     ###########################################################################
 
@@ -185,19 +249,24 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
     rad_obs['DELTA_HV'] = DELTA_HV
     rad_obs['PHIDP'] = PHIDP
     rad_obs['RHOHV'] = RHOHV
+
     # Add attenuation at every gate
     rad_obs['ATT_H'] = AH
     rad_obs['ATT_V'] = AV
+    
     # doppler
-    if simulate_doppler:
+    if simulate_doppler or simulate_spectrum:
         rad_obs['RVEL'] = rvel_avg
+    if simulate_spectrum:
+        rad_obs['DSPECTRUM'] = doppler_spectrum
+        rad_obs['SW'] = rvel_std
     
     '''
     Once averaged , the meaning of the mask is the following
     mask == -1 : all beams are below topography
-    mask == 1 : all beams are above COSMO top
-    mask > 0 : at least one beam is above COSMO top
-    We will keep only gates where no beam is above COSMO top and at least
+    mask == 1 : all beams are above NWP model top
+    mask > 0 : at least one beam is above NWP model top
+    We will keep only gates where no beam is above NWP model top and at least
     one beam is above topography
     '''
 
@@ -218,7 +287,7 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
     # Create final radial
     radar_radial = Radial(rad_obs, mask, lats, lons, distances_radar,
                           heights_radar)
-
+    
     return radar_radial
 
 def one_rad_one_hydro(rad, hydro_name, hydro_istc, db, simulate_doppler=True, ngates=-1):
@@ -400,25 +469,6 @@ def get_pol_from_sz(sz):
 
     return z_h, z_v, zdr, rho_hv, kdp, ah, av, delta_hv
 
-def proj_vel(U, V, W, vf, theta,phi):
-    """
-    Gets the radial velocity from the 3D wind field and hydrometeor
-    fall velocity
-    Args:
-        U: eastward wind component [m/s]
-        V: northward wind component [m/s]
-        W: vertical wind component [m/s]
-        vf: terminal fall velocity averaged over all hydrometeors [m/s]
-        theta: elevation angle in degrees
-        phi: azimuth angle in degrees
-
-    Returns:
-        The radial velocity, with reference to the radar beam
-        positive values represent flow away from the radar
-    """
-    return ((U*np.sin(phi) + V * np.cos(phi)) * np.cos(theta)
-            + (W - vf) * np.sin(theta))
-
 def init_hydro_istc(hydrom_types, lut_sz, microphysics_scheme):
     '''
     initialize hydrometeor instance
@@ -442,7 +492,7 @@ def init_hydro_istc(hydrom_types, lut_sz, microphysics_scheme):
             _dmin = lut_sz[h].axes[2][0]
             _dmax = lut_sz[h].axes[2][-1]
         elif lut_sz[h].type == 'xarray':
-            _nbins_D = lut_sz[h].get_axis_value('Dmax')
+            _nbins_D = len(lut_sz[h].get_axis_value('Dmax'))
             _dmin = lut_sz[h].get_axis_value('Dmax')[0]
             _dmax = lut_sz[h].get_axis_value('Dmax')[-1]
 

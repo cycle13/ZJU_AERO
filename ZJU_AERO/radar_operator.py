@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2021-02-27 22:10:31
+LastEditTime: 2021-03-02 18:30:54
 '''
 
 
@@ -137,6 +137,8 @@ class RadarOperator(object):
         freq = self.config['radar']['frequency']
         folder_lut = self.config['microphysics']['folder_lut']
 
+        print('-------Load lookup table------')
+
         list_hydrom = ['R','S','G']
         if has_ice:
             list_hydrom.extend(['I'])
@@ -262,7 +264,7 @@ class RadarOperator(object):
     
         del loaded_vars
         gc.collect()
-        print('-------done------')
+        print('-------Model file loaded------')
 
         # Check if lookup tables are deprecated
         if not self.output_variables == 'model_only':
@@ -437,6 +439,8 @@ class RadarOperator(object):
         del lut_sz
         gc.collect()
 
+        print('-------PPI scan solved------')
+
         # exit()
         if not event.is_set():
             # Threshold at given sensitivity
@@ -540,6 +544,8 @@ class RadarOperator(object):
         del dic_vars
         del N
         del lut_sz
+
+        print('-------RHI scan solved------')
 
         if not event.is_set():
             # Threshold at given sensitivity
@@ -722,6 +728,8 @@ class RadarOperator(object):
         del lut_sz
         gc.collect()
 
+        print('-------Spaceborne Swath Solved------')
+
         if not event.is_set():
             # Threshold at given sensitivity
             if output_variables in ['all','only_radar']:
@@ -766,5 +774,7 @@ class RadarOperator(object):
         del N
         del lut_sz
         gc.collect()
+
+        print('-------VPROF Solved------')
 
         return output

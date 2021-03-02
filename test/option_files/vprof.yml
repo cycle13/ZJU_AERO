@@ -3,7 +3,7 @@ radar:
     range: 200000
     frequency: 9.41
     radial_resolution: 75
-    FFT_length: 16
+    FFT_length: 128
     sensitivity: [-15, 10000]
     3dB_beamwidth: 0.9972
     nyquist_velocity: 15.010451
