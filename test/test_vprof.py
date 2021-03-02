@@ -4,7 +4,7 @@ and Full doppler scheme
 Author: Hejun Xie
 Date: 2021-02-27 19:52:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-02 18:25:45
+LastEditTime: 2021-03-02 19:57:10
 '''
 
 
@@ -26,23 +26,11 @@ import datetime as dt
 import ZJU_AERO
 import pyart
 
-LOAD_MODEL = False
-LOAD_RADAR = False
+LOAD_MODEL = True
+LOAD_RADAR = True
 DEG = r'$^\circ$'
 
 # np.set_printoptions(threshold=np.inf)
-
-fields  = ['ZH', 'RVEL', 'ZDR']
-cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17'}
-vrange  = {'ZH':  (0, 40),
-        'ZDR': (0, 0.5),
-        'RVEL': (-15, 15)}
-cmap    = {'ZH':  'pyart_Carbone11',
-        'ZDR': 'pyart_Carbone11',
-        'RVEL': 'pyart_BuOr8'}
-latex_name = {'ZH': r'$Z_{H}$',
-        'ZDR': r'$Z_{DR}$',
-        'RVEL': r'$V_r$'}
 
 def get_timelines(time_range, time_step):
 
@@ -91,8 +79,8 @@ if __name__ == "__main__":
     a.close()
     # exit()
 
-    units = {'dBZ':'[dBZ]', 'V':'[m/s]', 'W':'[m/s]'}
-    longname = {'dBZ':'Refelctivity', 'V':'Radial Velocity', 'W':'Spectrum Width'}
+    units = {'dBZ':'[dBZ]', 'V':'[m/s]', 'W':'[m/s]', 'DSP':'[dBZ]'}
+    longname = {'dBZ':'Refelctivity', 'V':'Radial Velocity', 'W':'Spectrum Width', 'DSP':'Doppler Spectrum'}
 
     from mpl_toolkits.basemap import Basemap
     import matplotlib as mpl
@@ -104,16 +92,24 @@ if __name__ == "__main__":
     heights_raw = rs[0].heights_profile
     idx = np.where(heights_raw<=15000)[0] # 15km
     heights = heights_raw[idx] / 1000. # km
+    from ZJU_AERO.const import global_constants as constants
+    varray = constants.VARRAY
+
     
     dBZ = np.zeros((len(load_datetimes), len(heights)), dtype='float32')
     V = np.zeros((len(load_datetimes), len(heights)), dtype='float32')
     W = np.zeros((len(load_datetimes), len(heights)), dtype='float32')
+    DSP = np.zeros((len(load_datetimes), len(heights), len(varray)), dtype='float32')
 
     for ir,r in enumerate(rs):
         dBZ[ir,:] = 10 * np.log10(r.values['ZH'][idx])
         V[ir,:] = r.values['RVEL'][idx]
         W[ir,:] = r.values['SW'][idx]
+        DSP[ir,:] = 10 * np.log10(r.values['DSPECTRUM'][idx,:])
 
+    '''
+    1. Plot Z, V, W
+    '''
     time = range(len(load_datetimes))
 
     fig = plt.figure(figsize=(10,12))
@@ -150,3 +146,49 @@ if __name__ == "__main__":
     fig.tight_layout()
 
     plt.savefig('test_vprof.png', dpi=300)
+    plt.close()
+
+    '''
+    2. Plot DSP
+    '''
+
+    time_indices = [12, 14, 16, 18]
+
+    for time_idx in time_indices: 
+        
+        time_file = load_datetimes[time_idx].strftime("%Y%m%d%H")
+        time_title = load_datetimes[time_idx].strftime("%Y-%m-%d %H:00:00 UTC")
+
+        fig = plt.figure(figsize=(5,8))
+        ax = plt.subplot(111)
+
+        idx_v = (varray<=0.) & (varray>=-5) # -10m/s < v < 0m/s
+        v_valid = varray[idx_v]
+
+        idx_h = (heights<=6) # h < 6km
+        h_valid = heights[idx_h]
+
+        plot_DSP =  DSP[time_idx,idx_h,:][:,idx_v]
+        plot_DSP[plot_DSP<=-60] = np.nan
+
+        plot_V = V[time_idx, idx_h]
+        plot_W = W[time_idx, idx_h]
+
+        pm = ax.pcolormesh(v_valid, h_valid, plot_DSP, # cmap='pyart_Carbone11', 
+        vmin=-60, vmax=30, shading='auto')
+        ax.set_xticks([-5, -4, -3, -2, -1, 0])
+        ax.set_xticklabels(['-5','-4','-3','-2','-1','0'], fontsize=9)
+        ax.set_ylabel('Height [km]', fontsize=14)
+        ax.set_xlabel(r'Radial Velocity $V_{rad}$ [m/s]', fontsize=14)
+
+        ax.plot(plot_V, h_valid, color='k')
+        ax.plot(plot_V+plot_W, h_valid, color='k', ls='--')
+        ax.plot(plot_V-plot_W, h_valid, color='k', ls='--')
+
+        cb = fig.colorbar(pm, ax=ax)
+        cb.ax.set_ylabel('{} {}'.format(longname['DSP'], units['DSP']), fontsize=14)
+
+        ax.set_title(time_title, fontsize=16)
+
+        plt.savefig('doppler_spectrum_{}.png'.format(time_file), dpi=300)
+        plt.close()
