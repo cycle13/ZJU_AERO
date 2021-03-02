@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-02 17:35:23
+LastEditTime: 2021-03-02 22:30:51
 '''
 
 # Global import
@@ -155,7 +155,7 @@ class ConstantClass(object):
         self.WAVELENGTH = self.C/(CONFIG['radar']['frequency']*1E09)*1000 # [mm]
         self.KW = K_squared(CONFIG['radar']['frequency'], self.T_K_SQUARED) # [-]
         if CONFIG['radar']['nyquist_velocity'] == None:
-            self.VNYQ = (self.WAVELENGTH / 1000.) / (1E-6 * CONFIG['radar']['PRI']) / 2. # [m s-1]
+            self.VNYQ = (self.WAVELENGTH / 1000.) / (1E-6 * CONFIG['radar']['PRI']) / 4. # [m s-1]
         else:
             self.VNYQ = CONFIG['radar']['nyquist_velocity']
         self.VRES = 2 * self.VNYQ / CONFIG['radar']['FFT_length']
