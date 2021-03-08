@@ -4,7 +4,7 @@ and Full doppler scheme
 Author: Hejun Xie
 Date: 2021-02-27 19:52:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-02 19:57:10
+LastEditTime: 2021-03-08 09:50:38
 '''
 
 
@@ -27,7 +27,7 @@ import ZJU_AERO
 import pyart
 
 LOAD_MODEL = True
-LOAD_RADAR = True
+LOAD_RADAR = False
 DEG = r'$^\circ$'
 
 # np.set_printoptions(threshold=np.inf)
@@ -59,9 +59,9 @@ if __name__ == "__main__":
 
     for load_datetime in load_datetimes:
 
+        # load_datetime = dt.datetime(2019,11,29,14)
         print(load_datetime)
 
-        # load_datetime = dt.datetime(2019,11,29,18)
         load_timestr = load_datetime.strftime("%Y%m%d%H")
         mpkl = './vprof/mdl{}.nc'.format(load_timestr)
         rpkl = "./vprof/vprof{}.pkl".format(load_timestr)
@@ -75,7 +75,10 @@ if __name__ == "__main__":
             with open(rpkl, "rb") as f:
                 r = pickle.load(f)
         rs.append(r)
+
+        # a.close()
         # exit()
+    
     a.close()
     # exit()
 
@@ -175,7 +178,7 @@ if __name__ == "__main__":
         plot_W = W[time_idx, idx_h]
 
         pm = ax.pcolormesh(v_valid, h_valid, plot_DSP, # cmap='pyart_Carbone11', 
-        vmin=-60, vmax=30, shading='auto')
+        vmin=-60, vmax=20, shading='auto')
         ax.set_xticks([-5, -4, -3, -2, -1, 0])
         ax.set_xticklabels(['-5','-4','-3','-2','-1','0'], fontsize=9)
         ax.set_ylabel('Height [km]', fontsize=14)

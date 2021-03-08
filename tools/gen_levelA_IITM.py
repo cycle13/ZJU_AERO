@@ -4,7 +4,7 @@ as a netCDF format file (LevelA-database)
 Author: Hejun Xie
 Date: 2020-09-17 10:04:49
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-22 11:34:15
+LastEditTime: 2021-03-06 19:10:19
 '''
 
 import os
@@ -15,8 +15,10 @@ import numpy as np
 import xarray as xr
 from scipy.integrate import quad  
 
-RAW_DATA_ROOT = '/mnt/e/ZJU_AERO/radardb_hexgon'
-LEVELA_DATA_TARGET = '/mnt/e/COSMO_POL/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelA.nc'
+RAW_DATA_ROOT = '/mnt/e/ZJU_AERO/radardb_hexgon_35.0'
+LEVELA_DATA_TARGET_ROOT = '/mnt/e/COSMO_POL/lut/iitm_masc/'
+HYDROMETEOR_TYPE = 'S'
+SCHEME = '1mom'
 NBETA = 91
 NELEVATION = 91
 ANAME = 'amplmatrix_fw_test.dat'
@@ -88,8 +90,13 @@ if __name__ == '__main__':
     # add geometry size coordinate
     C = 299792458.
     # some band frequency for radar [GHZ]
-    Frequencies = {"S":2.7 ,"C":5.6 ,"X":9.41 ,"Ku":13.6 ,"Ka":35.6}
-    Lambda = C / Frequencies['X'] * 1e-9 * 1e+3 # [mm]
+    freq = RAW_DATA_ROOT.split('_')[-1]
+    freq_str = freq.replace('.','_')
+    Frequency = float(freq)
+    LEVELA_DATA_TARGET = LEVELA_DATA_TARGET_ROOT + \
+         'lut_SZ_' + HYDROMETEOR_TYPE + '_' + freq_str + '_' + SCHEME + '_' + 'LevelB' + '.nc'
+
+    Lambda = C / Frequency * 1e-9 * 1e+3 # [mm]
     Dmax = np.array(get_coords(dir_size)) * Lambda / np.pi
 
     coords = {'aspect_ratio': get_coords(dir_asp), 
@@ -127,9 +134,13 @@ if __name__ == '__main__':
         file_phasematrix_bw = os.path.join(node, PNAME)
         file_amplmatrix_fw = os.path.join(node, ANAME)
         
-        phasematrix_bw = get_phasematrix(file_phasematrix_bw) # * (Lambda / (2*np.pi))**2 # [mm2]
-        amplmatrix_fw = get_amplmatrix(file_amplmatrix_fw) # * (Lambda / (2*np.pi)) # [mm]
-        
+        try:
+            phasematrix_bw = get_phasematrix(file_phasematrix_bw) # * (Lambda / (2*np.pi))**2 # [mm2]
+            amplmatrix_fw = get_amplmatrix(file_amplmatrix_fw) # * (Lambda / (2*np.pi)) # [mm]
+        except FileNotFoundError:
+            print('Empty Node: {}'.format(node))
+            continue
+            
         for real_variable in real_variables:
             ds[real_variable][iasp, itemp, isize, ...] = \
             phasematrix_bw[real_variable.split('_')[0]].to_numpy().reshape(NBETA, NELEVATION) * \

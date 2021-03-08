@@ -1,7 +1,7 @@
 radar:
     coords: [39.80, 116.47, 40]
     range: 200000
-    frequency: 9.41
+    frequency: 35.0
     radial_resolution: 75
     FFT_length: 128
     sensitivity: [-15, 10000]
@@ -22,7 +22,7 @@ core:
 microphysics:
     scheme: '1mom'
     folder_lut: '../pathos/lut/'
-    scattering: 'tmatrix_masc'
+    scattering: 'tm_masc'
     scattering_S: 'iitm_masc'
     with_attenuation: 1
     with_ice_crystals: 0

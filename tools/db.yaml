@@ -1,17 +1,17 @@
 DBS:
   FOLDER_LUT: '../pathos/lut/tm_masc/' # place to hold database files
   LEVELA_TYPE: 'TM' # 'IITM' or 'TM'
-  FREQUENCIES: [9.41] # The frequencies in GHz for which the lookup tables will be computed
-  HYDROM_TYPES: ['S'] # Snow, graupel, hail, rain and ice, currently only snow implemented
+  FREQUENCIES: [35.0] # The frequencies in GHz for which the lookup tables will be computed
+  HYDROM_TYPES: ['R', 'G'] # Snow, graupel, hail, rain and ice, currently only snow implemented
 DIMENSIONS:
   # D: Maximum Diameter [mm], DMAX and DMIN depends on hydrometeor settings
   # NUM_DIAMETERS: 4
-  NUM_DIAMETERS: 64
+  NUM_DIAMETERS: 256
   # T: Temperature [K] for solid hydrometeors
   # TEMPERATURES_SOL: [253]
   TEMPERATURES_SOL: [203, 213, 223, 233, 243, 253, 263, 273] 
   # T: Temperature [K] for liquid hydrometeors
-  TEMPERATURES_LIQ: [268, 273, 278, 283, 288, 293, 298, 303, 308, 313, 318] 
+  TEMPERATURES_LIQ: [253, 258, 263, 268, 273, 278, 283, 288, 293, 298, 303, 308, 313, 318] 
   # MAX_AR: 7 The maximum aspect-ratio to consider, avoids crashing the T-matrix 
   # AR: aspect ratio [Horizontal to rotational axis]
   ARS:

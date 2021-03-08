@@ -3,7 +3,7 @@ Description: compute doppler spectrum
 Author: Hejun Xie
 Date: 2021-03-01 20:25:31
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-02 16:01:43
+LastEditTime: 2021-03-06 21:54:29
 '''
 
 import numpy as np
@@ -47,8 +47,15 @@ def get_doppler_spectrum(subrad, dic_hydro, lut_sz):
     elev_lut[elev_lut<0] = - elev_lut[elev_lut<0]
 
     rho_corr = utils.get_rho_corr(subrad.values['RHO'])
+
+    # np.set_printoptions(threshold=np.inf)
+    # print(subrad.values['T'][:100])
+    # print(subrad.values['QR_v'][:100])
+    # print(subrad.values['QS_v'][:100])
+    # print(subrad.values['QG_v'][:100])
     
     for i in range(n_gates):
+        
         
         # check if the radial is below the topograph or above the model top
         if subrad.mask[i] != 0:
@@ -103,17 +110,24 @@ def get_doppler_spectrum(subrad, dic_hydro, lut_sz):
                             subrad.values['W'][i],
                             rho_corr[i])
         
+            # print(h)
             # print(Da)
             # print(Db)
             # print(idx)
-            # exit()
+            # print(N)
+            # print(rcs)
 
             try:
                 arguments_c_code = (len(idx), Da, Db, rcs, N, step_D, D_min)
-                refl[i,idx] += get_refl(*arguments_c_code)[1]
+                refl_hydro = get_refl(*arguments_c_code)[1]
+                # print(refl_hydro)
+                refl[i,idx] += refl_hydro
+                # print(refl[i,idx])
             except:
                 print('An error occured in the Doppler spectrum calculation...')
                 raise
+            
+        # exit()
         
         # Add reflectivity coefficient for that radar gate
         refl[i,:] *= utils._get_refl_coeff()

@@ -4,7 +4,7 @@ ssp lookup tables, iitm_masc.
 Author: Hejun Xie
 Date: 2020-10-12 11:30:13
 LastEditors: Hejun Xie
-LastEditTime: 2020-10-12 11:40:31
+LastEditTime: 2021-03-06 19:42:50
 '''
 
 # Global import
@@ -96,12 +96,15 @@ class Lookup_table_xarray:
         return flattened_data
 
 if __name__ == "__main__":
-    lut = load_lut_xarray('/home/xhj/wkspcs/Radar-Operator/cosmo_pol/pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc')
+    # lut = load_lut_xarray('/home/xhj/wkspcs/Radar-Operator/cosmo_pol/pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc')
+    lut = load_lut_xarray('/home/xhj/wkspcs/Radar-Operator/cosmo_pol/pathos/lut/tm_masc/lut_SZ_R_35_0_1mom_LevelB.nc')
     
     Dmax = lut.get_axis_value('Dmax')
     print(Dmax)
 
-    interped = lut.lookup_line(e=[1.5,2.5], t=[213, 223])
+    # interped = lut.lookup_line(e=[1.5,2.5], t=[213, 223])
+    interped = lut.lookup_line(e=[1.5,2.5], t=[283, 293])
     print(interped.shape)
+    print(interped)
 
     lut.close()

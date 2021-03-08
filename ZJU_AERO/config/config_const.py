@@ -4,7 +4,7 @@ config subpackage.
 Author: Hejun Xie
 Date: 2020-11-21 11:07:03
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-01 18:58:40
+LastEditTime: 2021-03-06 10:24:13
 '''
 
 # Local imports, see config_types.py for the definition of Range and TypeList
@@ -59,7 +59,7 @@ VALID_VALUES={
     'radar':
         {'type': ['ground', 'spaceborne'],
         'coords': [None, TypeList([float, int], dim=[3])],
-        'frequency':[2.7, 5.6, 9.41, 9.8, 13.6, 35.6],
+        'frequency':[2.7, 5.6, 9.41, 9.8, 13.6, 35.6, 35.0],
         'range': [None, Range(5000, 500000)],
         'radial_resolution': Range(25, 5000),
         'sensitivity': [TypeList([float, int], dim=[3]), 
@@ -89,10 +89,10 @@ VALID_VALUES={
         'with_ice_crystals': [0, 1],
         'with_melting': [0, 1],
         'with_attenuation': [0, 1],
-        'scattering':    ['tmatrix_masc', 'iitm_masc', 'default'],
-        'scattering_S':  ['tmatrix_masc', 'iitm_masc', 'default'],
-        'scattering_R':  ['tmatrix_masc', 'iitm_masc', 'default'],
-        'scattering_I':  ['tmatrix_masc', 'iitm_masc', 'default'],
-        'scattering_G':  ['tmatrix_masc', 'iitm_masc', 'default'],
+        'scattering':    ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'default'],
+        'scattering_S':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'default'],
+        'scattering_R':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'default'],
+        'scattering_I':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'default'],
+        'scattering_G':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'default'],
         'folder_lut': str}
     }
