@@ -3,7 +3,7 @@ Description: computing lookup table using pytmatrix
 Author: Hejun Xie
 Date: 2020-12-06 10:21:24
 LastEditors: Hejun Xie
-LastEditTime: 2021-01-04 21:34:03
+LastEditTime: 2021-04-08 10:46:05
 '''
 
 # unit test import
@@ -24,7 +24,7 @@ import yaml
 from ZJU_AERO.const import global_constants as constants
 from ZJU_AERO.interp import quadrature
 from ZJU_AERO.hydro import create_hydrometeor
-from ZJU_AERO.utils import dielectric_ice, dielectric_water
+from ZJU_AERO.utils import dielectric_ice, dielectric_water, dielectric_mixture
 
 
 # Whether to regenerate  all lookup tables, even if already present
@@ -66,6 +66,25 @@ complex_variables   =  [ 's11_fw', 's12_fw',
 complex_variables_map   = { 's11_fw':(0,0), 's12_fw':(0,1), 
                             's21_fw':(1,0), 's22_fw':(1,1)}
 
+def dielectric_solid(t, f, rho_solid):
+    """
+    Compute the complex dielectric constant of snow (a mixture of ice and air), based on
+    the article of H.Liebe: "A model for the complex permittivity of
+    water at frequencies below 1 THz"
+    Args:
+        rho_solid: density of solid hydrometeors in kg/m^3
+        t: temperature in K
+        f: frequency in GHz
+    Returns:
+        m: the complex dielectric constant m = x + iy
+    """
+    rho_ice = 918 # [kg/m^3]
+
+    frac_ice_volume = rho_solid / rho_ice
+    mix = [frac_ice_volume, 1-frac_ice_volume]
+
+    return dielectric_mixture(mix, [dielectric_ice(t, f), constants.M_AIR])
+
 def _gen_one_tm(hydrom_type, list_elevation, list_beta, D, T, AR, frequency, wavelength):
     '''
     Params:
@@ -74,8 +93,12 @@ def _gen_one_tm(hydrom_type, list_elevation, list_beta, D, T, AR, frequency, wav
         list_beta: list of Euler angle beta
     '''
     # Get m
-    if hydrom_type in ['S','G','I']:
-        m = dielectric_ice(T, frequency)
+    if hydrom_type in ['S']:
+        m = dielectric_solid(T, frequency, 100)
+    elif hydrom_type in ['G']:
+        m = dielectric_solid(T, frequency, 500)
+    elif hydrom_type in ['I']:
+        m = dielectric_solid(T, frequency, 300)
     elif hydrom_type in ['R']:
         m = dielectric_water(T, frequency)
 
