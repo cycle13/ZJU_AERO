@@ -7,7 +7,7 @@ simulating the scan.
 Author: Hejun Xie
 Date: 2020-10-09 15:56:38
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:25:53
+LastEditTime: 2021-04-16 16:47:19
 '''
 
 # Global imports
@@ -16,6 +16,7 @@ import numpy as np
 np.seterr(divide='ignore') # Disable divide by zero error
 import pyproj as pp
 import copy
+import h5py
 
 # Local imports
 from ..const import global_constants as constants
@@ -92,11 +93,20 @@ def get_spaceborne_angles(swath_file, swath_slice=None):
             pos_sc[iscan, 0], pos_sc[iscan, 1], pos_sc[iscan, 2] = sc_x, sc_y, sc_z
 
     else:
-        raise NotImplementedError('Swath file not implemented yet')
+        swath_f = h5py.File(swath_file,'r')
+        group = 'NS' # TODO fix later
+        if swath_slice is None:
+            [nscan, npixel] = swath_f[group]['Latitude'].shape
+            swath_slice = (slice(0, nscan+1), slice(0, npixel+1))
 
-    azimuths = np.zeros(lat_2D.shape)
-    ranges = np.zeros(lat_2D.shape)
-    elevations = np.zeros(lon_2D.shape)
+        lat_2D = swath_f[group]['Latitude']
+        lon_2D = swath_f[group]['Longitude']
+
+        center_lat_sc = swath_f[group]['navigation']['scLat']
+        center_lon_sc = swath_f[group]['navigation']['scLon']
+        sc_alt = swath_f[group]['navigation']['dprAlt']
+
+        pos_sc = swath_f[group]['navigation']['scPos']
 
     # make full slice
     if swath_slice is not None:
@@ -104,7 +114,13 @@ def get_spaceborne_angles(swath_file, swath_slice=None):
         lat_2D = lat_2D[swath_slice]
         center_lon_sc = center_lon_sc[swath_slice[0]]
         center_lat_sc = center_lat_sc[swath_slice[0]]
+        sc_alt = sc_alt[swath_slice[0]]
         pos_sc = pos_sc[swath_slice[0]]
+    
+    # compute azimuths, ranges and elevations
+    azimuths = np.zeros(lat_2D.shape)
+    ranges = np.zeros(lat_2D.shape)
+    elevations = np.zeros(lon_2D.shape)
     
     [nscan,npixel]=lat_2D.shape
 

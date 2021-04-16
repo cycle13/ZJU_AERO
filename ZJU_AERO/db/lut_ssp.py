@@ -4,7 +4,7 @@ used to load and save single scattering lookup tables
 Author: Hejun Xie
 Date: 2020-08-19 22:09:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-06 10:27:49
+LastEditTime: 2021-04-14 18:41:44
 '''
 
 
@@ -50,15 +50,17 @@ def load_all_lut(scheme, list_hydrom, frequency, scattering_method, folder_lut=N
             folder_lut_method = folder_lut + 'iitm_masc/'
         elif scattering_method[h] == 'tm_masc':
             folder_lut_method = folder_lut + 'tm_masc/'
+        elif scattering_method[h] == 'tm_masc_release':
+            folder_lut_method = folder_lut + 'tm_masc_release/'
 
         freq_str = str(frequency).replace('.','_')
-        if scattering_method[h] in ['iitm_masc', 'tm_masc']:
+        if scattering_method[h] in ['iitm_masc', 'tm_masc', 'tm_masc_release']:
             name = 'lut_SZ_' + h + '_' + freq_str + '_' + scheme + '_' + 'LevelB' + '.nc'
         else:
             name = 'lut_SZ_' + h + '_' + freq_str + '_' + scheme + '.lut'
         print(folder_lut_method + name)
         try:
-            engine = 'xarray' if scattering_method[h] in ['iitm_masc', 'tm_masc'] else 'numpy'
+            engine = 'xarray' if scattering_method[h] in ['iitm_masc', 'tm_masc', 'tm_masc_release'] else 'numpy'
             lut_sz[h] = load_lut(folder_lut_method + name, engine=engine)
         except:
             raise

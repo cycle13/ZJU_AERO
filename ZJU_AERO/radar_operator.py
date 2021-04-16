@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-02 18:30:54
+LastEditTime: 2021-04-16 20:29:31
 '''
 
 
@@ -732,8 +732,8 @@ class RadarOperator(object):
 
         if not event.is_set():
             # Threshold at given sensitivity
-            if output_variables in ['all','only_radar']:
-                list_beams = cut_at_sensitivity(list_beams)
+            # if output_variables in ['all','only_radar']:
+            #     list_beams = cut_at_sensitivity(list_beams)
 
             list_beams_formatted = SimulatedSpaceborne(list_beams,
                                                     (nscan,npixel))

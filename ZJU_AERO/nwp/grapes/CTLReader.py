@@ -17,13 +17,19 @@ NUMBER = '[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?'
 '''
 
 class CTLReader(object):
-    def __init__(self,ctlfilename,varname=-1):
+    def __init__(self,ctlfilename,varname=-1, geobox=None):
+        '''
+        Geobox: [llc_lon, urc_lon, llc_lat, urc_lat]
+        '''
         self.variables = {}
         self.dimensions = {}
         self.attributes = {}
         self.crement = {}
         self.ctlname = ctlfilename
         self.varname = varname
+        self.geobox = geobox
+        self.geobox_lon_idx = [0, 0]
+        self.geobox_lat_idx = [0, 0]
         
         with open(self.ctlname,'r') as f:
             self.ctl = f.read()
@@ -41,6 +47,13 @@ class CTLReader(object):
         self._read_dimensions() #获取ctl中的维度信息
         self._read_data(self.varname)
 
+        # offer the trimmed dimensions as API
+        if self.geobox != None:
+            self.variables['longitude'] = self.variables['longitude_geobox']
+            self.variables['latitude'] = self.variables['latitude_geobox']
+            self.dimensions['longitude'] = self.dimensions['longitude_geobox']
+            self.dimensions['latitude'] = self.dimensions['latitude_geobox']
+
     def _read_dimensions(self):
         if 'xdef' in self.ctl:
             p = re.compile("%s\s+(\d+)\s+linear\s+(%s)\s+(%s)" % ('xdef',NUMBER,NUMBER))
@@ -51,6 +64,12 @@ class CTLReader(object):
             self.dimensions['longitude'] = int(m.group(1))
             self.crement['longitude'] = float(m.group(3))
 
+            if self.geobox != None:
+                self.geobox_lon_idx[0] = int((self.geobox[0] - self.variables['longitude'][0]) / self.crement['longitude'])
+                self.geobox_lon_idx[1] = int((self.geobox[1] - self.variables['longitude'][0]) / self.crement['longitude'])
+                self.variables['longitude_geobox'] = self.variables['longitude'][self.geobox_lon_idx[0]:self.geobox_lon_idx[1]+1]
+                self.dimensions['longitude_geobox'] = self.geobox_lon_idx[1] - self.geobox_lon_idx[0] + 1
+
         if 'ydef' in self.ctl:
             p = re.compile("%s\s+(\d+)\s+linear\s+(%s)\s+(%s)" % ('ydef',NUMBER,NUMBER))
             m = p.search(self.ctl)
@@ -59,6 +78,12 @@ class CTLReader(object):
                                                       int(m.group(1)))
             self.dimensions['latitude'] = int(m.group(1))
             self.crement['latitude'] = float(m.group(3))
+
+            if self.geobox != None:
+                self.geobox_lat_idx[0] = int((self.geobox[2] - self.variables['latitude'][0]) / self.crement['latitude'])
+                self.geobox_lat_idx[1] = int((self.geobox[3] - self.variables['latitude'][0]) / self.crement['latitude'])
+                self.variables['latitude_geobox'] = self.variables['latitude'][self.geobox_lat_idx[0]:self.geobox_lat_idx[1]+1]
+                self.dimensions['latitude_geobox'] = self.geobox_lat_idx[1] - self.geobox_lat_idx[0] + 1
 
         if 'zdef' in self.ctl:
             p = re.compile("%s\s+(\d+)\s+(\w+)" % ('zdef'))
@@ -144,23 +169,33 @@ class CTLReader(object):
                 dim[i] = 1
 
         for ivarname in self.varname:  # 此段代码来读取相应变量的数据
+            print('processing: {}'.format(ivarname))
             var = self.variables[ivarname] = Variable(ivarname)       #生成特定的变量类并在本段方法中以"var"的别名进行描述
             index = allvar.index(ivarname)
             long_name_tmp = long_name[index]
+
+            # set the dimension of var
             var.dimensions['levels'] = dim[index]
-            var.dimensions['time'],var.dimensions['latitude'],var.dimensions['longitude'] = self.dimensions['time'],self.dimensions['latitude'],self.dimensions['longitude']
+            var.dimensions['time'] = self.dimensions['time']
+            if self.geobox != None:
+                var.dimensions['latitude'] = self.dimensions['latitude_geobox']
+                var.dimensions['longitude'] = self.dimensions['longitude_geobox']
+            else:
+                var.dimensions['latitude'] = self.dimensions['latitude']
+                var.dimensions['longitude'] = self.dimensions['longitude']
+
             if var.dimensions['levels'] == 0:  # 当读到CTL中对应的层次为0时，代表数据只有一层
                 var.dimensions['levels'] = 1
+
             var.variables['levels'] = self.variables['levels'][0:var.dimensions['levels']]
             SPACE = self.dimensions['latitude']*self.dimensions['longitude']
             size = var.dimensions['levels']*(SPACE+place_hold)
 
-            #var.dimensions_name = ('time','levels','latitude','longitude')    #当变量为四维数组或三维数组时变量的维度信息用同一方式表示，方便主程序取值写法统一
             var.dimensions_name = ('levels','latitude','longitude')
-
-            data = np.zeros((self.dimensions['time'],var.dimensions['levels'],self.dimensions['latitude'],self.dimensions['longitude']))
-
             var.shape = tuple(var.dimensions[dim] for dim in var.dimensions_name)    #根据不同的维度信息创建维度宽度提示元组
+
+            data = np.zeros((self.dimensions['time'], var.dimensions['levels'], 
+                var.dimensions['latitude'], var.dimensions['longitude']))
 
             filename = open(self.filename,'rb')        # 打开文件
             
@@ -168,13 +203,14 @@ class CTLReader(object):
                 for iz in np.arange(0,sum(dim[0:index])):  #'f4'
                     tmpdata = np.fromfile(filename,dtype=rflag,count=SPACE+place_hold)  ##跳过不需要的变量
 
+                raw_shape = (var.dimensions['levels'], self.dimensions['latitude'], self.dimensions['longitude'])
                 if sequential:        # 处理顺序存取文件
-                    data[it,:,:,:] = np.fromfile(filename,dtype=rflag,count=size).reshape(-1,SPACE+place_hold)[:,
-                                                                                                             int(place_hold/2):
-                                                                                                            -int(place_hold/2)].reshape(var.shape)
+                    data_raw = np.fromfile(filename,dtype=rflag,count=size).reshape(-1,SPACE+place_hold)[:, int(place_hold/2):-int(place_hold/2)].reshape(raw_shape)
                 else:                 # 处理直接存取文件
-                    data[it,:,:,:] = np.fromfile(filename,dtype=rflag,count=size).reshape(-1,SPACE+place_hold).reshape(var.shape)
-                #   print data
+                    data_raw = np.fromfile(filename,dtype=rflag,count=size).reshape(-1,SPACE+place_hold).reshape(raw_shape)
+                
+                data[it, :, :, :] = data_raw[:, self.geobox_lat_idx[0]:self.geobox_lat_idx[1]+1, 
+                                self.geobox_lon_idx[0]:self.geobox_lon_idx[1]+1]
 
                 if self.dimensions['time'] != 1:  # 当时次不是1时，还需循环跳过后面的变量
                     for iz in np.arange(0,sum(dim[index+1:])):

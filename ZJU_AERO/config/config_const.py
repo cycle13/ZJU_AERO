@@ -4,7 +4,7 @@ config subpackage.
 Author: Hejun Xie
 Date: 2020-11-21 11:07:03
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-06 10:24:13
+LastEditTime: 2021-04-14 14:46:26
 '''
 
 # Local imports, see config_types.py for the definition of Range and TypeList
@@ -89,10 +89,10 @@ VALID_VALUES={
         'with_ice_crystals': [0, 1],
         'with_melting': [0, 1],
         'with_attenuation': [0, 1],
-        'scattering':    ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'default'],
-        'scattering_S':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'default'],
-        'scattering_R':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'default'],
-        'scattering_I':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'default'],
-        'scattering_G':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'default'],
+        'scattering':    ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'tm_masc_release', 'default'],
+        'scattering_S':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'tm_masc_release', 'default'],
+        'scattering_R':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'tm_masc_release', 'default'],
+        'scattering_I':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'tm_masc_release', 'default'],
+        'scattering_G':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'tm_masc_release', 'default'],
         'folder_lut': str}
     }

@@ -4,7 +4,7 @@ Description: Transfer the binary output of GRAPES modelvar to netCDF4 format
 Author: Hejun Xie
 Date: 2020-11-01 10:41:10
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-02 10:37:10
+LastEditTime: 2021-04-16 20:07:22
 '''
 
 # Global import
@@ -24,12 +24,13 @@ import datetime as dt
 from .CTLReader import CTLReader
 from .grapes_constant import raw_var_unit
 
-def convert_to_nc_specific_ctl(ctlname, nc_out, var='all', v_grid_type='ml'):
+def convert_to_nc_specific_ctl(ctlname, nc_out, var='all', geobox=None, v_grid_type='ml'):
     '''
     Params:
         ctlname: The ctl filename, should be non-general ctl file.
         nc_out: The output netCDF4 file to be saved as.
         var: The variavbles you want to read, set it as 'all' if you want to read all variables.   
+        geobox: [llc_lon, urc_lon, llc_lat, urc_lat]
         v_grid_type: 'ml' or 'pl':
             1. 'ml', model level variables 
                 (a). u, v: on half vertical model levels, but not available on top and bottom levels. (nz-1)
@@ -44,7 +45,7 @@ def convert_to_nc_specific_ctl(ctlname, nc_out, var='all', v_grid_type='ml'):
     if v_grid_type not in ['ml', 'pl']:
         raise KeyError('Invalid v_grid_type:{}'.format(v_grid_type))
     
-    data = CTLReader(ctlname)
+    data = CTLReader(ctlname, varname=var, geobox=geobox)
     def deltatime_hours(t1, t2):
         return int((t1-t2).days*24 + (t1-t2).seconds/3600)
     hours_since_2000 = np.array([deltatime_hours(itime, dt.datetime(2000,1,1)) for itime in data.variables['time']])

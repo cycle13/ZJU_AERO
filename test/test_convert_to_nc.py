@@ -3,7 +3,7 @@ Description: test transfer from GRAPES modelvar to nc
 Author: Hejun Xie
 Date: 2020-10-28 16:33:40
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 10:13:38
+LastEditTime: 2021-04-14 11:30:20
 '''
 
 # unit test import

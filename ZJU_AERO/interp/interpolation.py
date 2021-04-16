@@ -4,7 +4,7 @@ model variables to the radar gates
 Author: Hejun Xie
 Date: 2020-08-15 11:07:01
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-22 10:50:08
+LastEditTime: 2021-04-16 17:39:53
 '''
 
 # Global imports
@@ -295,6 +295,9 @@ def trilin_interp_radial(ds_model, azimuth, distances_profile, heights_profile):
 
     # get MODEL projection paramters
     proj_MODEL = ds_model.attrs
+    # print(proj_MODEL)
+    # print(ds_model['T'].data.shape)
+    # exit()
 
     # Get lower left corner of MODEL domain in local index coordinates
     llc_MODEL=(float(0), float(0))
@@ -311,12 +314,13 @@ def trilin_interp_radial(ds_model, azimuth, distances_profile, heights_profile):
     coords_rad_loc = WGS_to_MODEL((lats_rad,lons_rad), proj_MODEL)
 
     # Check if all points are within MODEL domain
-    if np.any(coords_rad_loc[:,1]<llc_MODEL[0]) or\
-        np.any(coords_rad_loc[:,0]<llc_MODEL[1]) or \
-            np.any(coords_rad_loc[:,1]>urc_MODEL[0]) or \
-                np.any(coords_rad_loc[:,0]>urc_MODEL[1]):
+    # TODO: Check earlier results
+    if np.any(coords_rad_loc[:,0]<llc_MODEL[0]) or\
+        np.any(coords_rad_loc[:,1]<llc_MODEL[1]) or \
+            np.any(coords_rad_loc[:,0]>urc_MODEL[0]) or \
+                np.any(coords_rad_loc[:,1]>urc_MODEL[1]):
                     msg = """
-                    ERROR: RADAR DOMAIN IS NOT ENTIRELY CONTAINED IN WRF
+                    ERROR: RADAR DOMAIN IS NOT ENTIRELY CONTAINED IN NWP MODEL
                     SIMULATION DOMAIN: ABORTING
                     """
                     raise(IndexError(dedent(msg)))
