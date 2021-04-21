@@ -3,7 +3,7 @@ Description: simulate gpm dpr with grapes modelvar input
 Author: Hejun Xie
 Date: 2021-04-14 09:49:46
 LastEditors: Hejun Xie
-LastEditTime: 2021-04-16 20:54:01
+LastEditTime: 2021-04-16 22:38:13
 '''
 
 # unit test import
@@ -68,35 +68,37 @@ if __name__ == "__main__":
     plt.rcParams['font.family'] = 'serif'
     from mpl_toolkits.basemap import Basemap
 
-    fig, ax = plt.subplots(figsize=(10,8))
+    for height_km in [0, 3, 5, 8]:
 
-    slat = 18.0
-    elat = 32.0
-    slon = 125.0
-    elon = 135.0
+        fig, ax = plt.subplots(figsize=(10,8))
 
-    zlevel = 5
+        slat = 18.0
+        elat = 32.0
+        slon = 125.0
+        elon = 135.0
 
-    x = r.lons
-    y = r.lats
-    h = r.heights
-    z = 10*np.log10(r.data[var])
+        zlevel = height_km * 8
 
-    z[z<-10] = np.nan
+        x = r.lons
+        y = r.lats
+        h = r.heights
+        z = 10*np.log10(r.data[var])
 
-    map = Basemap(projection='cyl', llcrnrlat=slat, urcrnrlat=elat, llcrnrlon=slon, urcrnrlon=elon, resolution='h', ax=ax)
-    map.drawparallels(np.arange(slat, elat+1, 3.0), linewidth=1, dashes=[4, 3], labels=[1, 0, 0, 0])
-    map.drawmeridians(np.arange(slon, elon+1, 3.0), linewidth=1, dashes=[4, 3], labels=[0, 0, 0, 1])
-    map.drawcoastlines()
-    
-    im = map.pcolormesh(x[...,zlevel], y[...,zlevel], z[...,zlevel], cmap='pyart_Carbone11', shading='auto')
+        z[z<-10] = np.nan
 
-    ax.set_title('Spaceborne Radar ' + var, fontsize=16)
-    
-    cb = fig.colorbar(im, ax=ax)
-    cb.ax.set_ylabel('Reflectivity Factor [dBZ]', fontsize=14)
+        map = Basemap(projection='cyl', llcrnrlat=slat, urcrnrlat=elat, llcrnrlon=slon, urcrnrlon=elon, resolution='h', ax=ax)
+        map.drawparallels(np.arange(slat, elat+1, 3.0), linewidth=1, dashes=[4, 3], labels=[1, 0, 0, 0])
+        map.drawmeridians(np.arange(slon, elon+1, 3.0), linewidth=1, dashes=[4, 3], labels=[0, 0, 0, 1])
+        map.drawcoastlines()
+        
+        im = map.pcolormesh(x[...,zlevel], y[...,zlevel], z[...,zlevel], cmap='pyart_Carbone11', shading='auto', vmin=-10, vmax=45)
 
-    plt.savefig('./gpm_dpr_swath', dpi=300, bbox_inches='tight')
+        ax.set_title('Spaceborne Radar ' + var, fontsize=16)
+        
+        cb = fig.colorbar(im, ax=ax)
+        cb.ax.set_ylabel('Reflectivity Factor [dBZ]', fontsize=14)
 
-    plt.close()
-    del fig, ax
+        plt.savefig('./gpm_dpr_swath_{}km'.format(height_km), dpi=300, bbox_inches='tight')
+
+        plt.close()
+        del fig, ax
