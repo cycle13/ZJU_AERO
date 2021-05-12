@@ -98,7 +98,7 @@ float* get_all_radar_pts(float *output, int len, float *coords_rad_pts, int crp_
             // }
         }
 
-        if(flag==2){ /* We hit the top of COSMO domain */
+        if(flag==2){ /* We hit the top of MODEL domain */
             for(k=i;k<crp_x;k++){output[k]=-9999;}
             break;
         }
@@ -124,7 +124,7 @@ int binary_search(float *arr, int dim, float key){
    int pos_left=0;
    int pos_right=0;
     
-   if(key>arr[0]){ /* We hit the top of COSMO domain */
+   if(key>arr[0]){ /* We hit the top of MODEL domain */
 	return -1;
    }
    else if(key<arr[dim-1]){  /* We hit a mountain */
