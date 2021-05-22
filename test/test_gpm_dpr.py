@@ -3,7 +3,7 @@ Description: simulate gpm dpr with grapes modelvar input
 Author: Hejun Xie
 Date: 2021-04-14 09:49:46
 LastEditors: Hejun Xie
-LastEditTime: 2021-04-16 22:38:13
+LastEditTime: 2021-05-19 10:47:01
 '''
 
 # unit test import
@@ -101,4 +101,3 @@ if __name__ == "__main__":
         plt.savefig('./gpm_dpr_swath_{}km'.format(height_km), dpi=300, bbox_inches='tight')
 
         plt.close()
-        del fig, ax
