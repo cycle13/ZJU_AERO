@@ -12,7 +12,6 @@ import numpy as np
 np.seterr(divide='ignore') # Disable divide by zero error
 import pyproj
 import pickle
-import pyWRF as pw
 import scipy.interpolate as interp
 from scipy.ndimage import gaussian_filter
 from textwrap import dedent

@@ -10,7 +10,6 @@ LastEditTime: 2020-11-22 10:50:47
 # global import
 import xarray as xr
 import numpy as np
-import pyWRF as pw
 import pyproj
 from scipy.interpolate import interp1d
 from scipy.integrate import solve_ivp
@@ -179,18 +178,19 @@ def Zeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_radar
 
 
 if __name__ == "__main__":
+    pass
     
-    FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'
-    file_h = pw.open_file(FILENAME)
-    d = file_h.get_variable(['N'], itime=10, assign_heights=True)
+    # FILENAME = '../../../cosmo_pol/pathos/WRF/wsm6/wrfout_d03_2013-10-06_00_00_00'
+    # file_h = pw.open_file(FILENAME)
+    # d = file_h.get_variable(['N'], itime=10, assign_heights=True)
     
-    range_vec = np.arange(0, 50*1000, 500)
-    elevation_angles = [1.0]
-    azimuth_angle = 120
-    coords_radar = [27.9, 120.8, 200]
+    # range_vec = np.arange(0, 50*1000, 500)
+    # elevation_angles = [1.0]
+    # azimuth_angle = 120
+    # coords_radar = [27.9, 120.8, 200]
     
-    s, h, e =  Zeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_radar, d['N'])
-    print(s[0])
-    print(h[0])
-    print(e[0])
+    # s, h, e =  Zeng2014_exhaustive(range_vec, elevation_angles, azimuth_angle, coords_radar, d['N'])
+    # print(s[0])
+    # print(h[0])
+    # print(e[0])
     

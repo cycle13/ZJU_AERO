@@ -58,7 +58,8 @@ def discrete_gautschi(z, w, n_iter):
 
 def gautschi_points_and_weights(w_func=lambda x : np.ones(x.shape),
     left=-1.0, right=1.0, num_points=5, n=8192):
-    """Quadratude points and weights for a weighting function.
+    '''
+    Quadratude points and weights for a weighting function.
     Points and weights for approximating the integral
         I = \int_left^right f(x) w(x) dx
     given the weighting function w(x) using the approximation
@@ -73,7 +74,7 @@ def gautschi_points_and_weights(w_func=lambda x : np.ones(x.shape),
     Returns:
         A tuple (points, weights) where points is a sorted array of the
         points x_i and weights gives the corresponding weights w_i.
-    """
+    '''
 
     dx = (float(right)-left)/n
     z = np.hstack(np.linspace(left+0.5*dx, right-0.5*dx, n))
