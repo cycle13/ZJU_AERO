@@ -3,7 +3,7 @@ Description: simulate gpm dpr with grapes modelvar input
 Author: Hejun Xie
 Date: 2021-04-14 09:49:46
 LastEditors: Hejun Xie
-LastEditTime: 2021-05-19 10:47:01
+LastEditTime: 2021-06-07 12:33:49
 '''
 
 # unit test import
@@ -22,8 +22,8 @@ import datetime as dt
 import os
 import glob
 
-LOAD_MODEL = True
-LOAD_RADAR = True
+LOAD_MODEL = False
+LOAD_RADAR = False
 DEG = r'$^\circ$'
 
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17',
