@@ -3,7 +3,7 @@ Description: hydrometeor snow
 Author: Hejun Xie
 Date: 2020-11-13 12:13:17
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:27:40
+LastEditTime: 2021-06-13 22:59:28
 '''
 
 # Global imports
@@ -13,7 +13,7 @@ np.seterr(divide='ignore')
 # Local imports
 from ..const import global_constants as constants
 from ..const import constants_wsm6 as constants_1mom
-from ._hydrometeor import _Hydrometeor
+from ._hydrometeor import _Hydrometeor, _NonsphericalHydrometeor
 
 
 class Snow(_Hydrometeor):
@@ -145,3 +145,95 @@ class Snow(_Hydrometeor):
         """
         cant_std = constants.A_CANT_STD_AGG * D**constants.B_CANT_STD_AGG
         return cant_std
+
+class NonsphericalSnow(Snow, _NonsphericalHydrometeor):
+    '''
+    Class for snow in the form of aggregates,
+    but of nonspherical hydrometeor type, i.e., free a and b
+    '''
+    def __init__(self, scheme, shape):
+        """
+            Args:
+            scheme: microphysical scheme to use, can be either '1mom' (operational
+               one-moment scheme) or '2mom' (non-operational two-moment scheme, not implemented yet)
+            
+            shape: shape of a particle
+                1. hexcol: hexagonal column 
+                2. TODO
+
+            Returns:
+                A nonspherical Hydrometeor class instance (see below)
+        """
+        super(NonsphericalSnow, self).__init__(scheme)
+
+        if shape not in ['hexcol']:
+            msg = """
+            Invalid Nonspherical snow shape
+            """
+            return ValueError(dedent(msg))
+            
+        self.shape = shape
+        self.list_D = np.linspace(self.d_min, self.d_max, self.nbins_D)
+        self.asp_wgt = self.get_asp_wgt(self.list_D)
+
+    def get_list_asp(self):
+        '''
+        Aspect ratio list of snow
+        '''
+        return np.arange(1.1, 5.2, 0.2)
+    
+    def _get_M(self, D, asp):
+        '''
+        compute the mass of a nonspherical particle
+
+        Args:
+            D: maximum dimension of a particle
+            asp: aspect ratio
+
+        Returns:
+            Mass of a particle
+        '''
+
+        rho = constants.RHO_I # [kg mm-3]
+
+        if self.shape == 'hexcol':
+            L = D / np.sqrt(asp**2 + 1)
+            a = (asp * L) / 2
+            V = L * 3 / 2 * np.sqrt(3) * a**2 # [mm3]
+
+        return V * rho
+    
+    def set_psd(self, *args):
+        """
+        Sets the particle size distribution parameters
+        Args:
+            *args: for the one-moment scheme, a tuple (T,QM) containing the
+                temperatue in K and the mass concentration QM,
+                for the two-moment scheme, a tuple (QN, QM), where QN is the
+                number concentration in m-3 (not used currently, not implemented yet...)
+
+        Returns:
+            No return but initializes class attributes for psd estimation
+        """
+
+        ''''''
+
+        T, QM = args[0], args[1]
+        # For N0 use relation by Field et al. 2005 (QJRMS)
+        N0_23 = 5.65E5 * np.exp(-0.107*(T-constants.T0)) # [m-4] 
+        self.N0 = 13.5 * N0_23 / 1.0E3 # [mm^-1 m^-3]
+
+        if np.isscalar(T):
+            _lambda = self.solve_lambda(QM, self.N0)
+        else:
+            ngates = len(T)
+            _lambda = np.zeros((ngates), dtype='float32')
+            for igate, n0, qm in zip(range(ngates), self.N0, QM):
+                _lambda[igate] = self.solve_lambda(qm, n0)
+            
+        _lambda = np.array(_lambda) # [m-1]
+        _lambda[args[1] == 0] = np.nan
+
+        self.lambda_ = _lambda
+        self.ntot = self.ntot_factor * self.N0 * \
+            self.lambda_ ** (-(self.mu + 1))

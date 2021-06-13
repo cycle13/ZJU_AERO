@@ -8,7 +8,7 @@ dielectric constants, velocity, mass...
 Author: Hejun Xie
 Date: 2020-08-18 09:37:31
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-13 13:06:49
+LastEditTime: 2021-06-13 18:26:33
 '''
 
 # Global import 
@@ -17,7 +17,7 @@ from textwrap import dedent
 # Local import
 from ._grauple import Graupel
 from ._ice import IceParticle
-from ._snow import Snow
+from ._snow import Snow, NonsphericalSnow
 from ._rain import Rain
 
 def create_hydrometeor(hydrom_type, scheme = '1mom'):

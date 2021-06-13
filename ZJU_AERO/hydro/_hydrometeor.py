@@ -4,13 +4,14 @@ should not be initialized directly
 Author: Hejun Xie
 Date: 2020-11-13 13:04:15
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-13 13:05:26
+LastEditTime: 2021-06-13 23:01:14
 '''
 
 # Global import
 import numpy as np
 np.seterr(divide='ignore')
-
+from scipy import stats
+from scipy import optimize
 
 class _Hydrometeor(object):
     '''
@@ -150,3 +151,131 @@ class _Hydrometeor(object):
         """
         if len(args) == 2 and self.scheme == '2mom':
             pass
+    
+class _NonsphericalHydrometeor(_Hydrometeor):
+    '''
+    Base class for nonspherical hydrometeor.
+    Complicated Definition of the m-D, vt-D relation of nonspherical particles can be found here
+    Here three features of the particles are preserved as compared with spherical hydrometeor:
+    1. The particle size distribution (PSD)
+    2. The aspect ratio distribution (ARD) observed by particle camera
+    3. The total water content 
+    '''
+
+    def __init__(self, scheme):
+        """
+            Args:
+            scheme: microphysical scheme to use, can be either '1mom' (operational
+               one-moment scheme) or '2mom' (non-operational two-moment scheme, not implemented yet)
+
+            Returns:
+                A nonspherical Hydrometeor class instance (see below)
+        """
+        super(_NonsphericalHydrometeor, self).__init__(scheme)
+        self.a = np.nan
+        self.b = np.nan
+        self.list_D = None
+        self.asp_wgt = None
+    
+    def get_list_asp(self):
+        """
+        Return the aspect ratio grids of a particle
+        Defined by a specific kind of hydrometeor
+
+        Returns:
+            list_asp: A list of aspect ratio 
+        """
+        pass
+
+    def _get_M(self, D, asp):
+        '''
+        Compute the mass of a nonspherical particle
+
+        need to be initialized
+        '''
+        pass
+    
+    def get_asp_wgt(self, list_D):
+        """
+        Return the aspect ratio distribution of a particle
+        Args:
+            list_D: list of maximum dimension of a particle [mm]
+        
+        Returns:
+            asp_wgt: Aspect ratio distribution weight 
+                dimension: (nD, nAR)
+        """
+
+        if np.isscalar(list_D):
+            list_D = np.array([list_D], dtype='float32')
+
+        list_asp = self.get_list_asp()
+    
+        ar_lambda, ar_loc, ar_mu = self.get_aspect_ratio_pdf_masc(list_D)
+        asp_wgt = np.empty((len(list_D), len(list_asp)), dtype='float32')
+
+        for l in zip(range(len(list_D)), ar_lambda, ar_loc, ar_mu):
+            gamm = stats.gamma(l[1],l[2],l[3])
+            wei = gamm.pdf(list_asp)
+            wei /= np.sum(wei) # renormalization
+            asp_wgt[l[0], :] = wei
+
+        return asp_wgt
+
+    def get_M(self, list_D):
+        """
+        Returns the mass of a particle
+        Args:
+            list_D: list of maximum dimension of a particle [mm]
+
+        Returns:
+            m: the averaged particle masses of aspect ratio distribution, 
+            same dimensions as D [kg]
+        """
+
+        if np.isscalar(list_D):
+            list_D = np.array([list_D], dtype='float32')
+        
+        list_asp = self.get_list_asp() # (nAR)
+        asp_wgt = self.asp_wgt # (nD, nAR)
+
+        M = np.zeros((len(list_D)), dtype='float32') # [kg]
+
+        for iD, D in enumerate(list_D):
+            m = self._get_M(D, list_asp)
+            M[iD] = np.sum(m * asp_wgt[iD, :])
+        
+        return M
+
+    def solve_lambda(self, QM, N0):
+        '''
+        Solve lambda of exponential particle size distribution, 
+        N(D) = N0 * exp(- lambda * D)
+        according to given QM and N0, and M-D relationship,
+        by zero-finding method of Newton optimization
+
+        Args:
+            QM: mass content # [kg m^-3]
+            N0: intercept of exponential particle size distribution # [mm^-1 m^-3]
+
+        Returns:
+            Lambda: the slope of exponential particle size ditribution [mm-1]
+        '''
+
+        list_D = self.list_D
+        dD = list_D[1] - list_D[0]
+
+        M = self.get_M(list_D) # (nD)
+
+        def QM_P0(x):
+            return np.sum(np.exp(-x*list_D) * M) * N0 * dD - QM
+        
+        def QM_P1(x):
+            return - np.sum(np.exp(-x*list_D) * M * list_D) * N0 * dD
+        
+        def QM_P2(x):
+            return np.sum(np.exp(-x*list_D) * M * list_D**2) * N0 * dD
+        
+        _lambda = optimize.newton(QM_P0, 1.0, fprime=QM_P1, fprime2=QM_P2, tol=1e-4)
+        
+        return _lambda
