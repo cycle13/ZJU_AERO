@@ -3,7 +3,7 @@ Description: hydrometeor snow
 Author: Hejun Xie
 Date: 2020-11-13 12:13:17
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-13 22:59:28
+LastEditTime: 2021-06-14 15:52:35
 '''
 
 # Global imports
@@ -166,7 +166,7 @@ class NonsphericalSnow(Snow, _NonsphericalHydrometeor):
         """
         super(NonsphericalSnow, self).__init__(scheme)
 
-        if shape not in ['hexcol']:
+        if shape not in ['hexcol', 'spheriod']:
             msg = """
             Invalid Nonspherical snow shape
             """
@@ -182,25 +182,21 @@ class NonsphericalSnow(Snow, _NonsphericalHydrometeor):
         '''
         return np.arange(1.1, 5.2, 0.2)
     
-    def _get_M(self, D, asp):
+    def _get_mass(self, D, asp):
         '''
         compute the mass of a nonspherical particle
 
         Args:
             D: maximum dimension of a particle
-            asp: aspect ratio
+            asp: aspect ratio (asp > 1.0)
 
         Returns:
             Mass of a particle
         '''
-
+        
         rho = constants.RHO_I # [kg mm-3]
-
-        if self.shape == 'hexcol':
-            L = D / np.sqrt(asp**2 + 1)
-            a = (asp * L) / 2
-            V = L * 3 / 2 * np.sqrt(3) * a**2 # [mm3]
-
+        V = self._get_volumn(D, asp)
+        
         return V * rho
     
     def set_psd(self, *args):

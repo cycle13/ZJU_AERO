@@ -4,7 +4,7 @@ should not be initialized directly
 Author: Hejun Xie
 Date: 2020-11-13 13:04:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-13 23:01:14
+LastEditTime: 2021-06-14 15:51:05
 '''
 
 # Global import
@@ -176,6 +176,7 @@ class _NonsphericalHydrometeor(_Hydrometeor):
         self.b = np.nan
         self.list_D = None
         self.asp_wgt = None
+        self.shape = None
     
     def get_list_asp(self):
         """
@@ -183,14 +184,41 @@ class _NonsphericalHydrometeor(_Hydrometeor):
         Defined by a specific kind of hydrometeor
 
         Returns:
-            list_asp: A list of aspect ratio 
+            list_asp: A list of aspect ratio (asp > 1.0)
         """
         pass
 
-    def _get_M(self, D, asp):
+    def _get_volumn(self, D, asp):
+        '''
+        Compute the volumn of a nonspherical particle
+
+        Args:
+            D: maximum dimension of a particle
+            asp: aspect ratio (asp > 1.0)
+
+        Returns:
+            Volumn of a particle [mm3]
+        '''
+
+        if self.shape == 'hexcol':
+            L = D / np.sqrt(asp**2 + 1)
+            a = (asp * L) / 2
+            V = L * 3 / 2 * np.sqrt(3) * a**2
+        elif self.shape == 'spheroid':
+            V = (np.pi / 6) * D ** 3 / asp
+        
+        return V
+
+    def _get_mass(self, D, asp):
         '''
         Compute the mass of a nonspherical particle
 
+        Args:
+            D: maximum dimension of a particle
+            asp: aspect ratio (asp > 1.0)
+
+        Returns:
+            Mass of a particle
         need to be initialized
         '''
         pass
@@ -242,7 +270,7 @@ class _NonsphericalHydrometeor(_Hydrometeor):
         M = np.zeros((len(list_D)), dtype='float32') # [kg]
 
         for iD, D in enumerate(list_D):
-            m = self._get_M(D, list_asp)
+            m = self._get_mass(D, list_asp)
             M[iD] = np.sum(m * asp_wgt[iD, :])
         
         return M

@@ -5,7 +5,7 @@ hydrometeor concentration: SNOW, GRAUPEL, RAIN, etc.
 Author: Hejun Xie
 Date: 2020-11-14 18:03:56
 LastEditors: Hejun Xie
-LastEditTime: 2021-04-09 10:20:16
+LastEditTime: 2021-06-16 17:35:25
 '''
 
 # unit test import
@@ -19,7 +19,7 @@ import numpy as np
 from ZJU_AERO.core._rdop_scatter import one_rad_one_hydro, get_pol_from_sz 
 from ZJU_AERO.interp import Radial
 from ZJU_AERO.db import load_lut
-from ZJU_AERO.hydro.hydrometeor import Snow
+from ZJU_AERO.hydro.hydrometeor import Snow, NonsphericalSnow
 from ZJU_AERO.config import createConfig
 from ZJU_AERO.const import global_constants as constants
 
@@ -31,7 +31,8 @@ if __name__ == "__main__":
 
     db = load_lut('../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc', engine='xarray')
     # db = load_lut('../pathos/lut/tm_masc_release/lut_SZ_S_9_41_1mom_LevelB.nc', engine='xarray')
-    hydro_istc = Snow('1mom')
+    # hydro_istc = Snow('1mom')
+    hydro_istc = NonsphericalSnow('1mom', 'hexcol')
     hydro_name = 'S'
 
     # set profile

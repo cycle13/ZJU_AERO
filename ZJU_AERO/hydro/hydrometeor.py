@@ -8,7 +8,7 @@ dielectric constants, velocity, mass...
 Author: Hejun Xie
 Date: 2020-08-18 09:37:31
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-13 18:26:33
+LastEditTime: 2021-06-13 23:34:41
 '''
 
 # Global import 
@@ -33,10 +33,16 @@ def create_hydrometeor(hydrom_type, scheme = '1mom'):
         A hydrometeor class instance (see below)
     """
 
+    from ..config.cfg import CONFIG
+
     if  hydrom_type == 'R':
        return Rain(scheme)
     elif hydrom_type == 'S':
-        return Snow(scheme)
+        if CONFIG['microphysics']['psd_new_solver_S']:
+            shape = CONFIG['microphysics']['shape_S']
+            return NonsphericalSnow(scheme, shape)
+        else:
+            return Snow(scheme)
     elif hydrom_type == 'G':
         return Graupel(scheme)
     elif hydrom_type == 'I':

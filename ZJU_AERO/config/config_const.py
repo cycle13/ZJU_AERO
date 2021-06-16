@@ -4,7 +4,7 @@ config subpackage.
 Author: Hejun Xie
 Date: 2020-11-21 11:07:03
 LastEditors: Hejun Xie
-LastEditTime: 2021-04-14 14:46:26
+LastEditTime: 2021-06-13 23:29:55
 '''
 
 # Local imports, see config_types.py for the definition of Range and TypeList
@@ -52,7 +52,9 @@ DEFAULTS={
          'scattering_S': 'default',
          'scattering_R': 'default',
          'scattering_I': 'default',
-         'scattering_G': 'default'}
+         'scattering_G': 'default',
+         'psd_new_solver_S': 0,
+         'shape_S': 'sphere'}
     }
 
 VALID_VALUES={
@@ -94,5 +96,7 @@ VALID_VALUES={
         'scattering_R':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'tm_masc_release', 'default'],
         'scattering_I':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'tm_masc_release', 'default'],
         'scattering_G':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'tm_masc_release', 'default'],
-        'folder_lut': str}
+        'folder_lut': str,
+        'psd_new_solver_S': [0, 1],
+        'shape_S': ['sphere', 'spheroid', 'hexcol']}
     }
