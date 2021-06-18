@@ -3,7 +3,7 @@ Description: hydrometeor grauple
 Author: Hejun Xie
 Date: 2020-11-13 12:13:29
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:28:29
+LastEditTime: 2021-06-18 11:21:07
 '''
 
 # Global imports
@@ -13,7 +13,7 @@ np.seterr(divide='ignore')
 # Local imports
 from ..const import global_constants as constants
 from ..const import constants_wsm6 as constants_1mom
-from ._hydrometeor import _Hydrometeor
+from ._hydrometeor import _Hydrometeor, _NonsphericalHydrometeor
 
 
 class Graupel(_Hydrometeor):
@@ -142,3 +142,90 @@ class Graupel(_Hydrometeor):
         """
         cant_std = constants.A_CANT_STD_GRAU * D**constants.B_CANT_STD_GRAU
         return cant_std
+
+class NonsphericalGraupel(Graupel, _NonsphericalHydrometeor):
+    '''
+    Class for snow in the form of graupel,
+    but of nonspherical hydrometeor type, i.e., free a and b
+    '''
+    def __init__(self, scheme, shape):
+        """
+            Args:
+            scheme: microphysical scheme to use, can be either '1mom' (operational
+               one-moment scheme) or '2mom' (non-operational two-moment scheme, not implemented yet)
+            
+            shape: shape of a particle
+                1. hexcol: hexagonal column 
+                2. TODO
+
+            Returns:
+                A nonspherical Hydrometeor class instance (see below)
+        """
+        super(NonsphericalGraupel, self).__init__(scheme)
+
+        if shape not in ['spheroid']:
+            msg = """
+            Invalid Nonspherical graupel shape
+            """
+            return ValueError(dedent(msg))
+            
+        self.shape = shape
+        self.list_D = np.linspace(self.d_min, self.d_max, self.nbins_D)
+        self.asp_wgt = self.get_asp_wgt(self.list_D)
+
+    def get_list_asp(self):
+        '''
+        Aspect ratio list of snow
+        '''
+        return np.arange(1.1, 3.1, 0.1)
+    
+    def _get_mass(self, D, asp):
+        '''
+        compute the mass of a nonspherical particle
+
+        Args:
+            D: maximum dimension of a particle
+            asp: aspect ratio (asp > 1.0)
+
+        Returns:
+            Mass of a particle
+        '''
+        
+        rho = constants.RHO_I # [kg mm-3]
+        V = self._get_volumn(D, asp)
+        
+        return V * rho
+    
+    def set_psd(self, *args):
+        """
+        Sets the particle size distribution parameters
+        Args:
+            *args: for the one-moment scheme, a tuple (T,QM) containing the
+                temperatue in K and the mass concentration QM,
+                for the two-moment scheme, a tuple (QN, QM), where QN is the
+                number concentration in m-3 (not used currently, not implemented yet...)
+
+        Returns:
+            No return but initializes class attributes for psd estimation
+        """
+
+        ''''''
+
+        QM = args[0]
+        
+        if np.isscalar(QM):
+            _lambda = self.solve_lambda(QM, self.N0)
+        else:
+            ngates = len(QM)
+            _lambda = np.zeros((ngates), dtype='float32')
+            for igate, qm in zip(range(ngates), QM):
+                if qm < constants.QM_THRESHOLD:
+                    continue
+                _lambda[igate] = self.solve_lambda(qm, self.N0)
+            
+        _lambda = np.array(_lambda) # [m-1]
+        _lambda[QM < constants.QM_THRESHOLD] = np.nan
+
+        self.lambda_ = _lambda
+        self.ntot = self.ntot_factor * self.N0 * \
+            self.lambda_ ** (-(self.mu + 1))

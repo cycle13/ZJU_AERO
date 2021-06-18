@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-02 22:30:51
+LastEditTime: 2021-06-18 11:19:39
 '''
 
 # Global import
@@ -101,6 +101,7 @@ class ConstantClass(object):
         self.EPS = np.finfo(np.float).eps
         self.SIMULATED_VARIABLES = ['ZH','DSPECTRUM','RVEL','ZV','PHIDP',
                                     'ZDR','RHOHV','KDP','SW']
+        self.QM_THRESHOLD = 1E-15
         
         # 2. Physical parameters
         self.C = 299792458.          # [m/s]

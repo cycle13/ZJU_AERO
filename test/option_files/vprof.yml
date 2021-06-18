@@ -27,4 +27,6 @@ microphysics:
     with_attenuation: 1
     with_ice_crystals: 0
     psd_new_solver_S: 1
+    psd_new_solver_G: 1
     shape_S: 'hexcol'
+    shape_G: 'spheroid'

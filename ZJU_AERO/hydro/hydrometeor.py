@@ -8,14 +8,14 @@ dielectric constants, velocity, mass...
 Author: Hejun Xie
 Date: 2020-08-18 09:37:31
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-13 23:34:41
+LastEditTime: 2021-06-17 10:17:26
 '''
 
 # Global import 
 from textwrap import dedent
 
 # Local import
-from ._grauple import Graupel
+from ._graupel import Graupel, NonsphericalGraupel
 from ._ice import IceParticle
 from ._snow import Snow, NonsphericalSnow
 from ._rain import Rain
@@ -44,7 +44,11 @@ def create_hydrometeor(hydrom_type, scheme = '1mom'):
         else:
             return Snow(scheme)
     elif hydrom_type == 'G':
-        return Graupel(scheme)
+        if CONFIG['microphysics']['psd_new_solver_G']:
+            shape = CONFIG['microphysics']['shape_G']
+            return NonsphericalGraupel(scheme, shape)
+        else:
+            return Graupel(scheme)
     elif hydrom_type == 'I':
         return IceParticle(scheme)
     else:

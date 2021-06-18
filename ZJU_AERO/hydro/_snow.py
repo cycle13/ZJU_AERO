@@ -3,7 +3,7 @@ Description: hydrometeor snow
 Author: Hejun Xie
 Date: 2020-11-13 12:13:17
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-14 15:52:35
+LastEditTime: 2021-06-18 11:22:50
 '''
 
 # Global imports
@@ -166,7 +166,7 @@ class NonsphericalSnow(Snow, _NonsphericalHydrometeor):
         """
         super(NonsphericalSnow, self).__init__(scheme)
 
-        if shape not in ['hexcol', 'spheriod']:
+        if shape not in ['hexcol', 'spheroid']:
             msg = """
             Invalid Nonspherical snow shape
             """
@@ -219,16 +219,18 @@ class NonsphericalSnow(Snow, _NonsphericalHydrometeor):
         N0_23 = 5.65E5 * np.exp(-0.107*(T-constants.T0)) # [m-4] 
         self.N0 = 13.5 * N0_23 / 1.0E3 # [mm^-1 m^-3]
 
-        if np.isscalar(T):
+        if np.isscalar(QM):
             _lambda = self.solve_lambda(QM, self.N0)
         else:
-            ngates = len(T)
+            ngates = len(QM)
             _lambda = np.zeros((ngates), dtype='float32')
             for igate, n0, qm in zip(range(ngates), self.N0, QM):
+                if qm < constants.QM_THRESHOLD:
+                    continue
                 _lambda[igate] = self.solve_lambda(qm, n0)
             
         _lambda = np.array(_lambda) # [m-1]
-        _lambda[args[1] == 0] = np.nan
+        _lambda[QM < constants.QM_THRESHOLD] = np.nan
 
         self.lambda_ = _lambda
         self.ntot = self.ntot_factor * self.N0 * \

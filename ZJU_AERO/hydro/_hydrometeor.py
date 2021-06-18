@@ -4,7 +4,7 @@ should not be initialized directly
 Author: Hejun Xie
 Date: 2020-11-13 13:04:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-14 15:51:05
+LastEditTime: 2021-06-18 11:13:07
 '''
 
 # Global import
@@ -295,6 +295,8 @@ class _NonsphericalHydrometeor(_Hydrometeor):
 
         M = self.get_M(list_D) # (nD)
 
+        threshold < 1e-10
+
         def QM_P0(x):
             return np.sum(np.exp(-x*list_D) * M) * N0 * dD - QM
         
@@ -303,7 +305,9 @@ class _NonsphericalHydrometeor(_Hydrometeor):
         
         def QM_P2(x):
             return np.sum(np.exp(-x*list_D) * M * list_D**2) * N0 * dD
-        
-        _lambda = optimize.newton(QM_P0, 1.0, fprime=QM_P1, fprime2=QM_P2, tol=1e-4)
-        
+        try:
+            _lambda = optimize.newton(QM_P0, 1.0, fprime=QM_P1, fprime2=QM_P2, tol=1e-4)
+        except RuntimeError:
+            print(QM)
+
         return _lambda
