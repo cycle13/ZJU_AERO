@@ -4,7 +4,7 @@ should not be initialized directly
 Author: Hejun Xie
 Date: 2020-11-13 13:04:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-18 11:13:07
+LastEditTime: 2021-06-23 18:29:36
 '''
 
 # Global import
@@ -33,6 +33,7 @@ class _Hydrometeor(object):
         self.d_max = None # Max diam in the integration over D
         self.d_min = None # Min diam in the integration over D
         self.nbins_D = 1024 # Number of diameter bins used in the numerical integrations
+        self.list_D = None
 
         # Power-law parameters
         self.a = None
@@ -113,11 +114,21 @@ class _Hydrometeor(object):
             n: the integratal of the PSD: N(D) with the same dimension as self.lambda_
         """
 
-        v = (self.vel_factor * self.N0 * self.alpha / self.nu * \
-             self.lambda_ ** (-(self.beta + self.mu + 1) / self.nu))
-        
-        n = self.ntot_factor * self.N0 / self.nu * \
-             self.lambda_ ** (-(self.mu + 1) / self.nu)
+        if ~np.isnan(self.vel_factor) and ~np.isnan(self.ntot_factor):
+            v = (self.vel_factor * self.N0 * self.alpha / self.nu * \
+                self.lambda_ ** (-(self.beta + self.mu + 1) / self.nu))
+            
+            n = self.ntot_factor * self.N0 / self.nu * \
+                self.lambda_ ** (-(self.mu + 1) / self.nu)
+        else:
+            # Particle size distribution [mm-1 m-3]
+            N = self.get_N(self.list_D)
+            # Terminal velocity [m s-1] 
+            v_f = self.get_V(self.list_D)
+
+            # perform the integration
+            v = np.trapz(np.multiply(v_f, N), self.list_D, axis=1)
+            n = np.trapz(N, self.list_D, axis=1)
         
         if np.isscalar(v):
             v = np.array([v])
@@ -174,10 +185,12 @@ class _NonsphericalHydrometeor(_Hydrometeor):
         super(_NonsphericalHydrometeor, self).__init__(scheme)
         self.a = np.nan
         self.b = np.nan
+        self.ntot_factor = np.nan
+        self.vel_factor = np.nan
         self.list_D = None
         self.asp_wgt = None
         self.shape = None
-    
+
     def get_list_asp(self):
         """
         Return the aspect ratio grids of a particle
@@ -294,8 +307,6 @@ class _NonsphericalHydrometeor(_Hydrometeor):
         dD = list_D[1] - list_D[0]
 
         M = self.get_M(list_D) # (nD)
-
-        threshold < 1e-10
 
         def QM_P0(x):
             return np.sum(np.exp(-x*list_D) * M) * N0 * dD - QM

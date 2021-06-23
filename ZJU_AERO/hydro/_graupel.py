@@ -3,12 +3,13 @@ Description: hydrometeor grauple
 Author: Hejun Xie
 Date: 2020-11-13 12:13:29
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-18 11:21:07
+LastEditTime: 2021-06-23 19:59:30
 '''
 
 # Global imports
 import numpy as np
 np.seterr(divide='ignore')
+from textwrap import dedent
 
 # Local imports
 from ..const import global_constants as constants
@@ -143,7 +144,7 @@ class Graupel(_Hydrometeor):
         cant_std = constants.A_CANT_STD_GRAU * D**constants.B_CANT_STD_GRAU
         return cant_std
 
-class NonsphericalGraupel(Graupel, _NonsphericalHydrometeor):
+class NonsphericalGraupel(_NonsphericalHydrometeor, Graupel):
     '''
     Class for snow in the form of graupel,
     but of nonspherical hydrometeor type, i.e., free a and b
@@ -167,7 +168,7 @@ class NonsphericalGraupel(Graupel, _NonsphericalHydrometeor):
             msg = """
             Invalid Nonspherical graupel shape
             """
-            return ValueError(dedent(msg))
+            raise ValueError(dedent(msg))
             
         self.shape = shape
         self.list_D = np.linspace(self.d_min, self.d_max, self.nbins_D)
@@ -191,7 +192,12 @@ class NonsphericalGraupel(Graupel, _NonsphericalHydrometeor):
             Mass of a particle
         '''
         
-        rho = constants.RHO_I # [kg mm-3]
+        if self.shape in ['spheroid']:
+            rho = constants.RHO_G # [kg mm-3]
+        else:
+            rho = constants.RHO_I
+        
+        rho = constants.RHO_I
         V = self._get_volumn(D, asp)
         
         return V * rho

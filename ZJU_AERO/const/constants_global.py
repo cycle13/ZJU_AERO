@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-18 11:19:39
+LastEditTime: 2021-06-23 19:46:45
 '''
 
 # Global import
@@ -107,6 +107,8 @@ class ConstantClass(object):
         self.C = 299792458.          # [m/s]
         self.RHO_W = 1000./(1000**3) # [kg mm-3]
         self.RHO_I = 916./(1000**3)  # [kg mm-3]
+        self.RHO_G = 500./(1000**3)  # [kg mm-3]
+        self.RHO_S = 100./(1000**3)  # [kg mm-3]
         self.RHO_0 = 1.225           # [kg m-3]
         self.KE = 4./3.              # [-]
         self.T0 = 273.15             # [K]

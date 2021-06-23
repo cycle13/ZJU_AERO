@@ -4,7 +4,7 @@ from the interpolated radials given by NWP models
 Author: Hejun Xie
 Date: 2020-10-12 10:45:48
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-02 17:20:59
+LastEditTime: 2021-06-23 21:32:01
 '''
 
 # Global imports
@@ -153,7 +153,7 @@ def get_radar_observables_rdop(list_subradials, lut_sz):
                                 subrad.values['W'], v_hydro, theta, phi)
 
             # Get mask of valid values
-            total_weight_rvel = nansum_arr(total_weight_rvel, proj_wind * subrad.quad_weight)
+            total_weight_rvel = nansum_arr(total_weight_rvel, ~np.isnan(proj_wind) * subrad.quad_weight)
             # Average radial velocity for all sub-beams
             rvel_avg = nansum_arr(rvel_avg, proj_wind * subrad.quad_weight)
         

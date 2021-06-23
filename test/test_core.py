@@ -5,7 +5,7 @@ hydrometeor concentration: SNOW, GRAUPEL, RAIN, etc.
 Author: Hejun Xie
 Date: 2020-11-14 18:03:56
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-18 10:54:27
+LastEditTime: 2021-06-23 21:14:45
 '''
 
 # unit test import
@@ -19,7 +19,7 @@ import numpy as np
 from ZJU_AERO.core._rdop_scatter import one_rad_one_hydro, get_pol_from_sz 
 from ZJU_AERO.interp import Radial
 from ZJU_AERO.db import load_lut
-from ZJU_AERO.hydro.hydrometeor import Snow, NonsphericalSnow, Graupel, NonsphericalGraupel
+from ZJU_AERO.hydro.hydrometeor import Snow, NonsphericalSnow
 from ZJU_AERO.config import createConfig
 from ZJU_AERO.const import global_constants as constants
 
@@ -29,26 +29,20 @@ if __name__ == "__main__":
     from ZJU_AERO.config.cfg import CONFIG
     constants.update()
 
+    hydro_name = 'S'
     db = load_lut('../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc', engine='xarray')
     # db = load_lut('../pathos/lut/tm_masc_release/lut_SZ_S_9_41_1mom_LevelB.nc', engine='xarray')
     
-    # hydro_istc = Snow('1mom')
     hydro_istc = NonsphericalSnow('1mom', 'hexcol')
-    hydro_name = 'S'
-
-    # db = load_lut('../pathos/lut/tm_masc/lut_SZ_G_9_41_1mom_LevelB.nc', engine='xarray')
-    # hydro_istc = Graupel('1mom')
-    # hydro_istc = NonsphericalGraupel('1mom', 'spheroid')
-    # hydro_name = 'G'
-
+    # hydro_istc = Snow('1mom')
+    
     # set profile
     ntest = 100
     e = np.ones((ntest), dtype='float32') * 1.0 # [deg]
     dic_values = dict()
     dic_values['T'] = np.ones((ntest), dtype='float32') * 253. # [K]
     dic_values['QS_v'] = np.logspace(-5, -2, ntest) # [kg m-3] (1E-5, 1E-2) [g m-3] (1E-2, 1E+1)
-    # dic_values['QG_v'] = np.logspace(-5, -2, ntest) # [kg m-3] (1E-5, 1E-2) [g m-3] (1E-2, 1E+1) 
-
+    
     test_rad = Radial(dic_values, elev_profile=e,
     mask=None, lats_profile=None, lons_profile=None,
     dist_ground_profile=None, heights_profile=None)

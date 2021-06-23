@@ -4,7 +4,7 @@ and Full doppler scheme
 Author: Hejun Xie
 Date: 2021-02-27 19:52:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-18 11:27:37
+LastEditTime: 2021-06-23 21:16:53
 '''
 
 
@@ -26,7 +26,7 @@ import datetime as dt
 import ZJU_AERO
 import pyart
 
-LOAD_MODEL = False
+LOAD_MODEL = True
 LOAD_RADAR = False
 DEG = r'$^\circ$'
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     # get load_datetimes
     time_step = dt.timedelta(hours=1)
     time_range = (dt.datetime(2019,11,29,0), dt.datetime(2019,11,30,0))
-    
+    # time_range = (dt.datetime(2019,11,29,14), dt.datetime(2019,11,29,14))
     load_datetimes = get_timelines(time_range, time_step)
 
     rs = list()
@@ -109,6 +109,13 @@ if __name__ == "__main__":
         V[ir,:] = r.values['RVEL'][idx]
         W[ir,:] = r.values['SW'][idx]
         DSP[ir,:] = 10 * np.log10(r.values['DSPECTRUM'][idx,:])
+
+    # exit()
+    # print(dBZ)
+    # print(V)
+    # print(W)
+    # print(DSP)
+    # exit()
 
     '''
     1. Plot Z, V, W

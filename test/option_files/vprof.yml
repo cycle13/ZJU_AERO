@@ -24,6 +24,7 @@ microphysics:
     folder_lut: '../pathos/lut/'
     scattering: 'tm_masc'
     scattering_S: 'iitm_masc'
+    scattering_G: 'tm_masc'
     with_attenuation: 1
     with_ice_crystals: 0
     psd_new_solver_S: 1
