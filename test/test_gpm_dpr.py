@@ -3,7 +3,7 @@ Description: simulate gpm dpr with grapes modelvar input
 Author: Hejun Xie
 Date: 2021-04-14 09:49:46
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-07 12:33:49
+LastEditTime: 2021-06-24 20:18:16
 '''
 
 # unit test import
@@ -34,11 +34,11 @@ longname = {'ZH':'Horizontal Refelctivity', 'ZDR':'Differential Reflectivty'}
 
 if __name__ == "__main__":
 
-    FOLDER = '/mnt/f/modelvar/2020090500/'
+    FOLDER = '../pathos/GRAPES/typhoon_haishen_20200905/'
     data_file_list = glob.glob(FOLDER+os.sep+'*.nc')
     load_datetime = dt.datetime(2020, 9, 5, 9)
 
-    OBS_FILE = '/mnt/e/GPM/L2A/2A.GPM.Ku.V8-20180723.20200905-S083837-E101112.037051.V06A.HDF5'
+    OBS_FILE = '../pathos/GPM/L2A/2A.GPM.Ku.V8-20180723.20200905-S083837-E101112.037051.V06A.HDF5'
     OBS_SLICE = (slice(2450, 2750), slice(0, 50))
     
     a = ZJU_AERO.RadarOperator(options_file='./option_files/gpm_dpr_sim.yml')
