@@ -3,7 +3,7 @@ Description: __init__.py for hydrometeor package
 Author: Hejun Xie
 Date: 2020-08-17 10:00:48
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 11:10:11
+LastEditTime: 2021-07-02 15:50:28
 '''
 
-from .hydrometeor import create_hydrometeor
+from .hydrometeor import create_hydrometeor, create_hydrometeor_db

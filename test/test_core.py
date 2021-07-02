@@ -5,7 +5,7 @@ hydrometeor concentration: SNOW, GRAUPEL, RAIN, etc.
 Author: Hejun Xie
 Date: 2020-11-14 18:03:56
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-23 21:14:45
+LastEditTime: 2021-07-02 16:20:51
 '''
 
 # unit test import
@@ -30,11 +30,18 @@ if __name__ == "__main__":
     constants.update()
 
     hydro_name = 'S'
-    db = load_lut('../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc', engine='xarray')
-    # db = load_lut('../pathos/lut/tm_masc_release/lut_SZ_S_9_41_1mom_LevelB.nc', engine='xarray')
     
+    # db = load_lut('../pathos/lut/tm_masc_release/lut_SZ_S_35_0_1mom_LevelB.nc', engine='xarray')
+    # hydro_istc = NonsphericalSnow('1mom', 'spheroid')
+
+    db = load_lut('../pathos/lut/iitm_masc/lut_SZ_S_35_0_1mom_LevelB.nc', engine='xarray')
     hydro_istc = NonsphericalSnow('1mom', 'hexcol')
-    # hydro_istc = Snow('1mom')
+
+    # db = load_lut('../pathos/lut/tm_masc_release/lut_SZ_S_9_41_1mom_LevelB.nc', engine='xarray')
+    # hydro_istc = NonsphericalSnow('1mom', 'spheroid')
+
+    # db = load_lut('../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc', engine='xarray')
+    # hydro_istc = NonsphericalSnow('1mom', 'hexcol')
     
     # set profile
     ntest = 100

@@ -4,7 +4,7 @@ FOR OPERATIONAL USE
 Author: Hejun Xie
 Date: 2020-09-18 10:16:55
 LastEditors: Hejun Xie
-LastEditTime: 2021-01-02 17:14:08
+LastEditTime: 2021-07-02 15:49:32
 '''
 
 # unit test import
@@ -22,7 +22,7 @@ from scipy.integrate import quad
 
 # Local imports
 from ZJU_AERO.const import global_constants as constants
-from ZJU_AERO.hydro import create_hydrometeor
+from ZJU_AERO.hydro import create_hydrometeor_db
 
 # Whether to regenerate  all lookup tables, even if already present
 FORCE_REGENERATION_SCATTER_TABLES = True
@@ -209,7 +209,7 @@ def sz_lut(hydrom_type, frequency, levela_name_lut, levelb_name_lut):
 
     scheme = '1mom'
     
-    hydrom = create_hydrometeor(hydrom_type,'1mom')	
+    hydrom = create_hydrometeor_db(hydrom_type,'1mom')	
     
     # list_D = np.linspace(hydrom.d_min,hydrom.d_max,NUM_DIAMETERS).astype('float32')
     

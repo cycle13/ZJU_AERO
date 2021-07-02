@@ -8,7 +8,7 @@ dielectric constants, velocity, mass...
 Author: Hejun Xie
 Date: 2020-08-18 09:37:31
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-17 10:17:26
+LastEditTime: 2021-07-02 15:49:47
 '''
 
 # Global import 
@@ -57,3 +57,29 @@ def create_hydrometeor(hydrom_type, scheme = '1mom'):
         """
         return ValueError(dedent(msg))
 
+def create_hydrometeor_db(hydrom_type, scheme = '1mom'):
+    """
+    Creates a hydrometeor class instance, for a specified microphysical
+    scheme, only used for LUT generator
+    Args:
+        hydrom_type: the hydrometeor types, can be either
+            'R': rain, 'S': snow aggregates, 'G': graupel
+        scheme: microphysical scheme to use, can be either '1mom' (operational
+           one-moment scheme) or '2mom' (non-operational two-moment scheme, not implemented yet)
+    Returns:
+        A hydrometeor class instance (see below)
+    """
+
+    if  hydrom_type == 'R':
+        return Rain(scheme)
+    elif hydrom_type == 'S':
+        return Snow(scheme)
+    elif hydrom_type == 'G':
+        return Graupel(scheme)
+    elif hydrom_type == 'I':
+        return IceParticle(scheme)
+    else:
+        msg = """
+        Invalid hydrometeor type, must be R, S, G, I
+        """
+        return ValueError(dedent(msg))
