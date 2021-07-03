@@ -5,7 +5,7 @@ The uncertainty is caused by particle orientation and aspect ratio parameters.
 Author: Hejun Xie
 Date: 2020-12-31 10:33:16
 LastEditors: Hejun Xie
-LastEditTime: 2021-07-03 19:12:31
+LastEditTime: 2021-07-03 20:15:05
 '''
 
 # unit test import
@@ -40,7 +40,7 @@ from ZJU_AERO.const import global_constants as constants
 from ZJU_AERO.utils import DATAdecorator
 
 # EXP_FILE = '../pathos/lut/iitm_masc/lut_SZ_S_35_0_1mom_LevelB_exp/t253.0e1.0.nc'
-EXP_FILE = '../pathos/lut/tm_masc_release/lut_SZ_S_35_0_1mom_LevelB_exp/t253.0e1.0.nc'
+EXP_FILE = '../pathos/lut/tm_masc_release/lut_SZ_S_9_41_1mom_LevelB_exp/t253.0e1.0.nc'
 nQ = 100
 Qs = np.logspace(-5, -2, nQ) # [kg m-3] (1E-5, 1E-2) [g m-3] (1E-2, 1E+1) 
 
