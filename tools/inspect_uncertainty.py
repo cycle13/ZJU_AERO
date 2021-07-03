@@ -5,7 +5,7 @@ The uncertainty is caused by particle orientation and aspect ratio parameters.
 Author: Hejun Xie
 Date: 2020-12-31 10:33:16
 LastEditors: Hejun Xie
-LastEditTime: 2021-07-02 17:10:27
+LastEditTime: 2021-07-03 19:12:31
 '''
 
 # unit test import
@@ -16,6 +16,8 @@ sys.path.append('/home/xhj/wkspcs/Radar-Operator/ZJU_AERO/')
 import xarray as xr
 import numpy as np
 import itertools
+import multiprocessing as mp
+import copy
 
 # plot settings
 from mpl_toolkits.basemap import Basemap
@@ -32,12 +34,12 @@ from scipy import interpolate
 from ZJU_AERO.core._rdop_scatter import one_rad_one_hydro, get_pol_from_sz 
 from ZJU_AERO.interp import Radial
 from ZJU_AERO.db._lut_ssp_xarray import Lookup_table_xarray
-from ZJU_AERO.hydro.hydrometeor import Snow
+from ZJU_AERO.hydro.hydrometeor import Snow, NonsphericalSnow
 from ZJU_AERO.config import createConfig
 from ZJU_AERO.const import global_constants as constants
 from ZJU_AERO.utils import DATAdecorator
 
-# EXP_FILE = '../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB_exp/t253.0e1.0.nc'
+# EXP_FILE = '../pathos/lut/iitm_masc/lut_SZ_S_35_0_1mom_LevelB_exp/t253.0e1.0.nc'
 EXP_FILE = '../pathos/lut/tm_masc_release/lut_SZ_S_35_0_1mom_LevelB_exp/t253.0e1.0.nc'
 nQ = 100
 Qs = np.logspace(-5, -2, nQ) # [kg m-3] (1E-5, 1E-2) [g m-3] (1E-2, 1E+1) 
@@ -104,17 +106,73 @@ class exp_lookup_table_xarray(Lookup_table_xarray):
         flattened_data = np.expand_dims(flattened_data, axis=0).repeat(nQ, axis=0)
         return flattened_data
 
+def _one_shape_assumption(params, std_a, std_b):
+    db_thread = copy.deepcopy(db)
+
+    params['std_a'] = std_a
+    params['std_b'] = std_b
+    
+    db_thread.set_params(**params)
+
+    message = ['{}={:>.3f}'.format(item[0], item[1]) for item in params.items()]
+    print('[Compute]: ' + ' '.join(message))
+
+    test_rad = Radial(dic_values, elev_profile=e,
+    mask=None, lats_profile=None, lons_profile=None,
+    dist_ground_profile=None, heights_profile=None)
+
+    # hydro_istc = Snow('1mom')
+    hydro_istc = NonsphericalSnow('1mom', 'spheroid')
+
+    '''
+    sz_psd_integ: 
+            dimension: (nQ, 12) 
+            unit: Z[mm2 m-3]; S[mm m-3]
+    '''
+    valid_data, sz_psd_integ = one_rad_one_hydro(test_rad, hydro_name, hydro_istc,
+    db_thread, simulate_doppler=False, ngates=nQ)
+
+    '''
+    ZH: radar refl. factor at hor. pol. in linear units [mm6 m-3]
+    ZV: radar refl. factor at vert. pol. in linear units [mm6 m-3]
+    ZDR: diff. refl. = z_h / z_v [-]
+    RHOHV: copolar. corr. coeff [-]
+    KDP: spec. diff. phase shift upon propagation [deg km-1]
+    AH: spec. att. at hor. pol. [dB km-1]
+    AV: spec. att. at vert. pol. [dB km-1]
+    DELTA_HV: total phase shift upon backscattering [deg]
+    '''
+    ZH, ZV, ZDR, RHOHV, KDP, AH, AV, DELTA_HV = get_pol_from_sz(sz_psd_integ)
+    dbZH    = 10 * np.log10(ZH) # [dB]
+    dbZDR   = 10 * np.log10(ZDR) # [dB]
+
+    if np.isnan(dbZDR).all():
+        print('NaN')
+    
+    del db_thread
+
+    return (dbZH, dbZDR, KDP, params)
+
+def assign_dataset_pieces(pack):
+    dbZH, dbZDR, KDP, params = pack[0], pack[1], pack[2], pack[3]
+    message = ['{}={:>.3f}'.format(item[0], item[1]) for item in params.items()]
+    print('[Assign]: '+' '.join(message))
+    out_ZDR.loc[params] = dbZDR
+    out_ZH.loc[params] = dbZH
+    out_KDP.loc[params] = KDP
+    return
 
 # @DATAdecorator('./', True, './uctt_iitm.pkl')
-@DATAdecorator('./', True, './uctt_tm.pkl')
+@DATAdecorator('./', False, './uctt_tm.pkl')
 def get_uctt():
     # get global constants
     createConfig('../test/option_files/wsm6_test.yml')
     from ZJU_AERO.config.cfg import CONFIG
     constants.update()
+
+    global db, dic_values, e, hydro_name, out_ZH, out_ZDR, out_KDP
     
     db = exp_lookup_table_xarray(EXP_FILE)
-    hydro_istc = Snow('1mom')
     hydro_name = 'S'
 
     # set profile
@@ -123,11 +181,14 @@ def get_uctt():
     dic_values['T'] = np.ones((nQ), dtype='float32') * 253. # [K]
     dic_values['QS_v'] = Qs # [kg m-3] (1E-5, 1E-2) [g m-3] (1E-2, 1E+1) 
 
-    test_rad = Radial(dic_values, elev_profile=e,
-    mask=None, lats_profile=None, lons_profile=None,
-    dist_ground_profile=None, heights_profile=None)
-
     # formulate the iteration
+    # params_dict_oloop = {
+    #     'lambda_a': db.get_axis_value('lambda_a')[2:4],
+    #     'lambda_b': db.get_axis_value('lambda_b')[2:4],
+    #     'mu_a': db.get_axis_value('mu_a')[0:2],
+    #     'mu_b': db.get_axis_value('mu_b')[0:2],
+    # }
+
     # params_dict = {
     #     'std_a': db.get_axis_value('std_a')[0:2],
     #     'std_b': db.get_axis_value('std_b')[0:2],
@@ -136,6 +197,13 @@ def get_uctt():
     #     'mu_a': db.get_axis_value('mu_a')[0:2],
     #     'mu_b': db.get_axis_value('mu_b')[0:2],
     # }
+
+    params_dict_oloop = {
+        'lambda_a': db.get_axis_value('lambda_a'),
+        'lambda_b': db.get_axis_value('lambda_b'),
+        'mu_a': db.get_axis_value('mu_a'),
+        'mu_b': db.get_axis_value('mu_b'),
+    }
 
     params_dict = {
         'std_a': db.get_axis_value('std_a'),
@@ -148,8 +216,8 @@ def get_uctt():
 
     params_shape = np.array([len(value) for value in params_dict.values()])
 
-    iter_idx    = tuple([range(len(value)) for value in params_dict.values()])
-    iter_keys   = params_dict.keys()
+    iter_idx    = tuple([range(len(value)) for value in params_dict_oloop.values()])
+    iter_keys   = params_dict_oloop.keys()
     key2ikey = dict()
     for ikey, key in enumerate(iter_keys):
         key2ikey[key] = ikey
@@ -179,46 +247,26 @@ def get_uctt():
         lambda_b = params_dict['lambda_b'][idx_list[key2ikey['lambda_b']]]
         mu_a = params_dict['mu_a'][idx_list[key2ikey['mu_a']]]
         mu_b = params_dict['mu_b'][idx_list[key2ikey['mu_b']]]
-        std_a = params_dict['std_a'][idx_list[key2ikey['std_a']]]
-        std_b = params_dict['std_b'][idx_list[key2ikey['std_b']]]
 
-        params = dict(std_a=std_a, std_b=std_b, 
-        lambda_a=lambda_a, lambda_b=lambda_b, 
-        mu_a=mu_a, mu_b=mu_b)
+        constants.A_AR_LAMBDA_AGG = lambda_a
+        constants.B_AR_LAMBDA_AGG = lambda_b
+        constants.A_AR_M_AGG = mu_a
+        constants.B_AR_M_AGG = mu_b
 
-        message = ['{}={:>.3f}'.format(item[0], item[1]) for item in params.items()]
-        print(' '.join(message))
+        params = dict(lambda_a=lambda_a, lambda_b=lambda_b, mu_a=mu_a, mu_b=mu_b)
 
-        db.set_params(**params)
-
-        '''
-        sz_psd_integ: 
-                dimension: (nQ, 12) 
-                unit: Z[mm2 m-3]; S[mm m-3]
-        '''
-        valid_data, sz_psd_integ = one_rad_one_hydro(test_rad, hydro_name, hydro_istc,
-        db, simulate_doppler=False, ngates=nQ)
-
-        '''
-        ZH: radar refl. factor at hor. pol. in linear units [mm6 m-3]
-        ZV: radar refl. factor at vert. pol. in linear units [mm6 m-3]
-        ZDR: diff. refl. = z_h / z_v [-]
-        RHOHV: copolar. corr. coeff [-]
-        KDP: spec. diff. phase shift upon propagation [deg km-1]
-        AH: spec. att. at hor. pol. [dB km-1]
-        AV: spec. att. at vert. pol. [dB km-1]
-        DELTA_HV: total phase shift upon backscattering [deg]
-        '''
-        ZH, ZV, ZDR, RHOHV, KDP, AH, AV, DELTA_HV = get_pol_from_sz(sz_psd_integ)
-        dbZH    = 10 * np.log10(ZH) # [dB]
-        dbZDR   = 10 * np.log10(ZDR) # [dB]
-
-        if np.isnan(dbZDR).all():
-            print('NaN')
-
-        out_ZDR.loc[params] = dbZDR
-        out_ZH.loc[params] = dbZH
-        out_KDP.loc[params] = KDP        
+        pool = mp.Pool(processes=mp.cpu_count())
+        for std_a in params_dict['std_a']:
+            for std_b in params_dict['std_b']:
+                # pack = _one_shape_assumption(params, std_a, std_b)
+                # assign_dataset_pieces(pack)
+                # exit()
+                
+                args = (params, std_a, std_b)
+                pool.apply_async(_one_shape_assumption, args=args, callback=assign_dataset_pieces)
+        
+        pool.close()
+        pool.join()
     
     db.close()
     return out_ZDR, out_KDP, out_ZH, nsample
@@ -226,6 +274,10 @@ def get_uctt():
 if __name__ == "__main__":
 
     uctt_ZDR, uctt_KDP, uctt_ZH, nsample = get_uctt()
+
+    # print(uctt_KDP[99,:,2,2,2,2,2])
+    # exit()
+
     uctt_ZDR = uctt_ZDR.data.reshape((nQ, nsample))
     uctt_KDP = uctt_KDP.data.reshape((nQ, nsample)) 
     uctt_ZH = uctt_ZH.data.reshape((nQ, nsample)) 
