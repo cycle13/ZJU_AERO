@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2021-04-16 20:29:31
+LastEditTime: 2021-07-19 08:58:13
 '''
 
 
@@ -459,6 +459,99 @@ class RadarOperator(object):
             return plot_instance
 
             # return simulated_sweep
+    
+    def get_PPI_serial(self, elevations, azimuths = None, az_step = None, az_start = 0,
+                az_stop = 359, plot_engine='pyart'):
+        '''
+        Simulates a PPI scan based on the user configuration
+        Args:
+            elevations: a single scalar or a list of elevation angles in
+                degrees. If a list is provided, the output will consist
+                of several PPI scans (sweeps in the PyART class)
+            azimuths: (Optional) a list of azimuth angles in degrees
+            az_start az_step, az_stop: (Optional) If 'azimuths' is undefined
+                these three arguments will be used to create a list of azimuths
+                angles. Defaults are (0, 3dB_beamwidth, 359)
+        Returns:
+            A PPI profile at the specified elevation(s), in the form of a PyART
+            class. To every elevation angle corresponds at sweep
+        '''
+        # Check if model file has been loaded
+        if self.dic_vars=={}:
+            print('No model file has been loaded! Aborting...')
+            return
+
+        # Check if list of elevations is scalar
+        if np.isscalar(elevations):
+            elevations=[elevations]
+
+        # Needs to be done in order to deal with Multiprocessing's annoying limitations
+        global dic_vars, N, lut_sz, output_variables
+        dic_vars, N, lut_sz, output_variables = self.define_globals()
+        # Define list of angles that need to be resolved
+        if az_step == None:
+            az_step=self.config['radar']['3dB_beamwidth']
+
+        # Define list of angles that need to be resolved
+        if np.any(azimuths == None):
+            # Define azimuths and ranges
+            if az_start>az_stop:
+                azimuths=np.hstack((np.arange(az_start, 360., az_step),
+                                    np.arange(0, az_stop + az_step, az_step)))
+            else:
+                azimuths=np.arange(az_start, az_stop + az_step, az_step)
+
+        # Define  ranges
+        rranges = constants.RANGE_RADAR
+
+        list_sweeps=[]
+        def worker(elev, azimuth):
+            print('Azimuth: {:7.2f}'.format(azimuth))
+            list_subradials = get_interpolated_radial(dic_vars,
+                                                    azimuth,
+                                                    elev,
+                                                    N)
+            if output_variables in ['all','only_radar']:
+                output = get_radar_observables(list_subradials, lut_sz)
+            if output_variables == 'only_model':
+                output =  integrate_radials(list_subradials)
+            elif output_variables == 'all':
+                output = combine_subradials((output,
+                            integrate_radials(list_subradials)))
+
+            return output
+
+        for e in elevations: # Loop on the elevations
+            list_beams = []
+            for a in azimuths:
+                beam = worker(e, a)             
+                list_beams.append(beam)
+            list_sweeps.append(list_beams)
+
+        del dic_vars
+        del N
+        del lut_sz
+        gc.collect()
+
+        print('-------PPI scan solved------')
+
+        # exit()
+        # Threshold at given sensitivity
+        if output_variables in ['all','only_radar']:
+            list_sweeps = cut_at_sensitivity(list_sweeps)
+
+        simulated_sweep={'elevations':elevations,'azimuths':azimuths,
+        'ranges':rranges,'pos_time':self.get_pos_and_time(),
+        'data':list_sweeps}
+
+        if plot_engine == 'pyart':
+            plot_instance = PyartRadop('ppi',simulated_sweep)
+        elif plot_engine == 'pycwr':
+            plot_instance = PycwrRadop('ppi',simulated_sweep)
+
+        return plot_instance
+
+        # return simulated_sweep
 
     def get_RHI(self, azimuths, elevations = None, elev_step = None,
                                             elev_start = 0, elev_stop = 90,

@@ -3,7 +3,7 @@ Description: test GRAPES interface for radar operator
 Author: Hejun Xie
 Date: 2020-11-02 16:17:47
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-01 16:26:45
+LastEditTime: 2021-07-18 21:54:51
 '''
 
 # unit test import
@@ -19,6 +19,10 @@ import pickle
 import os
 import glob
 import datetime as dt
+
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
 
 # Local imports
 import ZJU_AERO
@@ -53,6 +57,7 @@ if __name__ == "__main__":
     if not LOAD_RADAR:
         r = a.get_PPI(elevations = 0.5)
         # r = a.get_PPI_test(elevations = 1)
+        # r = a.get_PPI_serial(elevations = 0.5)
         with open("./ppi.pkl", "wb") as f:
             pickle.dump(r, f)
     else:
@@ -63,11 +68,9 @@ if __name__ == "__main__":
 
     # exit()
     # test PyartRadop
-    import matplotlib as mpl
-    mpl.use('Agg')
+    
     from pyart.graph import RadarMapDisplayBasemap
     display = pyart.graph.RadarMapDisplayBasemap(r)
-    import matplotlib.pyplot as plt
     plt.figure()
 
     for field in fields:

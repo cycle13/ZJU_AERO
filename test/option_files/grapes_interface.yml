@@ -18,10 +18,17 @@ nwp:
     name: 'grapes'
 core:
     engine: 'rdop'
+    doppler_scheme: 1
+    doppler_spectrum: 0
 microphysics:
     scheme: '1mom'
     folder_lut: '../pathos/lut/'
-    scattering: 'tmatrix_masc'
+    scattering: 'tm_masc_release'
     scattering_S: 'iitm_masc'
+    scattering_G: 'tm_masc_release'
     with_attenuation: 1
     with_ice_crystals: 0
+    psd_new_solver_S: 0
+    psd_new_solver_G: 0
+    shape_S: 'hexcol'
+    shape_G: 'spheroid'
