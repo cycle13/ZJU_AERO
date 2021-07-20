@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2021-07-19 08:58:13
+LastEditTime: 2021-07-20 20:54:31
 '''
 
 
@@ -507,6 +507,8 @@ class RadarOperator(object):
         list_sweeps=[]
         def worker(elev, azimuth):
             print('Azimuth: {:7.2f}'.format(azimuth))
+            import time
+            t1 = time.time()
             list_subradials = get_interpolated_radial(dic_vars,
                                                     azimuth,
                                                     elev,
@@ -518,7 +520,9 @@ class RadarOperator(object):
             elif output_variables == 'all':
                 output = combine_subradials((output,
                             integrate_radials(list_subradials)))
-
+            t2 = time.time()
+            print(t2-t1)
+            exit()
             return output
 
         for e in elevations: # Loop on the elevations

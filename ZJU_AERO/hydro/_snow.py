@@ -3,7 +3,7 @@ Description: hydrometeor snow
 Author: Hejun Xie
 Date: 2020-11-13 12:13:17
 LastEditors: Hejun Xie
-LastEditTime: 2021-07-20 20:04:53
+LastEditTime: 2021-07-20 20:43:06
 '''
 
 # Global imports
