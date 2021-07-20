@@ -5,7 +5,7 @@ hydrometeor concentration: SNOW, GRAUPEL, RAIN, etc.
 Author: Hejun Xie
 Date: 2020-11-14 18:03:56
 LastEditors: Hejun Xie
-LastEditTime: 2021-07-02 16:20:51
+LastEditTime: 2021-07-20 20:12:39
 '''
 
 # unit test import
@@ -31,11 +31,17 @@ if __name__ == "__main__":
 
     hydro_name = 'S'
     
+    db = load_lut('../pathos/lut/tm_masc_release/lut_SZ_S_9_41_1mom_LevelB.nc', engine='xarray')
+    hydro_istc = Snow('1mom')
+
+    # db = load_lut('../pathos/lut/tm_masc_release/lut_SZ_S_35_0_1mom_LevelB.nc', engine='xarray')
+    # hydro_istc = NonsphericalSnow('1mom', 'spheroid')
+    
     # db = load_lut('../pathos/lut/tm_masc_release/lut_SZ_S_35_0_1mom_LevelB.nc', engine='xarray')
     # hydro_istc = NonsphericalSnow('1mom', 'spheroid')
 
-    db = load_lut('../pathos/lut/iitm_masc/lut_SZ_S_35_0_1mom_LevelB.nc', engine='xarray')
-    hydro_istc = NonsphericalSnow('1mom', 'hexcol')
+    # db = load_lut('../pathos/lut/iitm_masc/lut_SZ_S_35_0_1mom_LevelB.nc', engine='xarray')
+    # hydro_istc = NonsphericalSnow('1mom', 'hexcol')
 
     # db = load_lut('../pathos/lut/tm_masc_release/lut_SZ_S_9_41_1mom_LevelB.nc', engine='xarray')
     # hydro_istc = NonsphericalSnow('1mom', 'spheroid')
@@ -44,7 +50,7 @@ if __name__ == "__main__":
     # hydro_istc = NonsphericalSnow('1mom', 'hexcol')
     
     # set profile
-    ntest = 100
+    ntest = 1000
     e = np.ones((ntest), dtype='float32') * 1.0 # [deg]
     dic_values = dict()
     dic_values['T'] = np.ones((ntest), dtype='float32') * 253. # [K]

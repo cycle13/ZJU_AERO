@@ -3,7 +3,7 @@ Description: hydrometeor snow
 Author: Hejun Xie
 Date: 2020-11-13 12:13:17
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-23 19:49:57
+LastEditTime: 2021-07-20 20:04:53
 '''
 
 # Global imports
@@ -176,6 +176,7 @@ class NonsphericalSnow(_NonsphericalHydrometeor, Snow):
         self.shape = shape
         self.list_D = np.linspace(self.d_min, self.d_max, self.nbins_D)
         self.asp_wgt = self.get_asp_wgt(self.list_D)
+        self.M = self.get_M(self.list_D)
 
     def get_list_asp(self):
         '''

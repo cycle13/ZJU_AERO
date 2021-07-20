@@ -4,7 +4,7 @@ should not be initialized directly
 Author: Hejun Xie
 Date: 2020-11-13 13:04:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-23 18:29:36
+LastEditTime: 2021-07-20 20:07:21
 '''
 
 # Global import
@@ -306,7 +306,7 @@ class _NonsphericalHydrometeor(_Hydrometeor):
         list_D = self.list_D
         dD = list_D[1] - list_D[0]
 
-        M = self.get_M(list_D) # (nD)
+        M = self.M # (nD)
 
         def QM_P0(x):
             return np.sum(np.exp(-x*list_D) * M) * N0 * dD - QM

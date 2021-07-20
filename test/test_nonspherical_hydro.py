@@ -3,7 +3,7 @@ Description: test nonspherical hydrometeor
 Author: Hejun Xie
 Date: 2021-06-13 18:23:40
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-13 23:00:23
+LastEditTime: 2021-07-20 20:13:51
 '''
 
 
@@ -27,11 +27,21 @@ if __name__ == "__main__":
     s = Snow('1mom')
     ns = NonsphericalSnow('1mom', 'hexcol')
 
-    T = np.array([250, 250, 250, 250])
-    QM = np.array([1e-5, 1e-4, 1e-3, 1e-2])
+    ntest = 1000
+    
+    # T = np.array([250, 250, 250, 250])
+    # QM = np.array([1e-5, 1e-4, 1e-3, 1e-2])
 
+    T = np.ones((ntest), dtype='float32') * 253. # [K]
+    QM = np.logspace(-5, -2, ntest) # [kg m-3] (1E-5, 1E-2) [g m-3] (1E-2, 1E+1)
+
+    t1 = time.time()
     s.set_psd(T, QM)
+    t2 = time.time()
     print(s.lambda_)
+    print(t2-t1)
+
+    # exit()
 
     t1 = time.time()
     ns.set_psd(T, QM)
