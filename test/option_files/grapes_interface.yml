@@ -24,11 +24,11 @@ microphysics:
     scheme: '1mom'
     folder_lut: '../pathos/lut/'
     scattering: 'tm_masc_release'
-    scattering_S: 'iitm_masc'
+    scattering_S: 'iitm_masc_snowflake_20.0'
     scattering_G: 'tm_masc_release'
     with_attenuation: 1
     with_ice_crystals: 0
     psd_new_solver_S: 1
     psd_new_solver_G: 1
-    shape_S: 'hexcol'
+    shape_S: 'snowflake'
     shape_G: 'spheroid'

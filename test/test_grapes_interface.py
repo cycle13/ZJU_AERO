@@ -3,7 +3,7 @@ Description: test GRAPES interface for radar operator
 Author: Hejun Xie
 Date: 2020-11-02 16:17:47
 LastEditors: Hejun Xie
-LastEditTime: 2021-07-20 20:22:54
+LastEditTime: 2021-09-29 16:58:02
 '''
 
 # unit test import
@@ -55,9 +55,9 @@ if __name__ == "__main__":
     a.load_model_file(data_file_list, load_datetime=load_datetime, load_from_file=LOAD_MODEL, load_file='mdl.nc')
 
     if not LOAD_RADAR:
-        # r = a.get_PPI(elevations = 0.5)
+        r = a.get_PPI(elevations = 0.5)
         # r = a.get_PPI_test(elevations = 1)
-        r = a.get_PPI_serial(elevations = 0.5)
+        # r = a.get_PPI_serial(elevations = 0.5)
         with open("./ppi.pkl", "wb") as f:
             pickle.dump(r, f)
     else:

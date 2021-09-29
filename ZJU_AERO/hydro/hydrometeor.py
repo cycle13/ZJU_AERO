@@ -8,7 +8,7 @@ dielectric constants, velocity, mass...
 Author: Hejun Xie
 Date: 2020-08-18 09:37:31
 LastEditors: Hejun Xie
-LastEditTime: 2021-07-02 15:49:47
+LastEditTime: 2021-09-29 16:09:11
 '''
 
 # Global import 
@@ -40,7 +40,8 @@ def create_hydrometeor(hydrom_type, scheme = '1mom'):
     elif hydrom_type == 'S':
         if CONFIG['microphysics']['psd_new_solver_S']:
             shape = CONFIG['microphysics']['shape_S']
-            return NonsphericalSnow(scheme, shape)
+            param = get_param(CONFIG['microphysics']['scattering_S'])
+            return NonsphericalSnow(scheme, shape, param=param)
         else:
             return Snow(scheme)
     elif hydrom_type == 'G':
@@ -83,3 +84,11 @@ def create_hydrometeor_db(hydrom_type, scheme = '1mom'):
         Invalid hydrometeor type, must be R, S, G, I
         """
         return ValueError(dedent(msg))
+
+def get_param(scattering_method):
+    try:
+        param_str = scattering_method.split('_')[-1]
+        param = float(param_str)
+        return param
+    except:
+        return None

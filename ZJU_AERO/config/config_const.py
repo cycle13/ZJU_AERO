@@ -4,7 +4,7 @@ config subpackage.
 Author: Hejun Xie
 Date: 2020-11-21 11:07:03
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-17 10:20:50
+LastEditTime: 2021-09-29 16:44:36
 '''
 
 # Local imports, see config_types.py for the definition of Range and TypeList
@@ -93,14 +93,14 @@ VALID_VALUES={
         'with_ice_crystals': [0, 1],
         'with_melting': [0, 1],
         'with_attenuation': [0, 1],
-        'scattering':    ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'tm_masc_release', 'default'],
-        'scattering_S':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'tm_masc_release', 'default'],
-        'scattering_R':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'tm_masc_release', 'default'],
-        'scattering_I':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'tm_masc_release', 'default'],
-        'scattering_G':  ['tmatrix_masc', 'iitm_masc', 'tm_masc', 'tm_masc_release', 'default'],
+        'scattering':    ['tmatrix_masc', 'iitm_masc', 'tm_masc','tm_masc_release', 'default'],
+        'scattering_S':  ['tmatrix_masc', 'iitm_masc', 'tm_masc','tm_masc_release', 'default', '-reg-iitm_masc_snowflake_[0-9]*\.?[0-9]+$'],
+        'scattering_R':  ['tmatrix_masc', 'iitm_masc', 'tm_masc','tm_masc_release', 'default'],
+        'scattering_I':  ['tmatrix_masc', 'iitm_masc', 'tm_masc','tm_masc_release', 'default'],
+        'scattering_G':  ['tmatrix_masc', 'iitm_masc', 'tm_masc','tm_masc_release', 'default'],
         'folder_lut': str,
         'psd_new_solver_S': [0, 1],
         'psd_new_solver_G': [0, 1],
-        'shape_S': ['sphere', 'spheroid', 'hexcol'],
+        'shape_S': ['sphere', 'spheroid', 'hexcol', 'snowflake'],
         'shape_G': ['sphere', 'spheroid']}
     }

@@ -3,7 +3,7 @@ Description: plot levelB database sample
 Author: Hejun Xie
 Date: 2021-01-05 10:27:51
 LastEditors: Hejun Xie
-LastEditTime: 2021-02-18 11:26:41
+LastEditTime: 2021-09-12 16:42:36
 '''
 
 # Global imports
@@ -17,8 +17,9 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 plt.rcParams['font.family'] = 'serif'
 
-FILE = '../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc'
+# FILE = '../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc'
 # FILE = '../pathos/lut/tm_masc/lut_SZ_S_9_41_1mom_LevelA.nc'
+FILE = '../pathos/lut/iitm_masc_snowflake/lut_SZ_S_9_41_1mom_LevelB.nc'
 
 T = 253.0 # [K]
 Frequency = 9.41 # [GHz]

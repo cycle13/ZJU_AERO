@@ -4,7 +4,7 @@ should not be initialized directly
 Author: Hejun Xie
 Date: 2020-11-13 13:04:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-07-20 20:50:33
+LastEditTime: 2021-09-29 16:06:00
 '''
 
 # Global import
@@ -219,6 +219,31 @@ class _NonsphericalHydrometeor(_Hydrometeor):
             V = L * 3 / 2 * np.sqrt(3) * a**2
         elif self.shape == 'spheroid':
             V = (np.pi / 6) * D ** 3 / asp
+        elif self.shape == 'snowflake':
+            L = D / np.sqrt(asp**2 + 1)
+            a = (asp * L) / 2
+            n1 = 0.25
+            n2 = n1 * self.param # n2 / n1 range from 8.2 to 20 (plate to snowflake)
+
+            deg2rad = np.pi / 180.
+            dph = 1.0     # in degree
+            nsym = 6      # 6-fold symmetry
+            ph = np.arange(0.0, 360.0 / nsym, dph) * deg2rad # in degree
+            ratio = ( 2.0**(n2/2.0 - 1.0) * (np.abs(np.cos(1.5*ph))**n2 + np.abs(np.sin(1.5*ph))**n2) ) \
+                        ** (-1.0/(2.0*n1))
+            
+            if np.isscalar(asp):
+                rr = a * ratio
+            else:
+                rr = np.outer(a, ratio)
+
+            ss = 0.5 * rr * rr * dph * deg2rad
+            if np.isscalar(asp):
+                s = np.sum(ss) * nsym
+            else:
+                s = np.sum(ss, axis=1) * nsym
+            
+            V = s * L
         
         return V
 

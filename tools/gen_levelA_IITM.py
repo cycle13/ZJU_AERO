@@ -4,7 +4,7 @@ as a netCDF format file (LevelA-database)
 Author: Hejun Xie
 Date: 2020-09-17 10:04:49
 LastEditors: Hejun Xie
-LastEditTime: 2021-03-06 19:10:19
+LastEditTime: 2021-09-29 15:41:03
 '''
 
 import os
@@ -15,8 +15,8 @@ import numpy as np
 import xarray as xr
 from scipy.integrate import quad  
 
-RAW_DATA_ROOT = '/mnt/e/ZJU_AERO/radardb_hexgon_35.0'
-LEVELA_DATA_TARGET_ROOT = '/mnt/e/COSMO_POL/lut/iitm_masc/'
+RAW_DATA_ROOT = '../pathos/iitm_raw/radardb_snowflake_20.0_9.41'
+LEVELA_DATA_TARGET_ROOT = '../pathos/lut/iitm_masc_snowflake'
 HYDROMETEOR_TYPE = 'S'
 SCHEME = '1mom'
 NBETA = 91
@@ -93,9 +93,19 @@ if __name__ == '__main__':
     freq = RAW_DATA_ROOT.split('_')[-1]
     freq_str = freq.replace('.','_')
     Frequency = float(freq)
-    LEVELA_DATA_TARGET = LEVELA_DATA_TARGET_ROOT + \
-         'lut_SZ_' + HYDROMETEOR_TYPE + '_' + freq_str + '_' + SCHEME + '_' + 'LevelB' + '.nc'
 
+    try:
+        param_str = RAW_DATA_ROOT.split('_')[-2]
+        param = float(param_str)
+        LEVELA_DATA_TARGET_ROOT = LEVELA_DATA_TARGET_ROOT + '_' + param_str
+    except:
+        print('No parameter')
+    
+    if not os.path.exists(LEVELA_DATA_TARGET_ROOT):
+        os.mkdir(LEVELA_DATA_TARGET_ROOT)
+    LEVELA_DATA_TARGET = LEVELA_DATA_TARGET_ROOT + os.sep + \
+            'lut_SZ_' + HYDROMETEOR_TYPE + '_' + freq_str + '_' + SCHEME + '_' + 'LevelA' + '.nc'
+    
     Lambda = C / Frequency * 1e-9 * 1e+3 # [mm]
     Dmax = np.array(get_coords(dir_size)) * Lambda / np.pi
 

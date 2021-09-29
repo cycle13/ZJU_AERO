@@ -1,8 +1,9 @@
 DBS:
-  FOLDER_LUT: '../pathos/lut/tm_masc_release/' # place to hold database files
+  FOLDER_LUT: '../pathos/lut/iitm_masc_snowflake_20.0/' # place to hold database files
   LEVELA_TYPE: 'TM' # 'IITM' or 'TM'
   FREQUENCIES: [9.41] # The frequencies in GHz for which the lookup tables will be computed
   HYDROM_TYPES: ['S'] # Snow, graupel, hail, rain and ice, currently only snow implemented
+  # PARAM: 20.0 # shape continuous parameter for nonspherical particles  
 DIMENSIONS:
   # D: Maximum Diameter [mm], DMAX and DMIN depends on hydrometeor settings
   # NUM_DIAMETERS: 4

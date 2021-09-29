@@ -4,13 +4,14 @@ used to load and save single scattering lookup tables
 Author: Hejun Xie
 Date: 2020-08-19 22:09:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-04-14 18:41:44
+LastEditTime: 2021-09-29 15:56:50
 '''
 
 
 # Global imports
 import numpy as np
 np.seterr(divide='ignore') # Disable divide by zero error
+import os
 
 # Local imports
 from ._lut_ssp_numpy import load_lut_numpy
@@ -40,30 +41,22 @@ def load_all_lut(scheme, list_hydrom, frequency, scattering_method, folder_lut=N
 
     # Get current directory
     if folder_lut is None:
-        folder_lut = os.path.dirname(os.path.realpath(__file__))+'/'
+        folder_lut = os.path.dirname(os.path.realpath(__file__)) + os.sep
     lut_sz = {}
 
     for h in list_hydrom:
-        if scattering_method[h] == 'tmatrix_masc':
-            folder_lut_method = folder_lut + 'tmatrix_masc/'
-        elif scattering_method[h] == 'iitm_masc':
-            folder_lut_method = folder_lut + 'iitm_masc/'
-        elif scattering_method[h] == 'tm_masc':
-            folder_lut_method = folder_lut + 'tm_masc/'
-        elif scattering_method[h] == 'tm_masc_release':
-            folder_lut_method = folder_lut + 'tm_masc_release/'
+        folder_lut_method = folder_lut + scattering_method[h] + os.sep
 
         freq_str = str(frequency).replace('.','_')
-        if scattering_method[h] in ['iitm_masc', 'tm_masc', 'tm_masc_release']:
-            name = 'lut_SZ_' + h + '_' + freq_str + '_' + scheme + '_' + 'LevelB' + '.nc'
-        else:
+        if scattering_method[h] in ['tmatrix_masc']:
             name = 'lut_SZ_' + h + '_' + freq_str + '_' + scheme + '.lut'
+        else:
+            name = 'lut_SZ_' + h + '_' + freq_str + '_' + scheme + '_' + 'LevelB' + '.nc'
         print(folder_lut_method + name)
         try:
-            engine = 'xarray' if scattering_method[h] in ['iitm_masc', 'tm_masc', 'tm_masc_release'] else 'numpy'
+            engine = 'numpy' if scattering_method[h] in ['tmatrix_masc'] else 'xarray'
             lut_sz[h] = load_lut(folder_lut_method + name, engine=engine)
         except:
-            raise
             msg = """
             Could not find lookup table for scheme = {:s}, hydrometeor =
             {:s}, frequency = {:f} and scattering method = {:s}

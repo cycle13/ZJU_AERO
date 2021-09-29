@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2021-07-20 20:58:47
+LastEditTime: 2021-09-29 16:54:15
 '''
 
 
@@ -343,7 +343,7 @@ class RadarOperator(object):
         list_beams = cut_at_sensitivity([list_beams])
 
         print(list_beams[0].values['ZH'])
-        print(list_beams[0].values['RVEL'])
+        # print(list_beams[0].values['RVEL'])
 
         self.close()
         

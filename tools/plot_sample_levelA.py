@@ -3,7 +3,7 @@ Description: plot level A database sample
 Author: Hejun Xie
 Date: 2021-01-05 10:27:35
 LastEditors: Hejun Xie
-LastEditTime: 2021-02-18 10:12:18
+LastEditTime: 2021-09-12 16:43:30
 '''
 
 # Global imports
@@ -17,8 +17,10 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 plt.rcParams['font.family'] = 'serif'
 
-FILE = '../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelA.nc'
+# FILE = '../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelA.nc'
 # FILE = '../pathos/lut/tm_masc/lut_SZ_S_9_41_1mom_LevelA.nc'
+FILE = '../pathos/lut/iitm_masc_snowflake/lut_SZ_S_9_41_1mom_LevelA.nc'
+
 AR = 1.5 # [-]
 Dmax = 20.0 # [mm]
 T = 253.0 # [K]
@@ -56,7 +58,7 @@ if __name__ == "__main__":
         # zdr_abs_max = max(np.abs(zdr.min()), np.abs(zdr.max()))
         # clevels_zdr = np.linspace(-zdr_abs_max, zdr_abs_max, 100)
 
-        clevels = np.arange(0, 1000, 2)
+        clevels = np.arange(0, 2500, 5)
         # clevels = clevels * (Dmax / 20.0)**3
         clevels_zdr = np.arange(-2.0, 2.0, 0.05)
 

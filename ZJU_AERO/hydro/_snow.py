@@ -3,7 +3,7 @@ Description: hydrometeor snow
 Author: Hejun Xie
 Date: 2020-11-13 12:13:17
 LastEditors: Hejun Xie
-LastEditTime: 2021-07-20 20:43:06
+LastEditTime: 2021-09-29 16:09:32
 '''
 
 # Global imports
@@ -152,7 +152,7 @@ class NonsphericalSnow(_NonsphericalHydrometeor, Snow):
     Class for snow in the form of aggregates,
     but of nonspherical hydrometeor type, i.e., free a and b
     '''
-    def __init__(self, scheme, shape):
+    def __init__(self, scheme, shape, param=None):
         """
             Args:
             scheme: microphysical scheme to use, can be either '1mom' (operational
@@ -161,19 +161,22 @@ class NonsphericalSnow(_NonsphericalHydrometeor, Snow):
             shape: shape of a particle
                 1. hexcol: hexagonal column 
                 2. TODO
+            
+            param: param of that shape
 
             Returns:
                 A nonspherical Hydrometeor class instance (see below)
         """
         super(NonsphericalSnow, self).__init__(scheme)
 
-        if shape not in ['hexcol', 'spheroid']:
+        if shape not in ['hexcol', 'spheroid', 'snowflake']:
             msg = """
             Invalid Nonspherical snow shape
             """
             raise ValueError(dedent(msg))
             
         self.shape = shape
+        self.param = param
         self.list_D = np.linspace(self.d_min, self.d_max, self.nbins_D)
         self.asp_wgt = self.get_asp_wgt(self.list_D)
         self.M = self.get_M(self.list_D)

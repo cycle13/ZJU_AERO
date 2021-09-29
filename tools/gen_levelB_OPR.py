@@ -4,7 +4,7 @@ FOR OPERATIONAL USE
 Author: Hejun Xie
 Date: 2020-09-18 10:16:55
 LastEditors: Hejun Xie
-LastEditTime: 2021-07-02 15:49:32
+LastEditTime: 2021-09-29 15:45:06
 '''
 
 # unit test import
@@ -277,8 +277,6 @@ if __name__ == "__main__":
     
     for frequency in FREQUENCIES:
         for hydrom_type in HYDROM_TYPES:
-            
-            # The name of the lookup table is lut_SZ_<hydro_name>_<freq>_<scheme>_<level_name>.nc
 
             levela_name_lut = (FOLDER_LUT+"lut_SZ_"+hydrom_type+'_'+
                     str(frequency).replace('.','_')+'_'+scheme+"_LevelA"+".nc")
