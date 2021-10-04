@@ -3,7 +3,7 @@ Description: test graupel and snow
 Author: Hejun Xie
 Date: 2021-06-23 20:47:23
 LastEditors: Hejun Xie
-LastEditTime: 2021-09-29 17:14:32
+LastEditTime: 2021-10-02 18:01:29
 '''
 
 # unit test import
@@ -59,7 +59,7 @@ def test_core(hydro_istc, hydro_name, db):
 	dbZH = 10 * np.log10(ZH) # [dBZ]
 	dbZDR = 10 * np.log10(ZDR) # [dB]
 
-	print(dbZH)
+	# print(dbZH)
 	
 	db.close()
 	
@@ -72,15 +72,15 @@ if __name__ == "__main__":
 	from ZJU_AERO.config.cfg import CONFIG
 	constants.update()
 
-	# freq_str = '9_41'
-	freq_str = '35_0'
+	freq_str = '9_41'
+	# freq_str = '35_0'
 	
 	hydro_istc = Snow('1mom')
 	db = load_lut('../pathos/lut/iitm_masc/lut_SZ_S_'+freq_str+'_1mom_LevelB.nc', engine='xarray')
 	ZH_S_HO, ZDR_S_HO, KDP_S_HO = test_core(hydro_istc, 'S', db)
 
-	hydro_istc = NonsphericalSnow('1mom', 'snowflake', 20.0)
-	db = load_lut('../pathos/lut/iitm_masc_snowflake_20.0/lut_SZ_S_'+freq_str+'_1mom_LevelB.nc', engine='xarray')
+	hydro_istc = NonsphericalSnow('1mom', 'snowflake', 11.0)
+	db = load_lut('../pathos/lut/iitm_masc_snowflake_11.0/lut_SZ_S_'+freq_str+'_1mom_LevelB.nc', engine='xarray')
 	ZH_S_SN_20, ZDR_S_SN_20, KDP_S_SN_20 = test_core(hydro_istc, 'S', db)
 
 	hydro_istc = NonsphericalSnow('1mom', 'snowflake', 8.2)
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 	axes[0].plot(np.logspace(-5, -2, ntest), ZH_G, color='r', label='Graupel', ls='-')
 	axes[0].plot(np.logspace(-5, -2, ntest), ZH_S_SO, color='k', label='Snow Spheroid old m-D scheme', ls='-')
 	axes[0].plot(np.logspace(-5, -2, ntest), ZH_S_SN, color='b', label='Snow Spheroid new m-D scheme', ls='-')
-	axes[0].plot(np.logspace(-5, -2, ntest), ZH_S_SN_20, color='g', label='Snow Snowflake new m-D scheme n2/n1=20.0', ls='--')
+	axes[0].plot(np.logspace(-5, -2, ntest), ZH_S_SN_20, color='g', label='Snow Snowflake new m-D scheme n2/n1=11.0', ls='--')
 	axes[0].plot(np.logspace(-5, -2, ntest), ZH_S_SN_8_2, color='g', label='Snow Snowflake new m-D scheme n2/n1=8.2', ls='-')
 	axes[0].plot(np.logspace(-5, -2, ntest), ZH_S_HO, color='k', label='Snow HexCol old m-D scheme', ls='--')
 	axes[0].plot(np.logspace(-5, -2, ntest), ZH_S_HN, color='b', label='Snow HexCol new m-D scheme', ls='--')
@@ -127,7 +127,7 @@ if __name__ == "__main__":
 	axes[1].plot(np.logspace(-5, -2, ntest), ZDR_G, color='r', label='Graupel', ls='-')
 	axes[1].plot(np.logspace(-5, -2, ntest), ZDR_S_SO, color='k', label='Snow Spheroid old m-D scheme', ls='-')
 	axes[1].plot(np.logspace(-5, -2, ntest), ZDR_S_SN, color='b', label='Snow Spheroid new m-D scheme', ls='-')
-	axes[1].plot(np.logspace(-5, -2, ntest), ZDR_S_SN_20, color='g', label='Snow Snowflake new m-D scheme n2/n1=20.0', ls='--')
+	axes[1].plot(np.logspace(-5, -2, ntest), ZDR_S_SN_20, color='g', label='Snow Snowflake new m-D scheme n2/n1=11.0', ls='--')
 	axes[1].plot(np.logspace(-5, -2, ntest), ZDR_S_SN_8_2, color='g', label='Snow Snowflake new m-D scheme n2/n1=8.2', ls='-')
 	axes[1].plot(np.logspace(-5, -2, ntest), ZDR_S_HO, color='k', label='Snow HexCol old m-D scheme', ls='--')
 	axes[1].plot(np.logspace(-5, -2, ntest), ZDR_S_HN, color='b', label='Snow HexCol new m-D scheme', ls='--')
@@ -138,7 +138,7 @@ if __name__ == "__main__":
 	axes[2].plot(np.logspace(-5, -2, ntest), KDP_G, color='r', label='Graupel', ls='-')
 	axes[2].plot(np.logspace(-5, -2, ntest), KDP_S_SO, color='k', label='Snow Spheroid old m-D scheme', ls='-')
 	axes[2].plot(np.logspace(-5, -2, ntest), KDP_S_SN, color='b', label='Snow Spheroid new m-D scheme', ls='-')
-	axes[2].plot(np.logspace(-5, -2, ntest), KDP_S_SN_20, color='g', label='Snow Snowflake new m-D scheme n2/n1=20.0', ls='--')
+	axes[2].plot(np.logspace(-5, -2, ntest), KDP_S_SN_20, color='g', label='Snow Snowflake new m-D scheme n2/n1=11.0', ls='--')
 	axes[2].plot(np.logspace(-5, -2, ntest), KDP_S_SN_8_2, color='g', label='Snow Snowflake new m-D scheme n2/n1=8.2', ls='-')
 	axes[2].plot(np.logspace(-5, -2, ntest), KDP_S_HO, color='k', label='Snow HexCol old m-D scheme', ls='--')
 	axes[2].plot(np.logspace(-5, -2, ntest), KDP_S_HN, color='b', label='Snow HexCol new m-D scheme', ls='--')

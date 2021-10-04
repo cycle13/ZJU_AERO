@@ -3,7 +3,7 @@ Description: plot levelB database sample
 Author: Hejun Xie
 Date: 2021-01-05 10:27:51
 LastEditors: Hejun Xie
-LastEditTime: 2021-09-12 16:42:36
+LastEditTime: 2021-09-29 19:16:38
 '''
 
 # Global imports
@@ -19,10 +19,10 @@ plt.rcParams['font.family'] = 'serif'
 
 # FILE = '../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc'
 # FILE = '../pathos/lut/tm_masc/lut_SZ_S_9_41_1mom_LevelA.nc'
-FILE = '../pathos/lut/iitm_masc_snowflake/lut_SZ_S_9_41_1mom_LevelB.nc'
+FILE = '../pathos/lut/iitm_masc_snowflake_20.0/lut_SZ_S_35_0_1mom_LevelB.nc'
 
 T = 253.0 # [K]
-Frequency = 9.41 # [GHz]
+Frequency = 35.0 # [GHz]
 C = 299792458 # [m/s]
 ele = 1.0 # [deg] 
 lambda_ = C / (Frequency * 1E09) * 1000 # [mm]

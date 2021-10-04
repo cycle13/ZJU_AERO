@@ -4,7 +4,7 @@ as a netCDF format file (LevelA-database)
 Author: Hejun Xie
 Date: 2020-09-17 10:04:49
 LastEditors: Hejun Xie
-LastEditTime: 2021-09-29 15:41:03
+LastEditTime: 2021-09-30 20:03:07
 '''
 
 import os
@@ -15,7 +15,7 @@ import numpy as np
 import xarray as xr
 from scipy.integrate import quad  
 
-RAW_DATA_ROOT = '../pathos/iitm_raw/radardb_snowflake_20.0_9.41'
+RAW_DATA_ROOT = '../pathos/iitm_raw/radardb_snowflake_14.0_9.41'
 LEVELA_DATA_TARGET_ROOT = '../pathos/lut/iitm_masc_snowflake'
 HYDROMETEOR_TYPE = 'S'
 SCHEME = '1mom'
@@ -105,6 +105,8 @@ if __name__ == '__main__':
         os.mkdir(LEVELA_DATA_TARGET_ROOT)
     LEVELA_DATA_TARGET = LEVELA_DATA_TARGET_ROOT + os.sep + \
             'lut_SZ_' + HYDROMETEOR_TYPE + '_' + freq_str + '_' + SCHEME + '_' + 'LevelA' + '.nc'
+    
+    print(LEVELA_DATA_TARGET)
     
     Lambda = C / Frequency * 1e-9 * 1e+3 # [mm]
     Dmax = np.array(get_coords(dir_size)) * Lambda / np.pi
