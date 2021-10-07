@@ -3,7 +3,7 @@ Description: Do statitstic works on shunyi X band Radar
 Author: Hejun Xie
 Date: 2021-10-06 15:08:44
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-07 19:36:03
+LastEditTime: 2021-10-07 19:35:13
 '''
 
 import pycwr
@@ -16,6 +16,7 @@ import pyproj as pp
 import pickle
 
 from pycwr.io import read_auto
+import pyart
 
 # unit test import
 import sys
@@ -39,7 +40,71 @@ pinggu  = [117.1166667, 40.16666667]
 nanjiao = [116.4666667, 39.8]
 
 # define the vicinity range (half range)
-vicinity = (2, 10)  # (tangential, radial)
+vicinity = (5, 40)  # (tangential, radial)
+
+
+# define some constants
+fields  = ['reflectivity']
+vrange  = {'reflectivity':  (0, 40),
+        'differential_reflectivity': (-1.5, 1.5),
+        'velocity': (-15, 15),
+        'specific_differential_phase': (-1, 6),
+        'cross_correlation_ratio': (0.85, 1.0)}
+cmap    = {'reflectivity':  'pyart_Carbone11',
+        'differential_reflectivity': 'pyart_RefDiff',
+        'velocity': 'pyart_BuOr8',
+        'specific_differential_phase': 'pyart_RefDiff',
+        'cross_correlation_ratio': 'pyart_RefDiff'}
+latex_name = {'reflectivity': r'$Z_{H}$',
+        'differential_reflectivity': r'$Z_{DR}$',
+        'velocity': r'$V_r$',
+        'specific_differential_phase': r'$K_{DP}$',
+        'cross_correlation_ratio': r'$\rho_{hv}$'}
+short_name = {'reflectivity':  'ZH',
+        'differential_reflectivity': 'ZDR',
+        'velocity': 'RVEL',
+        'specific_differential_phase': 'KDP',
+        'cross_correlation_ratio': 'RHOHV'}
+DEG = r'$^\circ$'
+
+def plot_radar_file(pyart_radar, sweep):
+    radial_start_index = pyart_radar.sweep_start_ray_index['data'][sweep]
+    radial_end_index = pyart_radar.sweep_end_ray_index['data'][sweep] + 1
+
+    display = pyart.graph.RadarMapDisplayBasemap(pyart_radar)
+
+    for field in fields:
+        plt.figure()
+        display.plot_ppi_map(field, sweep, vmin=vrange[field][0], vmax=vrange[field][1],
+                            min_lon=114, max_lon=120, min_lat=38.0, max_lat=42.5,
+                            lon_lines=np.arange(38, 42, 1), projection='lcc',
+                            lat_lines=np.arange(113, 119, 1), resolution='h',
+                            lat_0=pyart_radar.latitude['data'],
+                            lon_0=pyart_radar.longitude['data'],
+                            shapefile='./ChinaProvince/ChinaProvince',
+                            cmap=cmap[field],
+                            title= 'Elevation: {:.1f}'.format(pyart_radar.elevation['data'][radial_start_index]) + DEG + '\n' + \
+                                latex_name[field])
+        # plot range rings at 50, 100, 200km
+        display.plot_range_ring(50., line_style='k-', lw=1.0)
+        display.plot_range_ring(100., line_style='k--', lw=1.0)
+        display.plot_range_ring(200., line_style='k-', lw=1.0)
+
+        # plots cross hairs
+        display.plot_line_xy(np.array([-300000.0, 300000.0]), np.array([0.0, 0.0]),
+                            line_style='k-', lw=1.2)
+        display.plot_line_xy(np.array([0.0, 0.0]), np.array([-300000.0, 300000.0]),
+                            line_style='k-', lw=1.2)
+
+        plt.rc('font', size=6)
+        kwargs = {'marker':'+', 'color':'r', 'ms':3}
+        display.plot_point(116.2833333, 39.98333333, label_text='54399 Haidian', **kwargs)
+        display.plot_point(115.9666667, 40.45, label_text='54406 Yanqing', **kwargs)
+        display.plot_point(117.1166667, 40.16666667, label_text='54424 Pinggu', **kwargs)
+        display.plot_point(116.4666667, 39.8, label_text='54511 Nanjiao', **kwargs)
+        plt.rc('font', size=8)
+        plt.savefig('test_vicinity.png', dpi=300, bbox_inches='tight')
+        plt.close()
 
 def data_smooth(data, mask, sigma, truncate=30.0):
     data[mask] = 0.0
@@ -107,6 +172,21 @@ def preprocess(radar_file, sweep):
     sweep_smooth(r, radial_start_index, radial_end_index, 'differential_reflectivity', sigma=[2.0, 15.0])
     zdr     = get_sweep_field(r, radial_start_index, radial_end_index, 'differential_reflectivity')
 
+    geoid = pp.Geod(ellps = 'WGS84')
+    a_yanqing, s_yanqing = get_ad(geoid, shunyi, yanqing)
+    a_pinggu, s_pinggu   = get_ad(geoid, shunyi, pinggu)
+    a_haidian, s_haidian = get_ad(geoid, shunyi, haidian)
+    a_nanjiao, s_nanjiao = get_ad(geoid, shunyi, nanjiao)
+    idx_yanqing = np.argmin(np.abs(azimuth_angles-a_yanqing)), np.argmin(np.abs(s-s_yanqing))
+    idx_pinggu = np.argmin(np.abs(azimuth_angles-a_pinggu)), np.argmin(np.abs(s-s_pinggu))
+    idx_haidian = np.argmin(np.abs(azimuth_angles-a_haidian)), np.argmin(np.abs(s-s_haidian))
+    idx_nanjiao = np.argmin(np.abs(azimuth_angles-a_nanjiao)), np.argmin(np.abs(s-s_nanjiao))
+    set_vicinity(idx_yanqing, r, radial_start_index, radial_end_index)
+    set_vicinity(idx_pinggu, r, radial_start_index, radial_end_index)
+    set_vicinity(idx_haidian, r, radial_start_index, radial_end_index)
+    set_vicinity(idx_nanjiao, r, radial_start_index, radial_end_index)
+    plot_radar_file(r, sweep)
+    
     del r
     return zdr, zh, s, azimuth_angles
 
@@ -118,6 +198,10 @@ def get_ad(geoid, coords1, coords2):
     if az12 < 0.0:
         az12 = az12 + 360.0
     return az12, d
+
+def set_vicinity(idx_site, pyart_radar, start_radial, end_radial):
+    pyart_radar.fields['reflectivity']['data'][start_radial+idx_site[0]-vicinity[0]:start_radial+idx_site[0]+vicinity[0]+1, \
+        idx_site[1]-vicinity[1]:idx_site[1]+vicinity[1]+1] = 0.0
 
 def get_vicinity(idx_site, field):
 
@@ -200,8 +284,8 @@ if __name__ == "__main__":
     if not LOAD_RESULT:
         radar_files = glob.glob('../../pathos/RADAR/19.11.29顺义X波段/29/BJXSY.20191129.??????.AR2.bz2')
         # radar_files = radar_files[107:364]
-        # radar_files = [radar_files[199]]
-        radar_files = radar_files[200:300]
+        radar_files = [radar_files[199]]
+        # radar_files = radar_files[200:300]
         
         # initialize the result_box
         result_box = []

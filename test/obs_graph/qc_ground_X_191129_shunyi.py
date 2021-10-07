@@ -3,7 +3,7 @@ Description: Do statitstic works on shunyi X band Radar
 Author: Hejun Xie
 Date: 2021-10-06 15:08:44
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-06 18:51:40
+LastEditTime: 2021-10-07 18:43:57
 '''
 
 import pycwr
@@ -204,8 +204,6 @@ def preprocess_2(radar_file, sweep):
 
     sweep_filter(r, 'differential_reflectivity', 'reflectivity', 20.0, radial_start_index, radial_end_index)
     sweep_filter(r, 'differential_reflectivity', 'cross_correlation_ratio', 0.95, radial_start_index, radial_end_index)
-
-    plot_radar_file(r, sweep, 'ctl3')
 
     sweep_smooth(r, radial_start_index, radial_end_index, 'differential_reflectivity', sigma=[2.0, 15.0])
     zdr     = get_sweep_field(r, radial_start_index, radial_end_index, 'differential_reflectivity').flatten()

@@ -3,7 +3,7 @@ Description: plot W profile at cloudradar cite of Beijing
 Author: Hejun Xie
 Date: 2021-10-04 17:57:30
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-05 18:30:07
+LastEditTime: 2021-10-07 18:28:21
 '''
 
 # unit test import
@@ -36,7 +36,7 @@ var = 'RH'
 if __name__ == "__main__":
 
     data_file_list = glob.glob(FOLDER+os.sep+'*.nc')
-    load_datetime = dt.datetime(2019,11,29,12)
+    load_datetime = dt.datetime(2019,11,29,18)
 
     ds = get_model_variables(data_file_list, ['W', 'T', 'QV', 'P'], load_datetime)
     ds['t'] = ds['T'] - 273.15
