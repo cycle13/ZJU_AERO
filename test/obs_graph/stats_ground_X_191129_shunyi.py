@@ -3,7 +3,7 @@ Description: Do statitstic works on shunyi X band Radar
 Author: Hejun Xie
 Date: 2021-10-06 15:08:44
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-07 19:36:03
+LastEditTime: 2021-10-07 21:56:22
 '''
 
 import pycwr
@@ -39,7 +39,7 @@ pinggu  = [117.1166667, 40.16666667]
 nanjiao = [116.4666667, 39.8]
 
 # define the vicinity range (half range)
-vicinity = (2, 10)  # (tangential, radial)
+vicinity = (3, 20)  # (tangential, radial)
 
 def data_smooth(data, mask, sigma, truncate=30.0):
     data[mask] = 0.0
@@ -189,12 +189,28 @@ def plot_with_nan(ax, x, y, yerr, **kwargs):
     eb[-1][0].set_linestyle(kwargs['ls'])
 
 
-LOAD_RESULT = False
+def plot_with_nan_2D(ax, x, y, xerr, yerr, **kwargs):
+    mask = ~np.isnan(x) & ~np.isnan(y)
+
+    kwargs['capsize'] = 5
+    kwargs['elinewidth'] = 0.8
+    label_text = kwargs['label']
+    del kwargs['label']
+
+    eb = ax.errorbar(x[mask], y[mask], xerr=xerr[mask], yerr=yerr[mask], **kwargs)
+    eb[-1][0].set_linestyle(kwargs['ls'])
+
+    ax.text(-0.05, 1.05, label_text, transform=ax.transAxes, 
+            size=14, weight='bold')
+    
+    ax.scatter(x[mask], y[mask], c=time_color[mask], cmap='cool', marker='D')
+
+LOAD_RESULT = True
 
 if __name__ == "__main__":
 
     # initialize time windows
-    time_windows = np.arange(dt.datetime(2019,11,29,6), dt.datetime(2019,11,29,20,30), \
+    time_windows = np.arange(dt.datetime(2019,11,29,11), dt.datetime(2019,11,29,17), \
                                  dt.timedelta(seconds=1800)).astype(dt.datetime)
 
     if not LOAD_RESULT:
@@ -227,10 +243,13 @@ if __name__ == "__main__":
     
     result = stats_time_window(result_box)
 
+    '''
+    A. Plot All sites in one graph
+    '''
     fig = plt.figure(figsize=(10,12))
     time = np.arange(result['54406-Yanqing'].shape[0])
 
-    xticklabels = [time_window.strftime('%Y-%m-%d %H') for time_window in time_windows[::2]]
+    xticklabels = [time_window.strftime('%Y-%m-%d %HUTC') for time_window in time_windows[::2]]
 
     ax = plt.subplot(211)
 
@@ -261,3 +280,59 @@ if __name__ == "__main__":
 
     fig.tight_layout()
     plt.savefig('CloudRadarSiteStats.png', dpi=300)    
+
+    '''
+    B. Plot one site as a t 2D graph
+    '''
+    fig, axes = plt.subplots(2, 2, figsize=(13,12), sharex=True, sharey=True)
+    ax = plt.gca()
+
+    time_color = np.arange(result['54406-Yanqing'].shape[0])
+
+    plot_with_nan_2D(axes[0,0], result['54406-Yanqing'][:,0], result['54406-Yanqing'][:,2], \
+            result['54406-Yanqing'][:,1], result['54406-Yanqing'][:,3], lw=1.5, ls='-', c='k', label='54406-Yanqing')
+    plot_with_nan_2D(axes[0,1], result['54424-Pinggu'][:,0], result['54424-Pinggu'][:,2], \
+            result['54424-Pinggu'][:,1], result['54424-Pinggu'][:,3], lw=1.5, ls='-', c='k', label='54424-Pinggu')
+    
+    plot_with_nan_2D(axes[1,0], result['54399-Haidian'][:,0], result['54399-Haidian'][:,2], \
+            result['54399-Haidian'][:,1], result['54399-Haidian'][:,3], lw=1.5, ls='-', c='k', label='54399-Haidian')
+    plot_with_nan_2D(axes[1,1], result['54511-Nanjiao'][:,0], result['54511-Nanjiao'][:,2], \
+            result['54511-Nanjiao'][:,1], result['54511-Nanjiao'][:,3], lw=1.5, ls='-', c='k', label='54511-Nanjiao')
+    
+
+    for i in range(2):
+        for j in range(2):
+            axes[i,j].set_xlim([8, 28])
+            axes[i,j].set_ylim([-1.8, 1.0])
+            axes[i,j].xaxis.set_tick_params(direction='in', labelsize=12)
+            axes[i,j].yaxis.set_tick_params(direction='in', labelsize=12)
+    
+    axes[1,0].set_xlabel('Reflectivity ZH [dBZ]', fontsize=12)
+    axes[1,1].set_xlabel('Reflectivity ZH [dBZ]', fontsize=12)
+    axes[0,0].set_ylabel('Differential Reflectivity ZDR [dBZ]', fontsize=12)
+    axes[1,0].set_ylabel('Differential Reflectivity ZDR [dBZ]', fontsize=12)
+
+    fig.tight_layout(rect=[0.07, 0.05, 0.9, 0.95])
+
+    plt.subplots_adjust(left=0.07, bottom=0.05, right=0.9, top=0.95)
+    cax = plt.axes([0.92, 0.05, 0.03, 0.80])
+    tax = plt.axes([0.91, 0.85, 0.05, 0.10])
+
+    tax.spines['top'].set_visible(False)
+    tax.spines['right'].set_visible(False)
+    tax.spines['bottom'].set_visible(False)
+    tax.spines['left'].set_visible(False)
+    tax.get_xaxis().set_ticks([])
+    tax.get_yaxis().set_ticks([])
+
+    cmap = mpl.cm.cool
+    norm = mpl.colors.Normalize(vmin=time[0], vmax=time[-1])
+
+    cb_ticklabels = xticklabels = [time_window.strftime('%HUTC') for time_window in time_windows[::2]]
+    cb = mpl.colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, orientation='vertical')
+    cb.set_ticks(time[::2])
+    cb.set_ticklabels(cb_ticklabels)
+    cax.yaxis.set_tick_params(labelsize=12, direction='in')
+
+    tax.text(0.5, 0.5, "Time", size=18, ha="center", va="center", weight='bold')
+    plt.savefig('CloudRadarSiteStats_2D.png', dpi=300)
