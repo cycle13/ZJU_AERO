@@ -3,7 +3,7 @@ Description: test GRAPES interface for radar operator
 Author: Hejun Xie
 Date: 2020-11-02 16:17:47
 LastEditors: Hejun Xie
-LastEditTime: 2021-09-30 19:50:05
+LastEditTime: 2021-10-08 16:56:55
 '''
 
 # unit test import
@@ -36,10 +36,10 @@ DEG = r'$^\circ$'
 fields  = ['ZH', 'RVEL', 'ZDR']
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17'}
 vrange  = {'ZH':  (0, 40),
-        'ZDR': (0, 0.5),
+        'ZDR': (-1.5, 1.5),
         'RVEL': (-15, 15)}
 cmap    = {'ZH':  'pyart_Carbone11',
-        'ZDR': 'pyart_Carbone11',
+        'ZDR': 'pyart_RefDiff',
         'RVEL': 'pyart_BuOr8'}
 latex_name = {'ZH': r'$Z_{H}$',
         'ZDR': r'$Z_{DR}$',
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     FOLDER = '../pathos/GRAPES/north_china_snowfall_20191112'
     data_file_list = glob.glob(FOLDER+os.sep+'*.nc')
-    load_datetime = dt.datetime(2019,11,29,15)
+    load_datetime = dt.datetime(2019,11,29,11)
     
     a = ZJU_AERO.RadarOperator(options_file='./option_files/grapes_interface.yml')
     a.load_model_file(data_file_list, load_datetime=load_datetime, load_from_file=LOAD_MODEL, load_file='mdl.nc')
@@ -80,6 +80,7 @@ if __name__ == "__main__":
                             lat_lines=np.arange(113, 119, 1), resolution='h',
                             lat_0=r.latitude['data'],
                             lon_0=r.longitude['data'],
+                            shapefile='./obs_graph/ChinaProvince/ChinaProvince',
                             cmap=cmap[field],
                             title= 'Time: {}'.format(a.get_pos_and_time()['time']) + '\n' + \
                                 'Elevation: {:.1f}'.format(r.elevation['data'][0]) + DEG + '\n' + \
@@ -94,6 +95,14 @@ if __name__ == "__main__":
                             line_style='k-', lw=1.2)
         display.plot_line_xy(np.array([0.0, 0.0]), np.array([-300000.0, 300000.0]),
                             line_style='k-', lw=1.2)
+
+        plt.rc('font', size=6)
+        kwargs = {'marker':'+', 'color':'r', 'ms':3}
+        display.plot_point(116.2833333, 39.98333333, label_text='54399 Haidian', **kwargs)
+        display.plot_point(115.9666667, 40.45, label_text='54406 Yanqing', **kwargs)
+        display.plot_point(117.1166667, 40.16666667, label_text='54424 Pinggu', **kwargs)
+        display.plot_point(116.4666667, 39.8, label_text='54511 Nanjiao', **kwargs)
+        plt.rc('font', size=8)
 
         plt.savefig('{}_ppi_grapes_iitm_{}.png'.format(load_datetime.strftime('%Y-%m-%d-%HUTC'), field), dpi=300, bbox_inches='tight')
 
