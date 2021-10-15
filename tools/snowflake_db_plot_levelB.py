@@ -3,7 +3,7 @@ Description: plot snowflake radar optical database
 Author: Hejun Xie
 Date: 2021-10-05 21:08:46
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-08 16:22:39
+LastEditTime: 2021-10-15 19:57:34
 '''
 
 # Global imports
@@ -18,12 +18,13 @@ import matplotlib.pyplot as plt
 plt.rcParams['font.family'] = 'serif'
 
 
-# PARAMS = ['8.2', '11.0', '14.0', '17.0', '20.0']
+# PARAMS = ['8.2', '9.5', '11.0', '14.0', '17.0', '20.0']
 PARAMS = ['8.2', '20.0']
-# COLORS = ['red', 'yellow', 'green', 'blue', 'purple']
+# COLORS = ['red', 'orange', 'yellow', 'green', 'blue', 'purple']
 COLORS = ['red', 'purple']
 
-FILES = ['../pathos/lut/iitm_masc_snowflake_'+PARAM+'/lut_SZ_S_9_41_1mom_LevelB.nc' for PARAM in PARAMS]
+# FILES = ['../pathos/lut/iitm_masc_snowflake_'+PARAM+'/lut_SZ_S_9_41_1mom_LevelB.nc' for PARAM in PARAMS]
+FILES = ['../pathos/lut/iitm_masc_snowflake_'+PARAM+'/lut_SZ_S_35_0_1mom_LevelB.nc' for PARAM in PARAMS]
 # HEX = '../pathos/lut/iitm_masc/lut_SZ_S_9_41_1mom_LevelB.nc'
 HEX = '../pathos/lut/iitm_masc/lut_SZ_S_35_0_1mom_LevelB.nc'
 # SPH = '../pathos/lut/tm_masc_release/lut_SZ_S_9_41_1mom_LevelB.nc'

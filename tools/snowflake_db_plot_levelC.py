@@ -3,7 +3,7 @@ Description: plot snowflake radar optical database
 Author: Hejun Xie
 Date: 2021-10-05 21:08:46
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-05 21:44:40
+LastEditTime: 2021-10-15 20:05:30
 '''
 
 # unit test import
@@ -78,6 +78,10 @@ if __name__ == "__main__":
     db = load_lut('../pathos/lut/iitm_masc_snowflake_8.2/lut_SZ_S_'+freq_str+'_1mom_LevelB.nc', engine='xarray')
     ZH_SN_8_2, ZDR_SN_8_2, KDP_SN_8_2 = test_core(hydro_istc, 'S', db)
 
+    hydro_istc = NonsphericalSnow('1mom', 'snowflake', 9.5)
+    db = load_lut('../pathos/lut/iitm_masc_snowflake_9.5/lut_SZ_S_'+freq_str+'_1mom_LevelB.nc', engine='xarray')
+    ZH_SN_9_5, ZDR_SN_9_5, KDP_SN_9_5 = test_core(hydro_istc, 'S', db)
+
     hydro_istc = NonsphericalSnow('1mom', 'snowflake', 11.0)
     db = load_lut('../pathos/lut/iitm_masc_snowflake_11.0/lut_SZ_S_'+freq_str+'_1mom_LevelB.nc', engine='xarray')
     ZH_SN_11, ZDR_SN_11, KDP_SN_11 = test_core(hydro_istc, 'S', db)
@@ -113,6 +117,7 @@ if __name__ == "__main__":
 
     # ZH
     axes[0].plot(np.logspace(-5, -2, ntest), ZH_SN_8_2, color='r', label='Snow Snowflake n2/n1=8.2', ls='-')
+    axes[0].plot(np.logspace(-5, -2, ntest), ZH_SN_9_5, color='orange', label='Snow Snowflake n2/n1=9.5', ls='-')
     axes[0].plot(np.logspace(-5, -2, ntest), ZH_SN_11, color='yellow', label='Snow Snowflake n2/n1=11.0', ls='-')
     axes[0].plot(np.logspace(-5, -2, ntest), ZH_SN_14, color='green', label='Snow Snowflake n2/n1=14.0', ls='-')
     axes[0].plot(np.logspace(-5, -2, ntest), ZH_SN_17, color='blue', label='Snow Snowflake n2/n1=17.0', ls='-')
@@ -123,6 +128,7 @@ if __name__ == "__main__":
 
     # ZDR
     axes[1].plot(np.logspace(-5, -2, ntest), ZDR_SN_8_2, color='r', label='Snow Snowflake n2/n1=8.2', ls='-')
+    axes[1].plot(np.logspace(-5, -2, ntest), ZDR_SN_9_5, color='orange', label='Snow Snowflake n2/n1=9.5', ls='-')
     axes[1].plot(np.logspace(-5, -2, ntest), ZDR_SN_11, color='yellow', label='Snow Snowflake n2/n1=11.0', ls='-')
     axes[1].plot(np.logspace(-5, -2, ntest), ZDR_SN_14, color='green', label='Snow Snowflake n2/n1=14.0', ls='-')
     axes[1].plot(np.logspace(-5, -2, ntest), ZDR_SN_17, color='blue', label='Snow Snowflake n2/n1=17.0', ls='-')
@@ -133,6 +139,7 @@ if __name__ == "__main__":
 
     # KDP
     axes[2].plot(np.logspace(-5, -2, ntest), KDP_SN_8_2, color='r', label='Snow Snowflake n2/n1=8.2', ls='-')
+    axes[2].plot(np.logspace(-5, -2, ntest), KDP_SN_9_5, color='orange', label='Snow Snowflake n2/n1=9.5', ls='-')
     axes[2].plot(np.logspace(-5, -2, ntest), KDP_SN_11, color='yellow', label='Snow Snowflake n2/n1=11.0', ls='-')
     axes[2].plot(np.logspace(-5, -2, ntest), KDP_SN_14, color='green', label='Snow Snowflake n2/n1=14.0', ls='-')
     axes[2].plot(np.logspace(-5, -2, ntest), KDP_SN_17, color='blue', label='Snow Snowflake n2/n1=17.0', ls='-')
