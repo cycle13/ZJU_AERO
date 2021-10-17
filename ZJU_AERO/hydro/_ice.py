@@ -3,7 +3,7 @@ Description: hydrometeor ice
 Author: Hejun Xie
 Date: 2020-11-13 12:14:03
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-14 12:28:08
+LastEditTime: 2021-10-17 16:36:06
 '''
 
 # Global imports
@@ -12,7 +12,6 @@ np.seterr(divide='ignore')
 
 # Local imports
 from ..const import global_constants as constants
-from ..const import constants_wsm6 as constants_1mom
 from ._hydrometeor import _Hydrometeor
 
 
@@ -20,15 +19,22 @@ class IceParticle(_Hydrometeor):
     '''
     Class for ice crystals
     '''
-    def __init__(self,scheme):
+    def __init__(self, scheme, scheme_name='wsm6'):
         """
         Create a IceParticle Class instance
         Args:
             scheme: microphysical scheme to use, can be either '1mom' (operational
                one-moment scheme) or '2mom' (non-operational two-moment scheme, not implemented yet)
+            scheme_name: microphysics scheme name. Ex: wsm6, wdm6, lin, thompson...
         Returns:
             An IceParticle class instance (see below)
         """
+
+        if scheme_name == 'wsm6':
+            from ..const import constants_wsm6 as constants_1mom
+        elif scheme_name == 'thompson':
+            from ..const import constants_thompson as constants_1mom
+
         self.scheme = scheme
         self.nbins_D = 1024
 
@@ -56,6 +62,10 @@ class IceParticle(_Hydrometeor):
         self.ntot_factor = None
         self.vel_factor = None
 
+        # Some exceptional const. attributes or functions by constants module
+        if scheme_name in ['wsm6', 'thompson']:
+            self.PHI_23_I = constants_1mom.PHI_23_I
+
     def get_N(self,D):
         """
         Returns the PSD in mm-1 m-3 using the moment explained in the paper
@@ -72,7 +82,7 @@ class IceParticle(_Hydrometeor):
         
         # Taken from Field et al (2005)
         x = np.outer(self.lambda_, D) / 1000. # [-]
-        return self.N0[:,None] * constants_1mom.PHI_23_I(x)
+        return self.N0[:,None] * self.PHI_23_I(x)
         
     def integrate_V(self):
         """
@@ -156,7 +166,7 @@ class IceParticle(_Hydrometeor):
         D = np.linspace(self.d_min, self.d_max, self.nbins_D)
         dD = D[1]-D[0]
         x = lambda_[:,None] * D.T / 1000 # [-]
-        N = N0[:,None] * constants_1mom.PHI_23_I(x)
+        N = N0[:,None] * self.PHI_23_I(x)
         QM_est = np.nansum(self.a * D**self.b * N, axis=1) * dD
         N0 = N0 * (QM / QM_est)
 

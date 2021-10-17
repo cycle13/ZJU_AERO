@@ -3,7 +3,7 @@ Description: hydrometeor snow
 Author: Hejun Xie
 Date: 2020-11-13 12:13:17
 LastEditors: Hejun Xie
-LastEditTime: 2021-09-29 16:09:32
+LastEditTime: 2021-10-17 16:22:20
 '''
 
 # Global imports
@@ -13,7 +13,6 @@ from textwrap import dedent
 
 # Local imports
 from ..const import global_constants as constants
-from ..const import constants_wsm6 as constants_1mom
 from ._hydrometeor import _Hydrometeor, _NonsphericalHydrometeor
 
 
@@ -21,15 +20,21 @@ class Snow(_Hydrometeor):
     '''
     Class for snow in the form of aggregates
     '''
-    def __init__(self, scheme):
+    def __init__(self, scheme, scheme_name='wsm6'):
         """
         Create a Snow Class instance
         Args:
             scheme: microphysical scheme to use, can be either '1mom' (operational
                one-moment scheme) or '2mom' (non-operational two-moment scheme, not implemented yet)
+            scheme_name: microphysics scheme name. Ex: wsm6, wdm6, lin, thompson...
         Returns:
             A Snow class instance (see below)
         """
+
+        if scheme_name == 'wsm6':
+            from ..const import constants_wsm6 as constants_1mom
+        elif scheme_name == 'thompson':
+            from ..const import constants_thompson as constants_1mom
 
         self.scheme = scheme
         self.nbins_D = 1024
@@ -152,11 +157,12 @@ class NonsphericalSnow(_NonsphericalHydrometeor, Snow):
     Class for snow in the form of aggregates,
     but of nonspherical hydrometeor type, i.e., free a and b
     '''
-    def __init__(self, scheme, shape, param=None):
+    def __init__(self, scheme, shape, param=None, scheme_name='wsm6'):
         """
             Args:
             scheme: microphysical scheme to use, can be either '1mom' (operational
                one-moment scheme) or '2mom' (non-operational two-moment scheme, not implemented yet)
+            scheme_name: microphysics scheme name. Ex: wsm6, wdm6, lin, thompson...
             
             shape: shape of a particle
                 1. hexcol: hexagonal column 
@@ -167,7 +173,7 @@ class NonsphericalSnow(_NonsphericalHydrometeor, Snow):
             Returns:
                 A nonspherical Hydrometeor class instance (see below)
         """
-        super(NonsphericalSnow, self).__init__(scheme)
+        super(NonsphericalSnow, self).__init__(scheme, scheme_name=scheme_name)
 
         if shape not in ['hexcol', 'spheroid', 'snowflake']:
             msg = """

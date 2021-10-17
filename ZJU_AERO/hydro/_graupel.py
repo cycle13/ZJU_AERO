@@ -3,7 +3,7 @@ Description: hydrometeor grauple
 Author: Hejun Xie
 Date: 2020-11-13 12:13:29
 LastEditors: Hejun Xie
-LastEditTime: 2021-07-20 20:24:31
+LastEditTime: 2021-10-17 16:26:43
 '''
 
 # Global imports
@@ -13,7 +13,6 @@ from textwrap import dedent
 
 # Local imports
 from ..const import global_constants as constants
-from ..const import constants_wsm6 as constants_1mom
 from ._hydrometeor import _Hydrometeor, _NonsphericalHydrometeor
 
 
@@ -21,15 +20,21 @@ class Graupel(_Hydrometeor):
     '''
     Class for graupel
     '''
-    def __init__(self, scheme):
+    def __init__(self, scheme, scheme_name='wsm6'):
         """
         Create a Graupel Class instance
         Args:
             scheme: microphysical scheme to use, can be either '1mom' (operational
                one-moment scheme) or '2mom' (non-operational two-moment scheme, not implemented yet)
+            scheme_name: microphysics scheme name. Ex: wsm6, wdm6, lin, thompson...
         Returns:
             A Graupel class instance (see below)
         """
+
+        if scheme_name == 'wsm6':
+            from ..const import constants_wsm6 as constants_1mom
+        elif scheme_name == 'thompson':
+            from ..const import constants_thompson as constants_1mom
 
         self.scheme = scheme
         self.nbins_D = 1024
@@ -149,11 +154,12 @@ class NonsphericalGraupel(_NonsphericalHydrometeor, Graupel):
     Class for snow in the form of graupel,
     but of nonspherical hydrometeor type, i.e., free a and b
     '''
-    def __init__(self, scheme, shape):
+    def __init__(self, scheme, shape, scheme_name='wsm6'):
         """
             Args:
             scheme: microphysical scheme to use, can be either '1mom' (operational
                one-moment scheme) or '2mom' (non-operational two-moment scheme, not implemented yet)
+            scheme_name: microphysics scheme name. Ex: wsm6, wdm6, lin, thompson...
             
             shape: shape of a particle
                 1. hexcol: hexagonal column 
@@ -162,7 +168,7 @@ class NonsphericalGraupel(_NonsphericalHydrometeor, Graupel):
             Returns:
                 A nonspherical Hydrometeor class instance (see below)
         """
-        super(NonsphericalGraupel, self).__init__(scheme)
+        super(NonsphericalGraupel, self).__init__(scheme, scheme_name=scheme_name)
 
         if shape not in ['spheroid']:
             msg = """

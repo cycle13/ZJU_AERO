@@ -4,7 +4,7 @@ config subpackage.
 Author: Hejun Xie
 Date: 2020-11-21 11:07:03
 LastEditors: Hejun Xie
-LastEditTime: 2021-09-29 16:44:36
+LastEditTime: 2021-10-17 15:13:53
 '''
 
 # Local imports, see config_types.py for the definition of Range and TypeList
@@ -45,6 +45,7 @@ DEFAULTS={
         'engine': 'rdop'},
     'microphysics':
         {'scheme': '1mom',
+         'scheme_name': 'wsm6',
          'with_melting': 0,
          'with_ice_crystals': 1,
          'with_attenuation': 1,
@@ -72,7 +73,7 @@ VALID_VALUES={
         '3dB_beamwidth': Range(0.1, 10.),
         'PRI': [None, Range(10, 3000)],
         'FFT_length': [None, Range(16, 2048)],
-        'nyquist_velocity': [None, float]}, # TODO: nyquist velocity may have to do with the radar elevation
+        'nyquist_velocity': [None, float]}, # TODO: nyquist velocity may be the function of radar elevation
     'refraction':
         {'scheme': [1, 2, 3]},
     'integration': # TODO: weight_threshold; scheme 2, 3, 4 melting layer: 'ml'
@@ -90,6 +91,7 @@ VALID_VALUES={
         'engine': ['rdop', 'wrfda']},
     'microphysics':
         {'scheme': ['1mom', '2mom'],
+        'scheme_name': ['wsm6', 'thompson'],
         'with_ice_crystals': [0, 1],
         'with_melting': [0, 1],
         'with_attenuation': [0, 1],

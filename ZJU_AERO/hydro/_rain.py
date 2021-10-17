@@ -3,7 +3,7 @@ Description: hydrometeor rain
 Author: Hejun Xie
 Date: 2020-11-13 12:13:05
 LastEditors: Hejun Xie
-LastEditTime: 2020-12-12 17:19:09
+LastEditTime: 2021-10-17 16:20:20
 '''
 
 # Global imports
@@ -12,7 +12,6 @@ np.seterr(divide='ignore')
 
 # Local imports
 from ..const import global_constants as constants
-from ..const import constants_wsm6 as constants_1mom
 from ._hydrometeor import _Hydrometeor
 
 
@@ -20,15 +19,21 @@ class Rain(_Hydrometeor):
     '''
     Class for raindrops
     '''
-    def __init__(self, scheme):
+    def __init__(self, scheme, scheme_name='wsm6'):
         """
         Create a Rain Class instance
         Args:
             scheme: microphysical scheme to use, can be either '1mom' (operational
                one-moment scheme) or '2mom' (non-operational two-moment scheme, not implemented yet)
+            scheme_name: microphysics scheme name. Ex: wsm6, wdm6, lin, thompson...
         Returns:
             A Rain class instance (see below)
         """
+
+        if scheme_name == 'wsm6':
+            from ..const import constants_wsm6 as constants_1mom
+        elif scheme_name == 'thompson':
+            from ..const import constants_thompson as constants_1mom
         
         self.scheme = scheme
         self.nbins_D = 1024

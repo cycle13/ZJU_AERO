@@ -8,7 +8,7 @@ dielectric constants, velocity, mass...
 Author: Hejun Xie
 Date: 2020-08-18 09:37:31
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-08 16:50:25
+LastEditTime: 2021-10-17 16:19:09
 '''
 
 # Global import 
@@ -35,23 +35,25 @@ def create_hydrometeor(hydrom_type, scheme = '1mom'):
 
     from ..config.cfg import CONFIG
 
+    mp_scheme_name = CONFIG['microphysics']['scheme_name']
+
     if  hydrom_type == 'R':
-       return Rain(scheme)
+       return Rain(scheme, scheme_name=mp_scheme_name)
     elif hydrom_type == 'S':
         if CONFIG['microphysics']['psd_new_solver_S']:
             shape = CONFIG['microphysics']['shape_S']
             param = get_param(CONFIG['microphysics']['scattering_S'])
-            return NonsphericalSnow(scheme, shape, param=param)
+            return NonsphericalSnow(scheme, shape, scheme_name=mp_scheme_name, param=param)
         else:
-            return Snow(scheme)
+            return Snow(scheme, scheme_name=mp_scheme_name)
     elif hydrom_type == 'G':
         if CONFIG['microphysics']['psd_new_solver_G']:
             shape = CONFIG['microphysics']['shape_G']
-            return NonsphericalGraupel(scheme, shape)
+            return NonsphericalGraupel(scheme, shape, scheme_name=mp_scheme_name)
         else:
-            return Graupel(scheme)
+            return Graupel(scheme, scheme_name=mp_scheme_name)
     elif hydrom_type == 'I':
-        return IceParticle(scheme)
+        return IceParticle(scheme, scheme_name=mp_scheme_name)
     else:
         msg = """
         Invalid hydrometeor type, must be R, S, G, I

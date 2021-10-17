@@ -4,7 +4,7 @@ should not be initialized directly
 Author: Hejun Xie
 Date: 2020-11-13 13:04:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-09-29 16:06:00
+LastEditTime: 2021-10-17 16:23:57
 '''
 
 # Global import
@@ -173,11 +173,12 @@ class _NonsphericalHydrometeor(_Hydrometeor):
     3. The total water content 
     '''
 
-    def __init__(self, scheme):
+    def __init__(self, scheme, scheme_name='wsm6'):
         """
             Args:
             scheme: microphysical scheme to use, can be either '1mom' (operational
                one-moment scheme) or '2mom' (non-operational two-moment scheme, not implemented yet)
+            scheme_name: microphysics scheme name. Ex: wsm6, wdm6, lin, thompson...
 
             Returns:
                 A nonspherical Hydrometeor class instance (see below)
