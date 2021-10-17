@@ -3,7 +3,7 @@ Description: hydrometeor ice
 Author: Hejun Xie
 Date: 2020-11-13 12:14:03
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-17 16:36:06
+LastEditTime: 2021-10-17 21:01:23
 '''
 
 # Global imports
@@ -36,16 +36,19 @@ class IceParticle(_Hydrometeor):
             from ..const import constants_thompson as constants_1mom
 
         self.scheme = scheme
+        self.scheme_name = scheme_name
         self.nbins_D = 1024
 
         self.d_max = constants_1mom.D_MAX_I
         self.d_min = constants_1mom.D_MIN_I
+        self.list_D = np.linspace(self.d_min, self.d_max, self.nbins_D)
 
         # Power-law parameters
         self.a = constants_1mom.AM_I
         self.b = constants_1mom.BM_I
         self.alpha = constants_1mom.AV_I
         self.beta = constants_1mom.BV_I
+        self.f = constants_1mom.FV_I
 
         # PSD parameters
         self.N0 = None      # Taken from Field et al (2005), not true N0

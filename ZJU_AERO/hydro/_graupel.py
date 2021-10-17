@@ -3,7 +3,7 @@ Description: hydrometeor grauple
 Author: Hejun Xie
 Date: 2020-11-13 12:13:29
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-17 16:26:43
+LastEditTime: 2021-10-17 21:00:20
 '''
 
 # Global imports
@@ -37,16 +37,19 @@ class Graupel(_Hydrometeor):
             from ..const import constants_thompson as constants_1mom
 
         self.scheme = scheme
+        self.scheme_name = scheme_name
         self.nbins_D = 1024
 
         self.d_max = constants_1mom.D_MAX_G
         self.d_min = constants_1mom.D_MIN_G
+        self.list_D = np.linspace(self.d_min, self.d_max, self.nbins_D)
 
         # Power-law parameters
         self.a = constants_1mom.AM_G
         self.b = constants_1mom.BM_G
         self.alpha = constants_1mom.AV_G
         self.beta = constants_1mom.BV_G
+        self.f = constants_1mom.FV_G
 
         # PSD parameters
         self.N0 = constants_1mom.N0_G
@@ -61,6 +64,31 @@ class Graupel(_Hydrometeor):
         self.lambda_factor = constants_1mom.LAMBDA_FACTOR_G
         self.vel_factor = constants_1mom.VEL_FACTOR_G
         self.ntot_factor = constants_1mom.NTOT_FACTOR_G
+
+        # Exceptional constants defined for particular microphysics schemes:
+        if self.scheme_name == 'thompson':
+            self.N0_UL = constants_1mom.N0_UL_G
+            self.N0_LL = constants_1mom.N0_LL_G
+            self.Q0 = constants_1mom.Q0_G
+    
+    def set_N0(self, QM):
+        """
+        Sets the interception parameter N0.
+        Args:
+            QM: Mass concentration of hydrometeor graupel.
+        
+        a). For microphysics scheme wsm6, N0 is a constant for hydrometeor rain
+        b). For microphysics scheme thompson, N0 is the function of graupel mixing ratio (see Reference [1].),
+            or mass concentration, equivalently.
+            N0_G = max(10, min(0.2/QG, 5.0E3)) # [mm-1 m-3]
+        References:
+        [1].Thompson, Gregory, et al. "Explicit forecasts of winter precipitation using an improved bulk microphysics scheme. 
+        Part II: Implementation of a new snow parameterization." Monthly Weather Review 136.12 (2008): 5095-5115.
+        """
+        if self.scheme_name == 'wsm6':
+            pass # already set in __init__()
+        elif self.scheme_name == 'thompson':
+            self.N0 = np.max(self.N0_LL, np.min(self.Q0/QM, self.N0_UL))
 
 
     def set_psd(self,*args):
@@ -79,6 +107,7 @@ class Graupel(_Hydrometeor):
             super(Graupel,self).set_psd(*args)
         elif self.scheme == '1mom':
             QM = args[0]
+            self.set_N0(QM)
             with np.errstate(divide='ignore'):
                 _lambda = (self.N0 * self.a * self.lambda_factor / QM) ** \
                                     (1. / (self.b + self.mu + 1))

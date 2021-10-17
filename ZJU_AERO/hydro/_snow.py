@@ -3,7 +3,7 @@ Description: hydrometeor snow
 Author: Hejun Xie
 Date: 2020-11-13 12:13:17
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-17 16:22:20
+LastEditTime: 2021-10-17 20:59:40
 '''
 
 # Global imports
@@ -37,16 +37,19 @@ class Snow(_Hydrometeor):
             from ..const import constants_thompson as constants_1mom
 
         self.scheme = scheme
+        self.scheme_name = scheme_name
         self.nbins_D = 1024
 
         self.d_max = constants_1mom.D_MAX_S
         self.d_min = constants_1mom.D_MIN_S
+        self.list_D = np.linspace(self.d_min, self.d_max, self.nbins_D)
 
         # Power-law parameters
         self.a = constants_1mom.AM_S
         self.b = constants_1mom.BM_S
         self.alpha = constants_1mom.AV_S
         self.beta = constants_1mom.BV_S
+        self.f = constants_1mom.FV_S
 
         # PSD parameters
         self.N0 = None # For snow, N0 use relation by Field et al. 2005 (QJRMS)

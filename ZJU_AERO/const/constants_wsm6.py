@@ -4,7 +4,7 @@ in the WSM6 (used in WRF and GRAPES) microphysical scheme
 Author: Hejun Xie
 Date: 2020-08-19 08:52:23
 LastEditors: Hejun Xie
-LastEditTime: 2020-11-11 22:13:01
+LastEditTime: 2021-10-17 20:11:52
 '''
 
 
@@ -46,6 +46,7 @@ BM_G = 3.0      # [-]
 AM_G = np.pi / 6.0 * RHO_G * (1000**-BM_G) # [kg mm-BM_G]
 BV_G = 0.80     # [-]
 AV_G = 330.0 * (1000**-BV_G) # [m/s mm-BV_G]
+FV_G = np.nan     # [mm-1]
 MU_G = 0.0      # [-]
 D_MIN_G = 0.2   # [mm]
 D_MAX_G = 15    # [mm]
@@ -56,11 +57,13 @@ NTOT_FACTOR_G       = spe.gamma(       MU_G + 1)
 # Snow
 RHO_S = 1.0E2   # [kg m-3]
 # but we use (Field, 2005) snow PSD
-# N0_S = 2.0E3 * np.exp(1.2E-1*(T-constants.T0))  # [mm-1 m-3]
+# N0_23 = 5.65E5 * np.exp(-0.107*(T-constants.T0))  
+# N0 = 13.5 * N0_23 / 1.0E3 # [mm-1 m-3]
 BM_S = 3.0      # [-]
 AM_S = np.pi / 6.0 * RHO_S * (1000**-BM_S) # [kg mm-BM_S]
 BV_S = 0.41     # [-]
 AV_S = 11.72 * (1000**-BV_S) # [m/s mm-BV_S]
+FV_S = np.nan     # [mm-1]
 MU_S = 0.0      # [-]
 D_MIN_S = 0.2   # [mm]
 D_MAX_S = 20    # [mm]
@@ -75,6 +78,7 @@ BM_R = 3.0      # [-]
 AM_R = np.pi / 6.0 * RHO_R * (1000**-BM_R) # [kg mm-BM_R]
 BV_R = 0.8      # [-]
 AV_R = 841.9 * (1000**-BV_R) # [m/s mm-BV_R]
+FV_R = np.nan     # [mm-1]
 MU_R = 0.0      # [-]
 D_MIN_R = 0.1   # [mm]
 D_MAX_R = 15     # [mm]
@@ -92,6 +96,7 @@ AM_I = np.pi / 6.0 * RHO_I * FRAC_I * (1000 ** -BM_I) # [kg mm-BM_I]
 # Zero fall speed for ice crystals, maybe problematic for doppler spectrum simulation
 BV_I = 0.0    # [-]
 AV_I = 0.0    # [m/s mm-BV_I]
+FV_I = np.nan   # [mm-1]
 MU_I = 0.0      # [-]
 D_MIN_I = 0.05  # [mm]
 D_MAX_I = 2     # [mm]

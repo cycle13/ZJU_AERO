@@ -20,6 +20,10 @@ core:
 microphysics:
     scheme: '1mom'
     folder_lut: '../pathos/lut/'
-    scattering: 'tmatrix_masc'
+    scattering: 'tm_masc_release'
     with_attenuation: 1
     with_ice_crystals: 1
+    psd_new_solver_S: 1
+    psd_new_solver_G: 1
+    shape_S: 'spheroid'
+    shape_G: 'spheroid'

@@ -4,7 +4,7 @@ should not be initialized directly
 Author: Hejun Xie
 Date: 2020-11-13 13:04:15
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-17 16:23:57
+LastEditTime: 2021-10-17 19:48:52
 '''
 
 # Global import
@@ -88,7 +88,10 @@ class _Hydrometeor(object):
         Returns:
             V: the terminal fall velocities, same dimensions as D
         """
-        V = self.alpha * D**self.beta
+        if ~np.isnan(self.f):
+            V = self.alpha * D**self.beta * np.e**(-self.f*D)
+        else:
+            V = self.alpha * D**self.beta
         return V
 
     def get_D_from_V(self,V):
@@ -101,7 +104,42 @@ class _Hydrometeor(object):
         Returns:
             the corresponding diameters in mm
         """
-        return (V / self.alpha) ** (1. / self.beta)
+        if ~np.isnan(self.f): 
+            if np.isscalar(V):
+                D = self.solve_D(V)
+            else:
+                D = np.zeros(V.shape, dtype='float32')
+                for iV, V in enumerate(V):
+                    D[iV] = self.solve_D(V)
+        else:
+            D = (V / self.alpha) ** (1. / self.beta)
+        return D
+
+    def solve_D(self, V):
+        """
+        Returns the diameter for a specified terminal fall velocity by
+        optimizing the (Ferrier, 1994) vt-D relation:
+        vt(D) = alpha * D**beta * e**(-f*D)
+        Args:
+            V: the terminal fall velocity in m/s, a scalar
+
+        Returns:
+            the corresponding diameters in mm
+        """
+
+        def DV_P0(D):
+            return self.alpha * D**self.beta * np.e**(-self.f*D) - V
+            
+        def DV_P1(D):
+            return self.alpha * self.beta * D**(self.beta-1.0) * np.e**(-self.f*D) - \
+                self.f * self.alpha * D**self.beta * np.e**(-self.f*D)
+        
+        try:
+            D = optimize.newton(DV_P0, 1.0, fprime=DV_P1, tol=1e-4)
+        except RuntimeError:
+            print(V)
+        
+        return D
 
     def integrate_V(self):
         """
@@ -184,6 +222,7 @@ class _NonsphericalHydrometeor(_Hydrometeor):
                 A nonspherical Hydrometeor class instance (see below)
         """
         super(_NonsphericalHydrometeor, self).__init__(scheme)
+        self.scheme_name = scheme_name
         self.a = np.nan
         self.b = np.nan
         self.ntot_factor = np.nan

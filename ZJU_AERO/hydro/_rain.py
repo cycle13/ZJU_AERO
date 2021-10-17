@@ -3,7 +3,7 @@ Description: hydrometeor rain
 Author: Hejun Xie
 Date: 2020-11-13 12:13:05
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-17 16:20:20
+LastEditTime: 2021-10-17 20:42:37
 '''
 
 # Global imports
@@ -36,16 +36,19 @@ class Rain(_Hydrometeor):
             from ..const import constants_thompson as constants_1mom
         
         self.scheme = scheme
+        self.scheme_name = scheme_name
         self.nbins_D = 1024
 
         self.d_max = constants_1mom.D_MAX_R
         self.d_min = constants_1mom.D_MIN_R
+        self.list_D = np.linspace(self.d_min, self.d_max, self.nbins_D)
 
         # Power-law parameters
         self.a = constants_1mom.AM_R
         self.b = constants_1mom.BM_R
         self.alpha = constants_1mom.AV_R
         self.beta = constants_1mom.BV_R
+        self.f = constants_1mom.FV_R
 
         # PSD parameters
         self.lambda_ = None
@@ -61,6 +64,32 @@ class Rain(_Hydrometeor):
         self.vel_factor = constants_1mom.VEL_FACTOR_R
         self.ntot_factor = constants_1mom.NTOT_FACTOR_R
         self.ntot = None # Total number of particles
+
+        # Exceptional constants defined for particular microphysics schemes:
+        if self.scheme_name == 'thompson':
+            self.N1 = constants_1mom.N1_R
+            self.N2 = constants_1mom.N2_R
+            self.Q0 = constants_1mom.Q0_R
+    
+    def set_N0(self, QM):
+        """
+        Sets the interception parameter N0.
+        Args:
+            QM: Mass concentration of hydrometeor rain.
+        
+        a). For microphysics scheme wsm6, N0 is a constant for hydrometeor rain
+        b). For microphysics scheme thompson, N0 is the function of rain mixing ratio (see Reference [1].),
+            or mass concentration, equivalently.
+            N0_R = (N1-N2)/2 * (tanh(qr0-qr)/4qr0) + (N1+N2)/2
+        References:
+        [1].Thompson, Gregory, et al. "Explicit forecasts of winter precipitation using an improved bulk microphysics scheme. 
+        Part II: Implementation of a new snow parameterization." Monthly Weather Review 136.12 (2008): 5095-5115.
+        """
+        if self.scheme_name == 'wsm6':
+            pass # already set in __init__()
+        elif self.scheme_name == 'thompson':
+            self.N0 = (self.N1 - self.N2) / 2.0 * np.tanh((self.Q0-QM)/(4*self.Q0)) + \
+                (self.N1 + self.N2) / 2.0
 
     def set_psd(self, *args):
         """
@@ -79,6 +108,7 @@ class Rain(_Hydrometeor):
             super(Rain,self).set_psd(*args)
         elif self.scheme == '1mom':
             QM = args[0]
+            self.set_N0(QM)
             with np.errstate(divide='ignore'):
                 # QM = N0 * a * lambda^-(b+mu+1) * lambda_factor * N0 * a
                 _lambda = (self.N0 * self.a * self.lambda_factor / QM) \
