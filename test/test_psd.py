@@ -4,7 +4,7 @@ different microhphysics schemes
 Author: Hejun Xie
 Date: 2021-10-18 15:57:32
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-18 17:50:55
+LastEditTime: 2021-10-18 20:45:33
 '''
 
 # unit test import
@@ -38,13 +38,14 @@ if __name__ == "__main__":
     mpl.use('Agg')
     import matplotlib.pyplot as plt
     plt.rcParams['font.family'] = 'serif'
+    mpl.rcParams['text.usetex'] = True
 
     lwcs = [1E-3, 2E-3, 5E-3, 1E-2]  # [kg m-3]
     text = [r"LWC = 1 [$ g \cdot m^{-3} $]", r"LWC = 2 [$ g \cdot m^{-3} $]",
             r"LWC = 5 [$ g \cdot m^{-3} $]", r"LWC = 10 [$ g \cdot m^{-3} $]"]
 
     # # size distribution
-    fig, axes = plt.subplots(2, 2, figsize=(10, 10), sharey=True, sharex=True)
+    fig, axes = plt.subplots(2, 2, figsize=(10, 15), sharey=True, sharex=True)
 
     for ilwc in range(len(lwcs)):
         ax = axes[ilwc // 2, ilwc % 2]
@@ -65,10 +66,10 @@ if __name__ == "__main__":
 
         ax.set_xscale('log')
 
-        ax.text(0.25, 2, text[ilwc], size=12, ha="center", va="center")
+        ax.text(0.25, 2, text[ilwc], size=14, ha="center", va="center")
 
-        ax.set_ylabel(r"Mass Distribution M(D) [$ g \cdot m^{-3} \cdot mm^{-1} $]", fontsize=12)
-        ax.set_xlabel(r"Maximum Dimension $D_{max}$ [$ mm $]", fontsize=12)
+        ax.set_ylabel(r"Mass Distribution M(D) [$ g \cdot m^{-3} \cdot mm^{-1} $]", fontsize=14)
+        ax.set_xlabel(r"Maximum Dimension $D_{max}$ [$ mm $]", fontsize=16)
 
         ax.spines['bottom'].set_linewidth(1.5)
         ax.spines['left'].set_linewidth(1.5)
@@ -76,14 +77,49 @@ if __name__ == "__main__":
         ax.spines['top'].set_linewidth(1.5)
 
     
-    axes[0, 0].legend(loc='best', fontsize=12, frameon=False)
-    fig.tight_layout()
+    axes[0, 0].legend(loc='best', fontsize=15, frameon=False)
+    fig.tight_layout(rect=[0.08, 0.35, 0.97, 0.97])
+    plt.subplots_adjust(left=0.08, bottom=0.35, right=0.97, top=0.97)
+    aux_ax = plt.axes([0.07, 0.07, 0.9, 0.2])
+
+    QM = np.logspace(-5, -2, 1000)
+
+    r_wsm6.set_N0(QM)
+    r_thp.set_N0(QM)
+    N0_wsm6 = r_wsm6.N0 + np.zeros(QM.shape, dtype='float32')
+    N0_thp  = r_thp.N0 + np.zeros(QM.shape, dtype='float32')
+    
+    aux_ax.plot(QM*1E3, N0_wsm6, label='wsm6', color='r')
+    aux_ax.plot(QM*1E3, N0_thp, label='thompson', color='b')
+
+    aux_ax.plot(QM[QM<r_thp.Q0]*1E3, r_thp.N1 + np.zeros(QM[QM<r_thp.Q0].shape, dtype='float32'), 'k--')
+    aux_ax.plot(QM[QM>r_thp.Q0]*1E3, r_thp.N2 + np.zeros(QM[QM>r_thp.Q0].shape, dtype='float32'), 'k--')
+    plt.axvline(x=r_thp.Q0*1E3, color='k', ls='-')
+    plt.axhline(y=N0_thp[np.argmin(np.abs(QM-r_thp.Q0))], color='k', ls='-')
+
+    eq1 = r"$N_{0}=\frac{N_1-N_2}{2} \cdot \tanh(\frac{q_{r0}-q_r}{4q_{r0}}) + \frac{N_1+N_2}{2}$"
+    aux_ax.text(3E-2, 2E5, eq1, color="k", fontsize=16,
+        horizontalalignment="center", verticalalignment="center")
+    
+    aux_ax.set_xscale('log')
+    aux_ax.set_yscale('log')
+
+    aux_ax.set_ylabel(r"Intercept parameter $N_{0}$ [$ mm^{-1} \cdot m^{-3} $]", fontsize=14)
+    aux_ax.set_xlabel(r"Liquid Water Content [$ g \cdot m^{-3} $]", fontsize=14)
+
+    aux_ax.legend(loc='best', fontsize=14, frameon=False)
+
+    aux_ax.spines['bottom'].set_linewidth(1.5)
+    aux_ax.spines['left'].set_linewidth(1.5)
+    aux_ax.spines['right'].set_linewidth(1.5)
+    aux_ax.spines['top'].set_linewidth(1.5)
+    
     plt.savefig('test_psd_rain.png', dpi=300)
     plt.close()
 
 
     # # size distribution
-    fig, axes = plt.subplots(2, 2, figsize=(10, 10), sharey=True, sharex=True)
+    fig, axes = plt.subplots(2, 2, figsize=(10, 15), sharey=True, sharex=True)
 
     iwcs = [5E-4, 1E-3, 2E-3, 5E-3]  # [kg m-3]
     text = [r"IWC = 0.5 [$ g \cdot m^{-3} $]", r"IWC = 1 [$ g \cdot m^{-3} $]",
@@ -108,10 +144,10 @@ if __name__ == "__main__":
 
         ax.set_xscale('log')
 
-        ax.text(0.5, 0.5, text[iiwc], size=12, ha="center", va="center")
+        ax.text(0.5, 0.5, text[iiwc], size=14, ha="center", va="center")
 
-        ax.set_ylabel(r"Mass Distribution M(D) [$ g \cdot m^{-3} \cdot mm^{-1} $]", fontsize=12)
-        ax.set_xlabel(r"Maximum Dimension $D_{max}$ [$ mm $]", fontsize=12)
+        ax.set_ylabel(r"Mass Distribution M(D) [$ g \cdot m^{-3} \cdot mm^{-1} $]", fontsize=14)
+        ax.set_xlabel(r"Maximum Dimension $D_{max}$ [$ mm $]", fontsize=14)
 
         ax.spines['bottom'].set_linewidth(1.5)
         ax.spines['left'].set_linewidth(1.5)
@@ -119,8 +155,40 @@ if __name__ == "__main__":
         ax.spines['top'].set_linewidth(1.5)
 
     
-    axes[0, 0].legend(loc='best', fontsize=12, frameon=False)
-    fig.tight_layout()
+    axes[0, 0].legend(loc='best', fontsize=14, frameon=False)
+    
+    fig.tight_layout(rect=[0.08, 0.35, 0.97, 0.97])
+    plt.subplots_adjust(left=0.08, bottom=0.35, right=0.97, top=0.97)
+    aux_ax = plt.axes([0.07, 0.07, 0.9, 0.2])
+
+    QM = np.logspace(-5, -2, 1000)
+
+    g_wsm6.set_N0(QM)
+    g_thp.set_N0(QM)
+    N0_wsm6 = g_wsm6.N0 + np.zeros(QM.shape, dtype='float32')
+    N0_thp  = g_thp.N0 + np.zeros(QM.shape, dtype='float32')
+    
+    aux_ax.plot(QM*1E3, N0_wsm6, label='wsm6', color='r')
+    aux_ax.plot(QM*1E3, N0_thp, label='thompson', color='b')
+
+    aux_ax.set_xscale('log')
+    aux_ax.set_yscale('log')
+
+    aux_ax.set_ylabel(r"Intercept parameter $N_{0}$ [$ mm^{-1} \cdot m^{-3} $]", fontsize=14)
+    aux_ax.set_xlabel(r"Ice Water Content [$ g \cdot m^{-3} $]", fontsize=14)
+
+    eq2 = r"$N_{0}=max\left(N_1,  min\left( \frac{\xi}{q_g}, N_2 \right) \right)$"
+    aux_ax.text(3E-2, 2E2, eq2, color="k", fontsize=18,
+        horizontalalignment="center", verticalalignment="center")
+
+    aux_ax.legend(loc='best', fontsize=14, frameon=False)
+
+    aux_ax.spines['bottom'].set_linewidth(1.5)
+    aux_ax.spines['left'].set_linewidth(1.5)
+    aux_ax.spines['right'].set_linewidth(1.5)
+    aux_ax.spines['top'].set_linewidth(1.5)
+
+    
     plt.savefig('test_psd_graupel.png', dpi=300)
     plt.close()
 
