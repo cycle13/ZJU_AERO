@@ -3,7 +3,7 @@ Description: test for Thompson microsphysics scheme
 Author: Hejun Xie
 Date: 2020-08-22 12:36:55
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-17 21:03:26
+LastEditTime: 2021-10-18 15:24:48
 '''
 
 # unit test import
@@ -36,7 +36,7 @@ DEG = r'$^\circ$'
 fields  = ['ZH', 'RVEL', 'ZDR']
 cmap = {'ZH':'pyart_Carbone11', 'RVEL': 'pyart_BuOr8', 'ZDR': 'pyart_Carbone17'}
 vrange  = {'ZH':  (0, 50),
-        'ZDR': (-5.0, 2.0),
+        'ZDR': (-5.0, 5.0),
         'RVEL': (-15, 15)}
 cmap    = {'ZH':  'pyart_Carbone11',
         'ZDR': 'pyart_RefDiff',
@@ -90,5 +90,5 @@ if __name__ == "__main__":
         display.plot_line_xy(np.array([0.0, 0.0]), np.array([-300000.0, 300000.0]),
                             line_style='k-', lw=1.2)
 
-        plt.savefig('test_thompson_{}.png'.format(field), dpi=300, bbox_inches='tight')
+        plt.savefig('test_wsm6_{}.png'.format(field), dpi=300, bbox_inches='tight')
         plt.close()

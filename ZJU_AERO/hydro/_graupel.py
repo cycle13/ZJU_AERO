@@ -3,7 +3,7 @@ Description: hydrometeor grauple
 Author: Hejun Xie
 Date: 2020-11-13 12:13:29
 LastEditors: Hejun Xie
-LastEditTime: 2021-10-17 21:00:20
+LastEditTime: 2021-10-18 17:07:23
 '''
 
 # Global imports
@@ -88,8 +88,9 @@ class Graupel(_Hydrometeor):
         if self.scheme_name == 'wsm6':
             pass # already set in __init__()
         elif self.scheme_name == 'thompson':
-            self.N0 = np.max(self.N0_LL, np.min(self.Q0/QM, self.N0_UL))
-
+            self.N0 = np.array(self.Q0 / QM)
+            self.N0[self.N0 >= self.N0_UL] = self.N0_UL
+            self.N0[self.N0 <= self.N0_LL] = self.N0_LL
 
     def set_psd(self,*args):
         """
