@@ -19,8 +19,8 @@ core:
     engine: 'rdop'
 microphysics:
     scheme: '1mom'
-    # scheme_name: 'thompson'
-    scheme_name: 'wsm6'
+    scheme_name: 'thompson'
+    # scheme_name: 'wsm6'
     folder_lut: '../pathos/lut/'
     scattering: 'tm_masc_release'
     with_attenuation: 1

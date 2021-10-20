@@ -1,0 +1,22 @@
+# Basic environment for ZJU-AERO.
+name: zju_aero_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - numpy
+  - scipy
+  - xarray
+  - netcdf4
+  - h5netcdf
+  - h5py
+  - pandas
+  - pyproj
+  - matplotlib
+  - pyyaml
+  - multiprocess
+  - future
+  - arm_pyart
+  - basemap
+  - basemap-data-hires

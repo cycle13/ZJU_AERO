@@ -5,7 +5,7 @@ compute PPI scans
 Author: Hejun Xie
 Date: 2020-08-22 12:45:35
 LastEditors: Hejun Xie
-LastEditTime: 2021-09-29 16:54:15
+LastEditTime: 2021-10-20 20:06:38
 '''
 
 
@@ -18,9 +18,18 @@ import copy
 import gc
 import pickle
 from textwrap import dedent
+from importlib.util import find_spec
+
+HAS_PYART = find_spec("pyart")
+HAS_PYCWR = find_spec("pycwr")
 
 # Local imports
-from .radar import PyartRadop, PycwrRadop, get_spaceborne_angles, SimulatedSpaceborne
+# from .radar import PyartRadop, PycwrRadop, get_spaceborne_angles, SimulatedSpaceborne
+from .radar import get_spaceborne_angles, SimulatedSpaceborne
+if HAS_PYART:
+    from .radar.pyart_wrapper import PyartRadop
+if HAS_PYCWR:
+    from .radar.pycwr_wrapper import PycwrRadop
 from .config import createConfig
 from .interp import get_interpolated_radial, integrate_radials
 
@@ -451,10 +460,13 @@ class RadarOperator(object):
             'ranges':rranges,'pos_time':self.get_pos_and_time(),
             'data':list_sweeps}
 
-            if plot_engine == 'pyart':
+            if plot_engine == 'pyart' and HAS_PYART:
                 plot_instance = PyartRadop('ppi',simulated_sweep)
-            elif plot_engine == 'pycwr':
+            elif plot_engine == 'pycwr' and HAS_PYCWR:
                 plot_instance = PycwrRadop('ppi',simulated_sweep)
+            else:
+                print('Specified radar plot engine not installed, aborting...')
+                plot_instance = None
 
             return plot_instance
 
@@ -543,10 +555,13 @@ class RadarOperator(object):
         'ranges':rranges,'pos_time':self.get_pos_and_time(),
         'data':list_sweeps}
 
-        if plot_engine == 'pyart':
+        if plot_engine == 'pyart' and HAS_PYART:
             plot_instance = PyartRadop('ppi',simulated_sweep)
-        elif plot_engine == 'pycwr':
+        elif plot_engine == 'pycwr' and HAS_PYCWR:
             plot_instance = PycwrRadop('ppi',simulated_sweep)
+        else:
+            print('Specified radar plot engine not installed, aborting...')
+            plot_instance = None
 
         return plot_instance
 
@@ -648,10 +663,13 @@ class RadarOperator(object):
             'ranges':rranges,'pos_time':self.get_pos_and_time(),
             'data':list_sweeps}
 
-            if plot_engine == 'pyart':
+            if plot_engine == 'pyart' and HAS_PYART:
                 plot_instance = PyartRadop('rhi',simulated_sweep)
-            elif plot_engine == 'pycwr':
+            elif plot_engine == 'pycwr' and HAS_PYCWR:
                 plot_instance = PycwrRadop('rhi',simulated_sweep)
+            else:
+                print('Specified radar plot engine not installed, aborting...')
+                plot_instance = None
 
             return plot_instance
 

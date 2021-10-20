@@ -3,7 +3,7 @@
 @Author: Hejun Xie
 @Date: 2020-07-16 09:53:33
 LastEditors: Hejun Xie
-LastEditTime: 2021-06-23 19:46:45
+LastEditTime: 2021-10-20 20:12:15
 '''
 
 # Global import
@@ -98,7 +98,7 @@ class ConstantClass(object):
         '''
 
         # 1. Numerical parameters
-        self.EPS = np.finfo(np.float).eps
+        self.EPS = np.finfo(float).eps
         self.SIMULATED_VARIABLES = ['ZH','DSPECTRUM','RVEL','ZV','PHIDP',
                                     'ZDR','RHOHV','KDP','SW']
         self.QM_THRESHOLD = 1E-15
