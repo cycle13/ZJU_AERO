@@ -8,3 +8,5 @@ include example/option_files/*.yml
 include doc/Software_Scheme.png
 include doc/User_Guide-ZJU_AERO-0.1.4.pdf
 include test/obs_graph/ChinaProvince/*
+include test/mdl_graph/*.py
+include test/obs_graph/*.py
