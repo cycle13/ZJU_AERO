@@ -3,7 +3,7 @@
  * @Author: Hejun Xie
  * @Date: 2020-04-06 20:52:07
  * @LastEditors: Hejun Xie
- * @LastEditTime: 2021-10-21 20:34:14
+ * @LastEditTime: 2021-10-21 20:37:56
  -->
 # ZJU_AERO (Accurate and Efficient Radar Operator)
 Supports state of the art simulations of dual-polarimetric radar observable varibales.
@@ -77,13 +77,13 @@ Take WRF as example, we place the wrfout file for test cases under directory:
     $ python ppi.py
     ```
 
-    * Plotted PPI Scan `Reflectivity` $Z_{H}$
+    * Plotted PPI Scan `Reflectivity` $`Z_{H}`$
     ![avatar](pictures/test_ppi_ZH.png)
 
-    * Plotted PPI Scan `Differential Reflectivity` $Z_{DR}$
+    * Plotted PPI Scan `Differential Reflectivity` $`Z_{DR}`$
     ![avatar](pictures/test_ppi_ZDR.png)
 
-    * Plotted PPI Scan `Radial Velocity` $V_{r}$
+    * Plotted PPI Scan `Radial Velocity` $`V_{r}`$
     ![avatar](pictures/test_ppi_RVEL.png)
 
 * **Example2: RHI Scan Simulation**  
@@ -100,13 +100,13 @@ Take WRF as example, we place the wrfout file for test cases under directory:
     $ python rhi.py
     ```
 
-    * Plotted RHI Scan `Reflectivity` $Z_{H}$
+    * Plotted RHI Scan `Reflectivity` $`Z_{H}`$
     ![avatar](pictures/test_rhi_ZH.png)
 
-    * Plotted RHI Scan `Differential Reflectivity` $Z_{DR}$
+    * Plotted RHI Scan `Differential Reflectivity` $`Z_{DR}`$
     ![avatar](pictures/test_rhi_ZDR.png)
 
-    * Plotted RHI Scan `Radial Velocity` $V_{r}$
+    * Plotted RHI Scan `Radial Velocity` $`V_{r}`$
     ![avatar](pictures/test_rhi_RVEL.png)
 
 * **Example3: Spaceborne Scan Simulation**  
@@ -123,16 +123,16 @@ Take WRF as example, we place the wrfout file for test cases under directory:
     $ python spaceborne.py
     ```
 
-    * Simulated Spaceborne Scan `Reflectivity` $Z_{H}$ at 0km altitude
+    * Simulated Spaceborne Scan `Reflectivity` $`Z_{H}`$ at 0km altitude
     ![avatar](pictures/test_spaceborne_0km.png)
 
-    * Observed Spaceborne Scan `Reflectivity` $Z_{H}$ at 8km altitude
+    * Observed Spaceborne Scan `Reflectivity` $`Z_{H}`$ at 8km altitude
     ![avatar](pictures/gpm_dpr_swath_0km.png)
 
-    * Simulated Spaceborne Scan `Reflectivity` $Z_{H}$ at 0km altitude
+    * Simulated Spaceborne Scan `Reflectivity` $`Z_{H}`$ at 0km altitude
     ![avatar](pictures/test_spaceborne_8km.png)
 
-    * Observed Spaceborne Scan `Reflectivity` $Z_{H}$ at 8km altitude
+    * Observed Spaceborne Scan `Reflectivity` $`Z_{H}`$ at 8km altitude
     ![avatar](pictures/gpm_dpr_swath_8km.png)
 
 For more Details and examples, please read [User_Guide](doc/User_Guide-ZJU_AERO-0.1.4.pdf) 
