@@ -5,8 +5,8 @@ include tools/*.py
 include tools/db.yaml
 include example/*.py
 include example/option_files/*.yml
+include example/ChinaProvince/*
 include doc/Software_Scheme.png
 include doc/User_Guide-ZJU_AERO-0.1.4.pdf
-include test/obs_graph/ChinaProvince/*
 include test/mdl_graph/*.py
 include test/obs_graph/*.py

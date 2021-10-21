@@ -3,11 +3,12 @@
  * @Author: Hejun Xie
  * @Date: 2020-04-06 20:52:07
  * @LastEditors: Hejun Xie
- * @LastEditTime: 2021-10-21 16:23:33
+ * @LastEditTime: 2021-10-21 20:32:23
  -->
-# ZJU_AERO
-Accurate and Efficient Radar Operator, developed by ZJU - Lei-Bi Lab.  
+# ZJU_AERO (Accurate and Efficient Radar Operator)
 Supports state of the art simulations of dual-polarimetric radar observable varibales.
+
+ - [Developers and contributors](CONTRIBUTORS.txt)
 
 ## Install
 ### 1. Install SWIG
@@ -61,3 +62,85 @@ Take WRF as example, we place the wrfout file for test cases under directory:
 ```
     ZJU_AERO_<x.y.z>/pathos/WRF/thompson/wrfout_xxxx.nc
 ```
+
+* **Example1: PPI Scan Simulation**  
+    * Test Script: `example/ppi.py`
+    * User Option File: `exmple/option_files/example.yml`
+    * WRF Model File: `pathos/WRF/thompson/wrfout_d02_2021-08-08_00_00_00`
+    * LUT for Grauel, Cloud Ice, Snow and Rain: 
+      * `pathos/lut/tm_masc_release/lut_SZ_G_9_41_1mom_LevelB.nc`
+      * `pathos/lut/tm_masc_release/lut_SZ_I_9_41_1mom_LevelB.nc`
+      * `pathos/lut/tm_masc_release/lut_SZ_S_9_41_1mom_LevelB.nc`
+      * `pathos/lut/tm_masc_release/lut_SZ_R_9_41_1mom_LevelB.nc`
+    ```
+    $ cd example
+    $ python ppi.py
+    ```
+
+    * Plotted PPI Scan `Reflectivity` $Z_{H}$
+    ![avatar](pictures/test_ppi_zh.png)
+
+    * Plotted PPI Scan `Differential Reflectivity` $Z_{DR}$
+    ![avatar](pictures/test_ppi_zdr.png)
+
+    * Plotted PPI Scan `Radial Velocity` $V_{r}$
+    ![avatar](pictures/test_ppi_rvel.png)
+
+* **Example2: RHI Scan Simulation**  
+    * Test Script: `example/rhi.py`
+    * User Option File: `exmple/option_files/example.yml`
+    * WRF Model File: `pathos/WRF/thompson/wrfout_d02_2021-08-08_00_00_00`
+    * LUT for Grauel, Cloud Ice, Snow and Rain: 
+      * `pathos/lut/tm_masc_release/lut_SZ_G_9_41_1mom_LevelB.nc`
+      * `pathos/lut/tm_masc_release/lut_SZ_I_9_41_1mom_LevelB.nc`
+      * `pathos/lut/tm_masc_release/lut_SZ_S_9_41_1mom_LevelB.nc`
+      * `pathos/lut/tm_masc_release/lut_SZ_R_9_41_1mom_LevelB.nc`
+    ```
+    $ cd example
+    $ python rhi.py
+    ```
+
+    * Plotted RHI Scan `Reflectivity` $Z_{H}$
+    ![avatar](pictures/test_rhi_zh.png)
+
+    * Plotted RHI Scan `Differential Reflectivity` $Z_{DR}$
+    ![avatar](pictures/test_rhi_zdr.png)
+
+    * Plotted RHI Scan `Radial Velocity` $V_{r}$
+    ![avatar](pictures/test_rhi_rvel.png)
+
+* **Example3: Spaceborne Scan Simulation**  
+    * Test Script: `example/spaceborne.py`
+    * User Option File: `exmple/option_files/example_spaceborne.yml`
+    * WRF Model File: `pathos/GRAPES/typhoon_haishen_20200905/modelvar202009050000900.nc`
+    * LUT for Grauel, Cloud Ice, Snow and Rain: 
+      * `pathos/lut/tm_masc_release/lut_SZ_G_13_6_1mom_LevelB.nc`
+      * `pathos/lut/tm_masc_release/lut_SZ_I_13_6_1mom_LevelB.nc`
+      * `pathos/lut/tm_masc_release/lut_SZ_S_13_6_1mom_LevelB.nc`
+      * `pathos/lut/tm_masc_release/lut_SZ_R_13_6_1mom_LevelB.nc`
+    ```
+    $ cd example
+    $ python spaceborne.py
+    ```
+
+    * Simulated Spaceborne Scan `Reflectivity` $Z_{H}$ at 0km altitude
+    ![avatar](pictures/test_spaceborne_0km.png)
+
+    * Observed Spaceborne Scan `Reflectivity` $Z_{H}$ at 8km altitude
+    ![avatar](pictures/gpm_dpr_swath_0km.png)
+
+    * Simulated Spaceborne Scan `Reflectivity` $Z_{H}$ at 0km altitude
+    ![avatar](pictures/test_spaceborne_8km.png)
+
+    * Observed Spaceborne Scan `Reflectivity` $Z_{H}$ at 8km altitude
+    ![avatar](pictures/gpm_dpr_swath_8km.png)
+
+For more Details and examples, please read [User_Guide](doc/User_Guide-ZJU_AERO-0.1.4.pdf) 
+
+Project development plan
+----------
+
+- [ ] Melted Ice simulation
+- [x] Thompson Microphysics constants
+- [ ] Online Documentation
+ 

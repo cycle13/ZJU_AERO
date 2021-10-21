@@ -1,8 +1,8 @@
 # Spaceborne Radar with no fixed coords, no need to apply it 
 radar:
     type: 'spaceborne'
-    frequency: 35.6
-    radial_resolution: 250
+    frequency: 13.6
+    radial_resolution: 125
     sensitivity: 12
     3dB_beamwidth: 0.5
 refraction:
@@ -12,11 +12,13 @@ integration:
     scheme: 1
     nh_GH: 1
     nv_GH: 1
+nwp:
+    name: 'grapes'
 core:
     engine: 'rdop'
 microphysics:
     scheme: '1mom'
     folder_lut: '../pathos/lut/'
-    scattering: 'tmatrix_masc'
+    scattering: 'tm_masc_release'
     with_attenuation: 1
     with_ice_crystals: 1
