@@ -1,0 +1,10 @@
+include environment.yml
+include test/*.py
+include test/option_files/*.yml
+include tools/*.py
+include tools/db.yaml
+include example/*.py
+include example/option_files/*.yml
+include doc/Software_Scheme.png
+include doc/User_Guide-ZJU_AERO-0.1.4.pdf
+include test/obs_graph/ChinaProvince/*
