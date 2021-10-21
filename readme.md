@@ -3,7 +3,7 @@
  * @Author: Hejun Xie
  * @Date: 2020-04-06 20:52:07
  * @LastEditors: Hejun Xie
- * @LastEditTime: 2021-10-21 20:32:23
+ * @LastEditTime: 2021-10-21 20:34:14
  -->
 # ZJU_AERO (Accurate and Efficient Radar Operator)
 Supports state of the art simulations of dual-polarimetric radar observable varibales.
@@ -78,13 +78,13 @@ Take WRF as example, we place the wrfout file for test cases under directory:
     ```
 
     * Plotted PPI Scan `Reflectivity` $Z_{H}$
-    ![avatar](pictures/test_ppi_zh.png)
+    ![avatar](pictures/test_ppi_ZH.png)
 
     * Plotted PPI Scan `Differential Reflectivity` $Z_{DR}$
-    ![avatar](pictures/test_ppi_zdr.png)
+    ![avatar](pictures/test_ppi_ZDR.png)
 
     * Plotted PPI Scan `Radial Velocity` $V_{r}$
-    ![avatar](pictures/test_ppi_rvel.png)
+    ![avatar](pictures/test_ppi_RVEL.png)
 
 * **Example2: RHI Scan Simulation**  
     * Test Script: `example/rhi.py`
@@ -101,13 +101,13 @@ Take WRF as example, we place the wrfout file for test cases under directory:
     ```
 
     * Plotted RHI Scan `Reflectivity` $Z_{H}$
-    ![avatar](pictures/test_rhi_zh.png)
+    ![avatar](pictures/test_rhi_ZH.png)
 
     * Plotted RHI Scan `Differential Reflectivity` $Z_{DR}$
-    ![avatar](pictures/test_rhi_zdr.png)
+    ![avatar](pictures/test_rhi_ZDR.png)
 
     * Plotted RHI Scan `Radial Velocity` $V_{r}$
-    ![avatar](pictures/test_rhi_rvel.png)
+    ![avatar](pictures/test_rhi_RVEL.png)
 
 * **Example3: Spaceborne Scan Simulation**  
     * Test Script: `example/spaceborne.py`
