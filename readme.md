@@ -3,7 +3,7 @@
  * @Author: Hejun Xie
  * @Date: 2020-04-06 20:52:07
  * @LastEditors: Hejun Xie
- * @LastEditTime: 2021-10-21 20:42:35
+ * @LastEditTime: 2021-10-21 20:44:57
  -->
 # ZJU_AERO (Accurate and Efficient Radar Operator)
 Supports state of the art simulations of dual-polarimetric radar observable varibales.
@@ -63,8 +63,6 @@ Take WRF as example, we place the wrfout file for test cases under directory:
     ZJU_AERO_<x.y.z>/pathos/WRF/thompson/wrfout_xxxx.nc
 ```
 
-$`\sqrt{2}`$
-
 * **Example1: PPI Scan Simulation**  
     * Test Script: `example/ppi.py`
     * User Option File: `exmple/option_files/example.yml`
@@ -79,7 +77,10 @@ $`\sqrt{2}`$
     $ python ppi.py
     ```
 
-    * Plotted PPI Scan `Reflectivity` $`Z_{H}`$
+    * Plotted PPI Scan `Reflectivity`
+    ```math
+    Z_{H}
+    ```
     ![avatar](pictures/test_ppi_ZH.png)
 
     * Plotted PPI Scan `Differential Reflectivity` $Z_{DR}$
